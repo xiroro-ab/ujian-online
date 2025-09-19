@@ -1,0 +1,1815 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMP58 CBT Application</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/showdown@2.1.0/dist/showdown.min.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .page { display: none; }
+        .active-page { display: block; }
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 40;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 50;
+        }
+        .question-option.selected {
+            background-color: #3b82f6; /* bg-blue-500 */
+            color: white;
+            border-color: #2563eb; /* border-blue-700 */
+        }
+        .question-nav-item {
+            border: 1px solid #d1d5db;
+        }
+        .question-nav-item.answered {
+            background-color: #22c55e; /* bg-green-500 */
+            color: white;
+        }
+        .question-nav-item.flagged {
+            background-color: #f59e0b; /* bg-amber-500 */
+            color: white;
+        }
+        .question-nav-item.current {
+            background-color: #3b82f6; /* bg-blue-500 */
+            color: white;
+            border-width: 2px;
+            border-color: #1d4ed8; /* border-blue-800 */
+        }
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #print-area, #print-area * {
+                visibility: visible;
+            }
+            #print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Header Utama -->
+    <header class="bg-blue-600 text-white shadow-md sticky top-0 z-30">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <img src="https://iili.io/3v0QPJ1.png" alt="Logo SMP58" class="h-10 w-10">
+                <h1 class="text-xl md:text-2xl font-bold">SMP58 CBT Application</h1>
+            </div>
+            <div id="user-info" class="hidden items-center space-x-4">
+                <span id="user-name-display" class="font-semibold"></span>
+                <button id="logout-button" class="bg-red-500 hover:bg-red-600 px-3 py-1.5 rounded-md text-sm font-medium transition-colors">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-6">
+        <!-- Halaman Awal Pemilihan Peran -->
+        <div id="landing-page" class="page active-page">
+            <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl mt-10">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Selamat Datang</h2>
+                    <p class="text-center text-gray-600 mb-8">Silakan pilih peran Anda untuk melanjutkan.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <button id="show-teacher-login" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-4 rounded-lg transition-transform transform hover:scale-105">
+                            Dasbor Guru
+                        </button>
+                        <button id="show-student-token" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-4 rounded-lg transition-transform transform hover:scale-105">
+                            Mulai Ujian (Siswa)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Halaman Login Guru -->
+        <div id="teacher-login-page" class="page">
+            <div class="max-w-md mx-auto mt-10">
+                <form id="teacher-login-form" class="bg-white p-8 rounded-xl shadow-lg">
+                    <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">Login Guru</h2>
+                     <p class="text-center text-gray-500 mb-6 text-sm">Gunakan `admin` untuk username dan password untuk demo.</p>
+                    <div id="login-error-message" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert"></div>
+                    <div class="mb-4">
+                        <label for="username" class="block text-gray-700 font-medium mb-2">Username</label>
+                        <input type="text" id="username" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div class="mb-6">
+                        <label for="password" class="block text-gray-700 font-medium mb-2">Password</label>
+                        <input type="password" id="password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">Login</button>
+                    <button type="button" class="back-to-landing w-full mt-4 text-gray-600 hover:text-blue-500 font-medium py-2 px-4 rounded-lg">Kembali</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Halaman Input Token Siswa -->
+        <div id="student-token-page" class="page">
+             <div class="max-w-lg mx-auto mt-10">
+                <form id="student-token-form" class="bg-white p-8 rounded-xl shadow-lg">
+                    <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">Mulai Ujian</h2>
+                    <div id="token-error-message" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert"></div>
+                    <div class="mb-4">
+                        <label for="student-class" class="block text-gray-700 font-medium mb-2">1. Pilih Kelas</label>
+                        <select id="student-class" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                            <option value="">Pilih Kelas Anda...</option>
+                            <!-- Opsi kelas akan di-generate oleh JS -->
+                        </select>
+                    </div>
+                     <div class="mb-4">
+                        <label for="student-id-select" class="block text-gray-700 font-medium mb-2">2. Pilih Nama Anda</label>
+                        <select id="student-id-select" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required disabled>
+                            <option value="">Pilih nama setelah memilih kelas...</option>
+                        </select>
+                    </div>
+                    <div class="mb-6">
+                        <label for="exam-token" class="block text-gray-700 font-medium mb-2">3. Masukkan Token Ujian</label>
+                        <input type="text" id="exam-token" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">Mulai Ujian</button>
+                    <button type="button" class="back-to-landing w-full mt-4 text-gray-600 hover:text-blue-500 font-medium py-2 px-4 rounded-lg">Kembali</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Dasbor Guru -->
+        <div id="teacher-dashboard-page" class="page">
+            <div class="flex space-x-4 border-b-2 border-gray-200 mb-6">
+                <button class="dashboard-tab py-2 px-4 text-gray-600 font-semibold" data-target="dashboard-home-view">Home</button>
+                <button class="dashboard-tab py-2 px-4 text-gray-600 font-semibold" data-target="student-management-view">Manajemen Siswa</button>
+                <button class="dashboard-tab py-2 px-4 text-gray-600 font-semibold" data-target="subject-management-view">Manajemen Mapel</button>
+            </div>
+
+            <div id="dashboard-views">
+                <!-- Home View -->
+                <div id="dashboard-home-view" class="dashboard-view">
+                    <h2 class="text-3xl font-bold mb-4">Selamat Datang di Dasbor Guru</h2>
+                    <p class="text-gray-700">Gunakan navigasi di atas untuk mengelola data siswa, mata pelajaran, soal, dan hasil ujian.</p>
+                </div>
+                
+                <!-- Manajemen Siswa View -->
+                <div id="student-management-view" class="dashboard-view hidden">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold">Manajemen Siswa</h2>
+                        <button id="add-student-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">Tambah Siswa</button>
+                    </div>
+                    <div class="mb-4">
+                        <label for="filter-student-class" class="mr-2">Filter Kelas:</label>
+                        <select id="filter-student-class" class="p-2 border rounded-md"></select>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-md overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="border-b">
+                                    <th class="p-2">ID Siswa</th>
+                                    <th class="p-2">Nama Siswa</th>
+                                    <th class="p-2">Kelas</th>
+                                    <th class="p-2">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="students-table-body">
+                                <!-- Data siswa akan diisi oleh JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Manajemen Mata Pelajaran View -->
+                <div id="subject-management-view" class="dashboard-view hidden">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold">Manajemen Mata Pelajaran</h2>
+                        <button id="add-subject-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">Tambah Mapel</button>
+                    </div>
+                    <div id="subjects-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Kartu mapel akan diisi oleh JS -->
+                    </div>
+                </div>
+
+                <!-- Manajemen Soal, Token, Hasil (sub-views) -->
+                <div id="subject-detail-view" class="dashboard-view hidden">
+                    <button id="back-to-subjects" class="mb-4 bg-gray-500 text-white py-2 px-4 rounded-lg">&larr; Kembali ke Daftar Mapel</button>
+                    <h2 id="subject-detail-title" class="text-3xl font-bold mb-2"></h2>
+                    <div class="flex space-x-4 border-b-2 border-gray-200 mb-6">
+                        <button class="subject-detail-tab py-2 px-4 text-gray-600 font-semibold" data-target="question-management-view">Soal</button>
+                        <button class="subject-detail-tab py-2 px-4 text-gray-600 font-semibold" data-target="token-management-view">Token</button>
+                        <button class="subject-detail-tab py-2 px-4 text-gray-600 font-semibold" data-target="results-management-view">Hasil Ujian</button>
+                    </div>
+
+                    <!-- Question Management -->
+                    <div id="question-management-view" class="subject-detail-content">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xl font-bold">Manajemen Soal</h3>
+                            <button id="add-question-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg">Tambah Soal</button>
+                        </div>
+                        <div id="questions-container" class="space-y-4">
+                            <!-- Daftar soal akan diisi oleh JS -->
+                        </div>
+                    </div>
+
+                    <!-- Token Management -->
+                    <div id="token-management-view" class="subject-detail-content hidden">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xl font-bold">Manajemen Token</h3>
+                            <button id="generate-token-btn" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-lg">Buat Token Baru</button>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-md overflow-x-auto">
+                           <table class="w-full text-left">
+                                <thead>
+                                    <tr class="border-b">
+                                        <th class="p-2">Token</th>
+                                        <th class="p-2">Kelompok Kelas</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tokens-table-body">
+                                    <!-- Daftar token akan diisi oleh JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Results Management -->
+                    <div id="results-management-view" class="subject-detail-content hidden">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xl font-bold">Hasil Ujian</h3>
+                             <button id="print-results-btn" class="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg">Cetak Nilai</button>
+                        </div>
+                         <div class="mb-4">
+                            <label for="filter-result-class" class="mr-2">Filter Kelas:</label>
+                            <select id="filter-result-class" class="p-2 border rounded-md"></select>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-md overflow-x-auto">
+                            <table class="w-full text-left" id="results-table">
+                                <thead>
+                                    <tr class="border-b">
+                                        <th class="p-2">Nama Siswa</th>
+                                        <th class="p-2">Kelas</th>
+                                        <th class="p-2">Skor</th>
+                                        <th class="p-2">Waktu Selesai</th>
+                                        <th class="p-2">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="results-table-body">
+                                    <!-- Hasil ujian akan diisi oleh JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Halaman Ujian Siswa -->
+        <div id="exam-page" class="page">
+            <div class="fixed top-16 left-0 right-0 bg-white shadow-md z-20">
+                <div class="container mx-auto px-4 py-2 flex justify-between items-center">
+                    <div>
+                        <h2 id="exam-subject-title" class="text-xl font-bold"></h2>
+                        <p id="exam-student-info" class="text-sm text-gray-600"></p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-gray-700">Sisa Waktu:</p>
+                        <div id="exam-timer" class="text-2xl font-bold text-red-500">00:00:00</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-6 pt-20">
+                <!-- Soal Ujian -->
+                <div class="w-full md:w-3/4">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <div class="mb-4">
+                            <span class="font-semibold">Soal #<span id="question-number">1</span></span> - 
+                            <span id="question-type-display" class="italic text-gray-600"></span>
+                        </div>
+                        <div id="question-media-container" class="mb-4"></div>
+                        <div id="question-text" class="text-lg leading-relaxed mb-6"></div>
+                        <div id="answer-area" class="space-y-3"></div>
+                    </div>
+                    <div class="mt-6 flex justify-between items-center">
+                        <button id="prev-question-btn" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded-lg">Sebelumnya</button>
+                        <button id="flag-question-btn" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-6 rounded-lg">Ragu-ragu</button>
+                        <button id="next-question-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg">Selanjutnya</button>
+                    </div>
+                </div>
+                <!-- Navigasi Soal -->
+                <div class="w-full md:w-1/4">
+                    <div class="bg-white p-4 rounded-lg shadow-md">
+                        <h3 class="font-bold mb-4 text-center">Daftar Soal</h3>
+                        <div id="question-navigation" class="grid grid-cols-5 gap-2">
+                           <!-- Navigasi nomor soal akan diisi oleh JS -->
+                        </div>
+                        <button id="finish-exam-btn" class="w-full mt-6 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg">Selesai Ujian</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Halaman Hasil Ujian Siswa -->
+        <div id="exam-result-page" class="page">
+             <div class="max-w-lg mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl mt-10">
+                <div class="p-8 text-center">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-4">Ujian Selesai!</h2>
+                    <p class="text-gray-600 mb-6">Terima kasih telah menyelesaikan ujian. Berikut adalah hasil Anda:</p>
+                    <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg mb-8">
+                        <p class="text-lg">Skor Akhir Anda:</p>
+                        <p id="final-score" class="text-5xl font-extrabold"></p>
+                    </div>
+                    <button id="back-to-home-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors">Kembali ke Halaman Utama</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+    
+    <!-- Modal dan Overlay -->
+    <div id="modal-backdrop" class="modal-backdrop"></div>
+    <div id="main-modal" class="modal w-11/12 md:max-w-2xl bg-white rounded-lg shadow-xl">
+        <div class="p-6">
+            <div class="flex justify-between items-center border-b pb-3 mb-4">
+                <h3 id="modal-title" class="text-2xl font-bold">Modal Title</h3>
+                <button id="close-modal-btn" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            </div>
+            <div id="modal-body" class="max-h-[70vh] overflow-y-auto pr-2">
+                <!-- Konten modal akan diisi oleh JS -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loading Spinner -->
+    <div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500"></div>
+    </div>
+    
+    <!-- Print Area -->
+    <div id="print-area" class="hidden"></div>
+
+
+    <script>
+        // --- CONFIGURATION ---
+        const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby5aUf4uVRVxadDLYpTmMWi4Zc0jqVzU9I48PTccFmBZ47L_SCLrk8QqyecV13j6GYKfg/exec';
+
+        // --- GLOBAL STATE ---
+        let state = {
+            currentPage: 'landing-page',
+            currentUser: null,
+            students: [],
+            subjects: [],
+            currentSubject: null,
+            questions: [],
+            tokens: [],
+            results: [],
+            exam: {
+                data: null,
+                answers: [],
+                currentQuestionIndex: 0,
+                timerInterval: null,
+                startTime: null
+            },
+        };
+        const mdConverter = new showdown.Converter();
+        
+        // --- DOM ELEMENTS ---
+        const pages = document.querySelectorAll('.page');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const userInfo = document.getElementById('user-info');
+        const userNameDisplay = document.getElementById('user-name-display');
+
+        // --- API HELPER ---
+        async function callAppsScript(action, payload = {}) {
+            loadingOverlay.classList.remove('hidden');
+            try {
+                const response = await fetch(GAS_WEB_APP_URL, {
+                    method: 'POST',
+                    redirect: 'follow',
+                    body: JSON.stringify({ action, payload }),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                if (result.status === 'error') {
+                    throw new Error(result.message);
+                }
+                
+                return result.data;
+            } catch (error) {
+                console.error('Error calling Apps Script:', error);
+                let userMessage = error.message;
+                
+                if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+                    userMessage = 'Gagal terhubung ke server. Ini kemungkinan besar disebabkan oleh masalah konfigurasi pada Google Apps Script. Mohon pastikan Anda telah melakukan "Deploy" > "New deployment" dan mengatur "Who has access" ke "Anyone". Periksa juga koneksi internet Anda.';
+                }
+
+                const loginErrorDiv = document.getElementById('login-error-message');
+                const tokenErrorDiv = document.getElementById('token-error-message');
+                const modalErrorDiv = document.querySelector('#main-modal #form-error-message');
+
+                if (state.currentPage === 'teacher-login-page' && loginErrorDiv) {
+                    loginErrorDiv.textContent = userMessage;
+                    loginErrorDiv.classList.remove('hidden');
+                } else if (state.currentPage === 'student-token-page' && tokenErrorDiv) {
+                    tokenErrorDiv.textContent = userMessage;
+                    tokenErrorDiv.classList.remove('hidden');
+                } else if (modalErrorDiv && mainModal.style.display === 'block') {
+                    modalErrorDiv.textContent = userMessage;
+                    modalErrorDiv.classList.remove('hidden');
+                } else {
+                    alert(userMessage);
+                }
+                return null;
+            } finally {
+                loadingOverlay.classList.add('hidden');
+            }
+        }
+        
+        // --- PAGE NAVIGATION ---
+        function showPage(pageId) {
+            pages.forEach(page => {
+                page.classList.remove('active-page');
+            });
+            document.getElementById(pageId).classList.add('active-page');
+            state.currentPage = pageId;
+            window.scrollTo(0, 0);
+
+            // Handle header visibility
+            if (pageId === 'teacher-login-page' || pageId === 'student-token-page' || pageId === 'landing-page') {
+                userInfo.classList.add('hidden');
+            } else {
+                 userInfo.classList.remove('hidden');
+                 userNameDisplay.textContent = state.currentUser?.username || state.exam.data?.studentName || '';
+            }
+            
+            if(pageId === 'exam-page') {
+                document.querySelector('main').classList.remove('p-4', 'md:p-6');
+            } else {
+                document.querySelector('main').classList.add('p-4', 'md:p-6');
+            }
+
+            if (pageId === 'student-token-page') {
+                prepareStudentTokenPage();
+            }
+        }
+        
+        // --- UTILITIES ---
+        function generateClassOptions(selectElementId) {
+            const select = document.getElementById(selectElementId);
+            if (!select) return;
+            const currentVal = select.value;
+            select.innerHTML = `<option value="">Pilih Kelas Anda...</option>`;
+            for (let i = 7; i <= 9; i++) {
+                for (let j = 1; j <= 4; j++) {
+                    const classValue = `${i}.${j}`;
+                    select.innerHTML += `<option value="${classValue}">Kelas ${classValue}</option>`;
+                }
+            }
+            select.value = currentVal;
+        }
+        
+        function formatDuration(minutes) {
+            const h = Math.floor(minutes / 60);
+            const m = minutes % 60;
+            return `${h > 0 ? h + ' jam ' : ''}${m} menit`;
+        }
+
+        function formatTimestamp(isoString) {
+            if (!isoString) return '-';
+            return new Date(isoString).toLocaleString('id-ID', {
+                day: '2-digit', month: 'short', year: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            });
+        }
+        
+        // --- MODAL HANDLING ---
+        const modalBackdrop = document.getElementById('modal-backdrop');
+        const mainModal = document.getElementById('main-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalBody = document.getElementById('modal-body');
+        
+        function openModal(title, content) {
+            modalTitle.textContent = title;
+            modalBody.innerHTML = content;
+            modalBackdrop.style.display = 'block';
+            mainModal.style.display = 'block';
+        }
+
+        function closeModal() {
+            modalBackdrop.style.display = 'none';
+            mainModal.style.display = 'none';
+            modalBody.innerHTML = '';
+        }
+        
+        document.getElementById('close-modal-btn').addEventListener('click', closeModal);
+        modalBackdrop.addEventListener('click', closeModal);
+        
+        
+        // --- TEACHER: LOGIN & DASHBOARD ---
+        document.getElementById('teacher-login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            document.getElementById('login-error-message').classList.add('hidden');
+            
+            const user = await callAppsScript('login', { username, password });
+            if (user) {
+                state.currentUser = user;
+                await loadTeacherDashboard();
+            }
+        });
+        
+        async function loadTeacherDashboard() {
+            showPage('teacher-dashboard-page');
+            document.querySelector('.dashboard-tab[data-target="dashboard-home-view"]').click();
+            // OPTIMIZATION: Fetch all primary data at once
+            const [students, subjects] = await Promise.all([
+                callAppsScript('getStudents'),
+                callAppsScript('getSubjects')
+            ]);
+            
+            if (students) {
+                state.students = students;
+                renderStudentsTable();
+                populateClassFilter('filter-student-class', renderStudentsTable, state.students);
+            }
+            if (subjects) {
+                state.subjects = subjects;
+                renderSubjectsList();
+            }
+        }
+
+        // --- TEACHER: STUDENT MANAGEMENT ---
+        async function loadStudents(forceRefetch = false) {
+             if (state.students.length > 0 && !forceRefetch) {
+                renderStudentsTable();
+                populateClassFilter('filter-student-class', renderStudentsTable, state.students);
+                return;
+            }
+            const students = await callAppsScript('getStudents');
+            if (students) {
+                state.students = students;
+                renderStudentsTable();
+                populateClassFilter('filter-student-class', renderStudentsTable, state.students);
+            }
+        }
+        
+        function renderStudentsTable() {
+            const tableBody = document.getElementById('students-table-body');
+            const filterValue = document.getElementById('filter-student-class').value;
+            tableBody.innerHTML = '';
+            
+            const filteredStudents = filterValue ? state.students.filter(s => String(s.class) === filterValue) : state.students;
+
+            if (filteredStudents.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="4" class="text-center p-4">Tidak ada data siswa.</td></tr>';
+                return;
+            }
+            
+            filteredStudents.forEach(student => {
+                if (typeof student.id === 'undefined' || typeof student.name === 'undefined') {
+                    console.warn('Data siswa tidak valid, periksa header di Google Sheet "Students".', student);
+                    return;
+                }
+                const row = `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="p-2">${student.id}</td>
+                        <td class="p-2">${student.name}</td>
+                        <td class="p-2">${student.class}</td>
+                        <td class="p-2 flex space-x-2">
+                            <button class="edit-student-btn text-blue-500 hover:underline" data-id="${student.id}">Edit</button>
+                            <button class="delete-student-btn text-red-500 hover:underline" data-id="${student.id}">Hapus</button>
+                        </td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+        }
+        
+        document.getElementById('add-student-btn').addEventListener('click', () => showStudentForm());
+        
+        document.getElementById('students-table-body').addEventListener('click', e => {
+            const studentId = e.target.dataset.id;
+            if (!studentId) return;
+
+            if (e.target.classList.contains('edit-student-btn')) {
+                const student = state.students.find(s => s.id === studentId);
+                if(student) showStudentForm(student);
+            }
+            if (e.target.classList.contains('delete-student-btn')) {
+                deleteStudent(studentId);
+            }
+        });
+        
+        function showStudentForm(student = null) {
+            const isEdit = student !== null;
+            const title = isEdit ? 'Edit Siswa' : 'Tambah Siswa';
+            const content = `
+                <form id="student-form">
+                    <div id="form-error-message" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert"></div>
+                    <input type="hidden" id="student-id" value="${isEdit ? student.id : ''}">
+                    <div class="mb-4">
+                        <label for="form-student-name" class="block mb-1">Nama Siswa</label>
+                        <input type="text" id="form-student-name" value="${isEdit ? student.name : ''}" class="w-full p-2 border rounded-md" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="form-student-class" class="block mb-1">Kelas</label>
+                        <select id="form-student-class" class="w-full p-2 border rounded-md" required>
+                           <!-- Opsi akan diisi JS -->
+                        </select>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded-md">${isEdit ? 'Simpan Perubahan' : 'Tambah Siswa'}</button>
+                </form>
+            `;
+            openModal(title, content);
+            generateClassOptions('form-student-class');
+            if (isEdit) {
+                 document.getElementById('form-student-class').value = student.class;
+            }
+            
+            document.getElementById('student-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                document.getElementById('form-error-message').classList.add('hidden');
+                
+                const payload = {
+                    id: document.getElementById('student-id').value,
+                    name: document.getElementById('form-student-name').value,
+                    class: document.getElementById('form-student-class').value
+                };
+                const result = await callAppsScript('saveStudent', payload);
+                if (result) {
+                    closeModal();
+                    await loadStudents(true); // Force refetch
+                }
+            });
+        }
+
+        async function deleteStudent(studentId) {
+            if (confirm('Apakah Anda yakin ingin menghapus siswa ini?')) {
+                const result = await callAppsScript('deleteStudent', { id: studentId });
+                if (result) {
+                    await loadStudents(true); // Force refetch
+                }
+            }
+        }
+        
+        // --- TEACHER: SUBJECT MANAGEMENT ---
+        async function loadSubjects(forceRefetch = false) {
+            if(state.subjects.length > 0 && !forceRefetch) {
+                renderSubjectsList();
+                return;
+            }
+            const subjects = await callAppsScript('getSubjects');
+            if (subjects) {
+                state.subjects = subjects;
+                renderSubjectsList();
+            }
+        }
+        
+        function renderSubjectsList() {
+            const list = document.getElementById('subjects-list');
+            list.innerHTML = '';
+             if (state.subjects.length === 0) {
+                list.innerHTML = '<p class="text-center text-gray-500 col-span-full">Belum ada mata pelajaran. Silakan tambahkan.</p>';
+                return;
+            }
+            state.subjects.forEach(subject => {
+                if (typeof subject.id === 'undefined' || typeof subject.name === 'undefined') {
+                    console.warn('Data mapel tidak valid, periksa header di Google Sheet "Subjects".', subject);
+                    return;
+                }
+                const card = `
+                    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                        <h3 class="text-xl font-bold mb-2">${subject.name}</h3>
+                        <p class="text-sm text-gray-500 mb-1">ID: ${subject.id}</p>
+                        <p class="text-sm text-gray-600 mb-1">Durasi: ${formatDuration(subject.duration)}</p>
+                        <p class="text-sm text-gray-600 mb-4">Jadwal: ${formatTimestamp(subject.schedule)}</p>
+                        <div class="flex space-x-2">
+                            <button class="manage-subject-btn flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg text-sm" data-id="${subject.id}">Kelola</button>
+                            <button class="edit-subject-btn bg-yellow-500 text-white py-2 px-4 rounded-lg text-sm" data-id="${subject.id}">Edit</button>
+                            <button class="delete-subject-btn bg-red-500 text-white py-2 px-4 rounded-lg text-sm" data-id="${subject.id}">Hapus</button>
+                        </div>
+                    </div>
+                `;
+                list.innerHTML += card;
+            });
+        }
+
+        document.getElementById('add-subject-btn').addEventListener('click', () => showSubjectForm());
+
+        document.getElementById('subjects-list').addEventListener('click', e => {
+            const subjectId = e.target.dataset.id;
+            if (!subjectId) return;
+
+            if (e.target.classList.contains('edit-subject-btn')) {
+                const subject = state.subjects.find(s => s.id === subjectId);
+                if(subject) showSubjectForm(subject);
+            } else if (e.target.classList.contains('delete-subject-btn')) {
+                deleteSubject(subjectId);
+            } else if (e.target.classList.contains('manage-subject-btn')) {
+                showSubjectDetail(subjectId);
+            }
+        });
+        
+        function showSubjectForm(subject = null) {
+             const isEdit = subject !== null;
+            const title = isEdit ? 'Edit Mata Pelajaran' : 'Tambah Mata Pelajaran';
+            const content = `
+                <form id="subject-form">
+                    <div id="form-error-message" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert"></div>
+                    <input type="hidden" id="subject-id-hidden" value="${isEdit ? subject.id : ''}">
+                    <div class="mb-4">
+                        <label for="form-subject-id" class="block mb-1">ID Mata Pelajaran (e.g., MTK-01)</label>
+                        <input type="text" id="form-subject-id" value="${isEdit ? subject.id : ''}" class="w-full p-2 border rounded-md" ${isEdit ? 'readonly' : ''} required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="form-subject-name" class="block mb-1">Nama Mata Pelajaran</label>
+                        <input type="text" id="form-subject-name" value="${isEdit ? subject.name : ''}" class="w-full p-2 border rounded-md" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="form-subject-duration" class="block mb-1">Durasi (menit)</label>
+                        <input type="number" id="form-subject-duration" value="${isEdit ? subject.duration : ''}" class="w-full p-2 border rounded-md" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="form-subject-schedule" class="block mb-1">Jadwal Ujian</label>
+                        <input type="datetime-local" id="form-subject-schedule" value="${isEdit && subject.schedule ? new Date(new Date(subject.schedule).getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().slice(0, 16) : ''}" class="w-full p-2 border rounded-md" required>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded-md">${isEdit ? 'Simpan Perubahan' : 'Tambah Mapel'}</button>
+                </form>
+            `;
+            openModal(title, content);
+
+            document.getElementById('subject-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                document.getElementById('form-error-message').classList.add('hidden');
+
+                const payload = {
+                    id: document.getElementById('form-subject-id').value.trim(),
+                    name: document.getElementById('form-subject-name').value.trim(),
+                    duration: document.getElementById('form-subject-duration').value,
+                    schedule: document.getElementById('form-subject-schedule').value
+                };
+                
+                const originalId = document.getElementById('subject-id-hidden').value;
+                const result = await callAppsScript('saveSubject', { subject: payload, originalId: isEdit ? originalId : null });
+
+                if (result) {
+                    closeModal();
+                    await loadSubjects(true); // Force refetch
+                }
+            });
+        }
+        
+        async function deleteSubject(subjectId) {
+            if (confirm('Apakah Anda yakin ingin menghapus mata pelajaran ini? Semua soal, token, dan hasil ujian terkait akan ikut terhapus.')) {
+                const result = await callAppsScript('deleteSubject', { id: subjectId });
+                if (result) {
+                    await loadSubjects(true); // Force refetch
+                    if(state.currentSubject && state.currentSubject.id === subjectId) {
+                        document.getElementById('back-to-subjects').click();
+                    }
+                }
+            }
+        }
+        
+        // --- TEACHER: SUBJECT DETAIL (QUESTIONS, TOKENS, RESULTS) ---
+        async function showSubjectDetail(subjectId) {
+            state.currentSubject = state.subjects.find(s => s.id === subjectId);
+            if (!state.currentSubject) {
+                console.error("Tidak bisa menemukan mata pelajaran dengan ID:", subjectId);
+                return;
+            };
+
+            document.querySelectorAll('.dashboard-view').forEach(v => v.classList.add('hidden'));
+            document.getElementById('subject-detail-view').classList.remove('hidden');
+            document.getElementById('subject-detail-title').textContent = state.currentSubject.name;
+            
+            document.querySelector('.subject-detail-tab[data-target="question-management-view"]').click();
+            await loadQuestions();
+            await loadTokens();
+            await loadResults();
+        }
+        
+        document.getElementById('back-to-subjects').addEventListener('click', () => {
+             document.getElementById('subject-detail-view').classList.add('hidden');
+             document.getElementById('subject-management-view').classList.remove('hidden');
+             state.currentSubject = null;
+        });
+        
+        // --- TEACHER: QUESTION MANAGEMENT ---
+        async function loadQuestions() {
+            if(!state.currentSubject) return;
+            const questions = await callAppsScript('getQuestions', { subjectId: state.currentSubject.id });
+            if (questions) {
+                state.questions = questions;
+                renderQuestions();
+            }
+        }
+        
+        function renderQuestions() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+            if (state.questions.length === 0) {
+                container.innerHTML = '<p class="text-center text-gray-500">Belum ada soal untuk mata pelajaran ini.</p>';
+                return;
+            }
+            state.questions.forEach((q, index) => {
+                const questionCard = `
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <div class="flex justify-between items-start">
+                           <div class="prose max-w-none">
+                            <p class="font-semibold">Soal ${index + 1} (${q.type})</p>
+                            ${mdConverter.makeHtml(q.text)}
+                           </div>
+                            <div class="flex space-x-2 flex-shrink-0 ml-4">
+                                <button class="edit-question-btn text-blue-500 hover:underline" data-id="${q.id}">Edit</button>
+                                <button class="delete-question-btn text-red-500 hover:underline" data-id="${q.id}">Hapus</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += questionCard;
+            });
+        }
+        
+        document.getElementById('add-question-btn').addEventListener('click', () => showQuestionForm());
+        
+        document.getElementById('questions-container').addEventListener('click', e => {
+            const questionId = e.target.dataset.id;
+            if (!questionId) return;
+
+            if (e.target.classList.contains('edit-question-btn')) {
+                const question = state.questions.find(q => q.id === questionId);
+                if(question) showQuestionForm(question);
+            } else if (e.target.classList.contains('delete-question-btn')) {
+                deleteQuestion(questionId);
+            }
+        });
+
+        function showQuestionForm(question = null) {
+            const isEdit = question !== null;
+            const title = isEdit ? 'Edit Soal' : 'Tambah Soal';
+
+            let questionOptions = {
+                type: 'Multiple Choice (Single)',
+                text: '',
+                mediaUrl: '',
+                options: [{ text: '', isCorrect: true }, { text: '', isCorrect: false }],
+                matchingPairs: [{ prompt: '', match: '' }, { prompt: '', match: '' }],
+                trueFalseAnswer: 'True',
+                shortAnswerText: '',
+            };
+
+            if (isEdit) {
+                questionOptions.type = question.type;
+                questionOptions.text = question.text;
+                questionOptions.mediaUrl = question.mediaurl || '';
+                if (question.type && question.type.startsWith('Multiple Choice')) {
+                    questionOptions.options = question.options || [{ text: '', isCorrect: true }, { text: '', isCorrect: false }];
+                } else if (question.type === 'Matching') {
+                    questionOptions.matchingPairs = question.options || [{ prompt: '', match: '' }, { prompt: '', match: '' }];
+                } else if (question.type === 'True/False') {
+                    questionOptions.trueFalseAnswer = question.answer;
+                } else if (question.type === 'Short Answer') {
+                    questionOptions.shortAnswerText = question.answer;
+                }
+            }
+
+            const content = `
+                <form id="question-form">
+                     <div id="form-error-message" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert"></div>
+                    <input type="hidden" id="question-id" value="${isEdit ? question.id : ''}">
+                    <div class="mb-4">
+                        <label for="form-question-type" class="block mb-1">Tipe Soal</label>
+                        <select id="form-question-type" class="w-full p-2 border rounded-md">
+                            <option value="Multiple Choice (Single)">Pilihan Ganda (Satu Jawaban)</option>
+                            <option value="Multiple Choice (Multiple)">Pilihan Ganda (Banyak Jawaban)</option>
+                            <option value="Matching">Menjodohkan</option>
+                            <option value="True/False">Benar/Salah</option>
+                            <option value="Short Answer">Isian Singkat</option>
+                            <option value="Essay">Esai</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block mb-1">Teks Pertanyaan (mendukung Markdown)</label>
+                        <div class="border rounded-md">
+                            <div class="bg-gray-100 p-1 border-b">
+                                <button type="button" class="question-editor-btn" data-format="bold"><b>B</b></button>
+                                <button type="button" class="question-editor-btn" data-format="italic"><i>I</i></button>
+                                <button type="button" class="question-editor-btn" data-format="underline"><u>U</u></button>
+                            </div>
+                            <textarea id="form-question-text" rows="5" class="w-full p-2" required>${questionOptions.text}</textarea>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="form-question-media" class="block mb-1">URL Media (Gambar/Video/Audio) - Opsional</label>
+                        <input type="url" id="form-question-media" value="${questionOptions.mediaUrl}" class="w-full p-2 border rounded-md">
+                    </div>
+                    <div id="question-type-specific-inputs"></div>
+                    <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded-md">${isEdit ? 'Simpan Perubahan' : 'Tambah Soal'}</button>
+                </form>
+            `;
+            openModal(title, content);
+            
+            const typeSelect = document.getElementById('form-question-type');
+            if(isEdit) typeSelect.value = question.type;
+
+            const updateFormUI = () => {
+                const type = typeSelect.value;
+                const container = document.getElementById('question-type-specific-inputs');
+                let html = '';
+                if (type.startsWith('Multiple Choice')) {
+                    html = `
+                        <h4 class="font-semibold mb-2">Opsi Jawaban</h4>
+                        <div id="mc-options-container" class="space-y-2"></div>
+                        <button type="button" id="add-mc-option-btn" class="mt-2 text-sm text-blue-500">+ Tambah Opsi</button>
+                    `;
+                    container.innerHTML = html;
+                    const optionsContainer = document.getElementById('mc-options-container');
+                    const renderMcOptions = () => {
+                        optionsContainer.innerHTML = '';
+                        questionOptions.options.forEach((opt, index) => {
+                            const inputType = type === 'Multiple Choice (Single)' ? 'radio' : 'checkbox';
+                            const optionHtml = `
+                                <div class="flex items-center space-x-2">
+                                    <input type="${inputType}" name="correct-answer" class="mc-correct-input" data-index="${index}" ${opt.isCorrect ? 'checked' : ''}>
+                                    <input type="text" class="mc-option-text w-full p-2 border rounded-md" data-index="${index}" value="${opt.text}" placeholder="Teks Opsi ${index + 1}">
+                                    ${questionOptions.options.length > 2 ? `<button type="button" class="remove-mc-option-btn text-red-500" data-index="${index}">&times;</button>` : ''}
+                                </div>`;
+                            optionsContainer.innerHTML += optionHtml;
+                        });
+                    };
+                    renderMcOptions();
+
+                    document.getElementById('add-mc-option-btn').addEventListener('click', () => {
+                        questionOptions.options.push({ text: '', isCorrect: false });
+                        renderMcOptions();
+                    });
+
+                    optionsContainer.addEventListener('change', e => {
+                        if (e.target.classList.contains('mc-correct-input')) {
+                            const index = parseInt(e.target.dataset.index);
+                            if (type === 'Multiple Choice (Single)') {
+                                questionOptions.options.forEach((opt, i) => opt.isCorrect = i === index);
+                            } else {
+                                questionOptions.options[index].isCorrect = e.target.checked;
+                            }
+                            renderMcOptions();
+                        }
+                    });
+                     optionsContainer.addEventListener('input', e => {
+                        if (e.target.classList.contains('mc-option-text')) {
+                            const index = parseInt(e.target.dataset.index);
+                            questionOptions.options[index].text = e.target.value;
+                        }
+                    });
+
+                    optionsContainer.addEventListener('click', e => {
+                        if (e.target.classList.contains('remove-mc-option-btn')) {
+                            const index = parseInt(e.target.dataset.index);
+                            questionOptions.options.splice(index, 1);
+                            renderMcOptions();
+                        }
+                    });
+
+                } else if (type === 'Matching') {
+                    html = `
+                        <h4 class="font-semibold mb-2">Pasangan Jawaban</h4>
+                        <div id="matching-pairs-container" class="space-y-2"></div>
+                        <button type="button" id="add-matching-pair-btn" class="mt-2 text-sm text-blue-500">+ Tambah Pasangan</button>
+                    `;
+                    container.innerHTML = html;
+                    const pairsContainer = document.getElementById('matching-pairs-container');
+                    const renderMatchingPairs = () => {
+                        pairsContainer.innerHTML = '';
+                        questionOptions.matchingPairs.forEach((pair, index) => {
+                             const pairHtml = `
+                                <div class="grid grid-cols-2 gap-2 items-center">
+                                    <input type="text" class="matching-prompt w-full p-2 border rounded-md" data-index="${index}" value="${pair.prompt}" placeholder="Pertanyaan ${index + 1}">
+                                    <div class="flex items-center space-x-2">
+                                        <input type="text" class="matching-match w-full p-2 border rounded-md" data-index="${index}" value="${pair.match}" placeholder="Jawaban ${index + 1}">
+                                        ${questionOptions.matchingPairs.length > 2 ? `<button type="button" class="remove-matching-pair-btn text-red-500" data-index="${index}">&times;</button>`: ''}
+                                    </div>
+                                </div>`;
+                             pairsContainer.innerHTML += pairHtml;
+                        });
+                    };
+                    renderMatchingPairs();
+                    
+                     document.getElementById('add-matching-pair-btn').addEventListener('click', () => {
+                        questionOptions.matchingPairs.push({ prompt: '', match: '' });
+                        renderMatchingPairs();
+                    });
+
+                    pairsContainer.addEventListener('input', e => {
+                        const index = parseInt(e.target.dataset.index);
+                        if(e.target.classList.contains('matching-prompt')) {
+                             questionOptions.matchingPairs[index].prompt = e.target.value;
+                        } else if (e.target.classList.contains('matching-match')) {
+                             questionOptions.matchingPairs[index].match = e.target.value;
+                        }
+                    });
+
+                    pairsContainer.addEventListener('click', e => {
+                        if(e.target.classList.contains('remove-matching-pair-btn')) {
+                            const index = parseInt(e.target.dataset.index);
+                            questionOptions.matchingPairs.splice(index, 1);
+                            renderMatchingPairs();
+                        }
+                    });
+
+                } else if (type === 'True/False') {
+                     html = `
+                        <h4 class="font-semibold mb-2">Kunci Jawaban</h4>
+                        <select id="tf-answer" class="w-full p-2 border rounded-md">
+                            <option value="True" ${questionOptions.trueFalseAnswer === 'True' ? 'selected' : ''}>Benar</option>
+                            <option value="False" ${questionOptions.trueFalseAnswer === 'False' ? 'selected' : ''}>Salah</option>
+                        </select>
+                    `;
+                    container.innerHTML = html;
+                } else if (type === 'Short Answer') {
+                    html = `
+                        <h4 class="font-semibold mb-2">Kunci Jawaban (Case-insensitive)</h4>
+                        <input type="text" id="sa-answer" value="${questionOptions.shortAnswerText}" class="w-full p-2 border rounded-md" placeholder="Jawaban yang benar">
+                    `;
+                    container.innerHTML = html;
+                } else if (type === 'Essay') {
+                    html = `<p class="text-gray-500 italic">Untuk soal esai, penilaian dilakukan secara manual.</p>`;
+                    container.innerHTML = html;
+                }
+            };
+            
+            typeSelect.addEventListener('change', updateFormUI);
+            updateFormUI();
+            
+            document.querySelectorAll('.question-editor-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const textarea = document.getElementById('form-question-text');
+                    const format = btn.dataset.format;
+                    const start = textarea.selectionStart;
+                    const end = textarea.selectionEnd;
+                    const selectedText = textarea.value.substring(start, end);
+                    let replacement = '';
+                    if (format === 'bold') replacement = `**${selectedText}**`;
+                    else if (format === 'italic') replacement = `*${selectedText}*`;
+                    else if (format === 'underline') replacement = `<u>${selectedText}</u>`;
+
+                    textarea.value = textarea.value.substring(0, start) + replacement + textarea.value.substring(end);
+                });
+            });
+
+            document.getElementById('question-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                document.getElementById('form-error-message').classList.add('hidden');
+                
+                const type = document.getElementById('form-question-type').value;
+                let finalOptions = null;
+                let finalAnswer = null;
+
+                if (type.startsWith('Multiple Choice')) {
+                    finalOptions = questionOptions.options;
+                } else if (type === 'Matching') {
+                    finalOptions = questionOptions.matchingPairs;
+                } else if (type === 'True/False') {
+                    finalAnswer = document.getElementById('tf-answer').value;
+                } else if (type === 'Short Answer') {
+                    finalAnswer = document.getElementById('sa-answer').value;
+                }
+
+                const payload = {
+                    id: document.getElementById('question-id').value,
+                    subjectId: state.currentSubject.id,
+                    type: type,
+                    text: document.getElementById('form-question-text').value,
+                    mediaUrl: document.getElementById('form-question-media').value,
+                    options: finalOptions,
+                    answer: finalAnswer
+                };
+                
+                const result = await callAppsScript('saveQuestion', payload);
+                if (result) {
+                    closeModal();
+                    await loadQuestions();
+                }
+            });
+        }
+        
+        async function deleteQuestion(questionId) {
+             if (confirm('Apakah Anda yakin ingin menghapus soal ini?')) {
+                const result = await callAppsScript('deleteQuestion', { id: questionId });
+                if (result) {
+                    await loadQuestions();
+                }
+            }
+        }
+        
+        // --- TEACHER: TOKEN MANAGEMENT ---
+        async function loadTokens() {
+            if(!state.currentSubject) return;
+            const tokens = await callAppsScript('getTokens', { subjectId: state.currentSubject.id });
+            if (tokens) {
+                state.tokens = tokens;
+                renderTokensTable();
+            }
+        }
+
+        function renderTokensTable() {
+            const tableBody = document.getElementById('tokens-table-body');
+            tableBody.innerHTML = '';
+            if (state.tokens.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="2" class="text-center p-4">Belum ada token yang dibuat.</td></tr>';
+                return;
+            }
+            state.tokens.forEach(token => {
+                // **ULTRA-ROBUST FIX**: Find 'classGroup' key case-insensitively
+                let classGroup = 'N/A';
+                for (const key in token) {
+                    if (key.toLowerCase() === 'classgroup') {
+                        classGroup = token[key];
+                        break;
+                    }
+                }
+                const row = `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="p-2 font-mono">${token.id}</td>
+                        <td class="p-2">Kelas ${classGroup}</td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        document.getElementById('generate-token-btn').addEventListener('click', () => {
+            const content = `
+                <form id="token-gen-form">
+                    <p class="mb-4">Pilih kelompok kelas untuk membuat token ujian baru.</p>
+                    <div class="mb-4">
+                        <label for="form-class-group" class="block mb-1">Kelompok Kelas</label>
+                        <select id="form-class-group" class="w-full p-2 border rounded-md">
+                            <option value="7">Kelas 7 (7.1 - 7.4)</option>
+                            <option value="8">Kelas 8 (8.1 - 8.4)</option>
+                            <option value="9">Kelas 9 (9.1 - 9.4)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="w-full bg-purple-500 text-white p-2 rounded-md">Buat Token</button>
+                </form>
+            `;
+            openModal('Buat Token Baru', content);
+            
+            document.getElementById('token-gen-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const classGroup = document.getElementById('form-class-group').value;
+                const payload = {
+                    subjectId: state.currentSubject.id,
+                    classGroup: classGroup
+                };
+                const newToken = await callAppsScript('generateToken', payload);
+                if (newToken) {
+                    alert(`Token baru berhasil dibuat: ${newToken.id}`);
+                    closeModal();
+                    await loadTokens();
+                }
+            });
+        });
+
+        // --- TEACHER: RESULTS MANAGEMENT ---
+        async function loadResults() {
+             if(!state.currentSubject) return;
+             const results = await callAppsScript('getResults', { subjectId: state.currentSubject.id });
+             if (results) {
+                state.results = results;
+                renderResultsTable();
+                populateClassFilter('filter-result-class', renderResultsTable, state.results);
+             }
+        }
+        
+        function renderResultsTable() {
+            const tableBody = document.getElementById('results-table-body');
+            const filterValue = document.getElementById('filter-result-class').value;
+            tableBody.innerHTML = '';
+            
+            const filteredResults = filterValue ? state.results.filter(r => String(r.class) === filterValue) : state.results;
+            
+            if (filteredResults.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="5" class="text-center p-4">Belum ada hasil ujian.</td></tr>';
+                return;
+            }
+
+            filteredResults.forEach(result => {
+                const studentName = result.studentName || result.studentname || 'Nama Tidak Ditemukan';
+                const row = `
+                     <tr class="border-b hover:bg-gray-50">
+                        <td class="p-2">${studentName}</td>
+                        <td class="p-2">${result.class}</td>
+                        <td class="p-2 font-bold">${result.score}</td>
+                        <td class="p-2">${formatTimestamp(result.timestamp)}</td>
+                        <td class="p-2">
+                            <button class="view-answers-btn text-blue-500 hover:underline" data-id="${result.id}">Lihat Jawaban</button>
+                        </td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+        }
+        
+        document.getElementById('results-table-body').addEventListener('click', e => {
+            if (e.target.classList.contains('view-answers-btn')) {
+                const resultId = e.target.dataset.id;
+                const result = state.results.find(r => r.id === resultId);
+                if(result) showAnswerDetails(result);
+            }
+        });
+        
+        function showAnswerDetails(result) {
+            const allQuestions = state.questions; 
+            let detailsHtml = '<div class="space-y-6">';
+            
+            let answersArray = [];
+            let answersData = null;
+            for (const key in result) {
+                if (key.toLowerCase() === 'answers') {
+                    answersData = result[key];
+                    break;
+                }
+            }
+            
+            if (answersData) {
+                try {
+                    answersArray = typeof answersData === 'string' ? JSON.parse(answersData) : answersData;
+                } catch (e) {
+                    // This is a critical debug point
+                    console.error("DEBUG: Gagal mem-parsing data jawaban. Data mentah:", answersData, "Error:", e);
+                }
+            }
+
+            if (!Array.isArray(answersArray)) {
+                openModal(`Jawaban ${result.studentName || result.studentname} - Skor: ${result.score}`, '<p>Gagal memuat detail jawaban karena format data tidak sesuai.</p>');
+                return;
+            }
+
+            const studentName = result.studentName || result.studentname || 'Siswa';
+            
+            if (answersArray.length === 0) {
+                 // Added more debugging info
+                 console.log("DEBUG: Data jawaban kosong. Data mentah yang diterima:", answersData, "Hasil result object:", result);
+                 openModal(`Jawaban ${studentName} - Skor: ${result.score}`, '<p>Tidak ada jawaban yang tercatat untuk siswa ini. Periksa Developer Console (F12) untuk detail teknis.</p>');
+                 return;
+            }
+
+            answersArray.forEach((studentAnswer, index) => {
+                const question = allQuestions.find(q => q.id === studentAnswer.questionId);
+                if (!question) return; 
+                let answerHtml = '';
+                let statusHtml = `<span class="px-2 py-1 text-xs font-semibold rounded-full ${studentAnswer.isCorrect ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${studentAnswer.isCorrect ? 'Benar' : 'Salah'}</span>`;
+                 if (question.type === 'Essay' || studentAnswer.isCorrect === null) {
+                    statusHtml = `<span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Perlu Penilaian</span>`;
+                 }
+
+                let correctAnswerText = question.answer;
+                if(question.type.startsWith('Multiple Choice')){
+                    correctAnswerText = (question.options || []).filter(o => o.isCorrect).map(o => o.text).join(', ');
+                } else if(question.type === 'Matching'){
+                    correctAnswerText = (question.options || []).map(o => `${o.prompt} -> ${o.match}`).join('<br>');
+                }
+
+                answerHtml = `
+                    <p><b>Jawaban Siswa:</b> ${studentAnswer.answerText || JSON.stringify(studentAnswer.answer) || '<i>Tidak dijawab</i>'}</p>
+                    <p><b>Kunci Jawaban:</b> ${correctAnswerText || '-'}</p>
+                `;
+                
+                detailsHtml += `
+                    <div class="border-b pb-4">
+                        <div class="flex justify-between items-start mb-2">
+                           <div class="prose max-w-none">
+                            <p class="font-semibold">Soal ${index + 1} (${question.type})</p>
+                            ${mdConverter.makeHtml(question.text)}
+                           </div>
+                           ${statusHtml}
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-md text-sm">${answerHtml}</div>
+                    </div>`;
+            });
+            detailsHtml += '</div>';
+
+            openModal(`Jawaban ${studentName} - Skor: ${result.score}`, detailsHtml);
+        }
+        
+        document.getElementById('print-results-btn').addEventListener('click', () => {
+            const tableToPrint = document.getElementById('results-table').cloneNode(true);
+            tableToPrint.querySelectorAll('th:last-child, td:last-child').forEach(el => el.remove());
+            const printArea = document.getElementById('print-area');
+            
+            printArea.innerHTML = `
+                <div class="p-8">
+                    <h1 class="text-2xl font-bold mb-2">Rekapitulasi Nilai</h1>
+                    <h2 class="text-xl mb-4">${state.currentSubject.name}</h2>
+                    <table class="w-full text-left border-collapse border border-gray-400">
+                        ${tableToPrint.innerHTML}
+                    </table>
+                </div>
+                <style>
+                    #print-area table { border-collapse: collapse; width: 100%; }
+                    #print-area th, #print-area td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+                    #print-area th { background-color: #f2f2f2; }
+                </style>
+            `;
+            
+            // **FIX**: Make the print area visible before printing
+            printArea.classList.remove('hidden');
+            window.print();
+            printArea.classList.add('hidden');
+        });
+
+
+        // --- STUDENT: TOKEN & EXAM START ---
+        async function prepareStudentTokenPage() {
+            const classSelect = document.getElementById('student-class');
+            const studentSelect = document.getElementById('student-id-select');
+
+            classSelect.disabled = true;
+            studentSelect.disabled = true;
+            studentSelect.innerHTML = '<option value="">Mengambil data siswa...</option>';
+
+            // Use cached data if available, otherwise fetch
+            if (state.students.length === 0) {
+                 const students = await callAppsScript('getStudents');
+                 if (students) state.students = students;
+            }
+           
+            if (state.students.length > 0) {
+                 classSelect.disabled = false;
+                 studentSelect.innerHTML = '<option value="">Pilih kelas terlebih dahulu...</option>';
+            } else {
+                studentSelect.innerHTML = '<option value="">Gagal memuat data siswa</option>';
+            }
+        }
+
+        document.getElementById('student-class').addEventListener('change', (e) => {
+            const selectedClass = e.target.value;
+            const studentSelect = document.getElementById('student-id-select');
+            
+            studentSelect.innerHTML = '<option value="">Pilih nama setelah memilih kelas...</option>';
+            studentSelect.disabled = true;
+
+            if (!selectedClass) {
+                return;
+            }
+
+            const studentsInClass = state.students.filter(s => String(s.class) === selectedClass);
+            
+            if (studentsInClass.length === 0) {
+                studentSelect.innerHTML = '<option value="">Tidak ada siswa di kelas ini</option>';
+            } else {
+                studentSelect.innerHTML = '<option value="">Pilih Nama Anda...</option>';
+                studentsInClass.forEach(student => {
+                    studentSelect.innerHTML += `<option value="${student.id}" data-name="${student.name}">${student.name}</option>`;
+                });
+                studentSelect.disabled = false;
+            }
+        });
+
+        document.getElementById('student-token-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            document.getElementById('token-error-message').classList.add('hidden');
+            
+            const studentSelect = document.getElementById('student-id-select');
+            const selectedOption = studentSelect.options[studentSelect.selectedIndex];
+            
+            const payload = {
+                token: document.getElementById('exam-token').value.trim(),
+                studentId: studentSelect.value,
+                studentName: selectedOption.dataset.name,
+                studentClass: document.getElementById('student-class').value,
+            };
+            
+            if (!payload.studentId || !payload.studentName || !payload.studentClass || !payload.token) {
+                alert('Harap isi semua data diri (Kelas, Nama) dan token.');
+                return;
+            }
+
+            const examData = await callAppsScript('validateTokenAndStartExam', payload);
+            if (examData) {
+                startExam(examData);
+            }
+        });
+
+        // --- STUDENT: EXAM PAGE ---
+        function startExam(examData) {
+            state.exam.data = examData;
+            state.exam.answers = examData.questions.map(q => ({ 
+                questionId: q.id, 
+                answer: null, 
+                isCorrect: false, 
+                flagged: false 
+            }));
+            state.exam.currentQuestionIndex = 0;
+            
+            document.getElementById('exam-subject-title').textContent = examData.subject.name;
+            document.getElementById('exam-student-info').textContent = `${examData.studentName} (${examData.studentClass})`;
+            
+            renderQuestionNavigation();
+            renderCurrentQuestion();
+            startTimer(examData.subject.duration);
+            showPage('exam-page');
+        }
+
+        function renderCurrentQuestion() {
+            const index = state.exam.currentQuestionIndex;
+            const question = state.exam.data.questions[index];
+            const studentAnswer = state.exam.answers[index];
+
+            document.getElementById('question-number').textContent = index + 1;
+            document.getElementById('question-type-display').textContent = question.type;
+            document.getElementById('question-text').innerHTML = mdConverter.makeHtml(question.text);
+
+            const mediaContainer = document.getElementById('question-media-container');
+            mediaContainer.innerHTML = '';
+            const mediaUrl = question.mediaUrl;
+            if (mediaUrl) {
+                const url = mediaUrl.toLowerCase();
+                if (/\.(jpg|jpeg|png|gif)$/.test(url)) {
+                    mediaContainer.innerHTML = `<img src="${mediaUrl}" alt="Media soal" class="max-w-full h-auto rounded-lg mx-auto">`;
+                } else if (/\.(mp4|webm)$/.test(url)) {
+                     mediaContainer.innerHTML = `<video controls class="w-full rounded-lg"><source src="${mediaUrl}"></video>`;
+                } else if (/\.(mp3|wav|ogg)$/.test(url)) {
+                     mediaContainer.innerHTML = `<audio controls class="w-full"><source src="${mediaUrl}"></audio>`;
+                }
+            }
+
+            const answerArea = document.getElementById('answer-area');
+            let answerHtml = '';
+            
+            switch (question.type) {
+                case 'Multiple Choice (Single)':
+                    answerHtml = question.options.map((opt, i) => `
+                        <div class="question-option border p-3 rounded-lg cursor-pointer" data-index="${i}">
+                            ${opt.text}
+                        </div>
+                    `).join('');
+                    break;
+                case 'Multiple Choice (Multiple)':
+                    answerHtml = question.options.map((opt, i) => `
+                        <div class="question-option border p-3 rounded-lg cursor-pointer" data-index="${i}">
+                             ${opt.text}
+                        </div>
+                    `).join('');
+                    break;
+                case 'True/False':
+                     answerHtml = `
+                        <div class="question-option border p-3 rounded-lg cursor-pointer" data-value="True">Benar</div>
+                        <div class="question-option border p-3 rounded-lg cursor-pointer" data-value="False">Salah</div>
+                    `;
+                    break;
+                case 'Short Answer':
+                    answerHtml = `<input type="text" class="short-answer-input w-full p-2 border rounded-md" value="${studentAnswer.answer || ''}">`;
+                    break;
+                case 'Essay':
+                    answerHtml = `<textarea class="essay-input w-full p-2 border rounded-md" rows="6">${studentAnswer.answer || ''}</textarea>`;
+                    break;
+                case 'Matching':
+                    const prompts = question.options.map(p => p.prompt);
+                    const matches = [...question.options.map(p => p.match)].sort(() => Math.random() - 0.5);
+                    answerHtml = `<div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div>`;
+                    prompts.forEach((prompt, i) => {
+                        answerHtml += `
+                            <div class="flex items-center mb-2">
+                                <span class="w-1/2">${prompt}</span>
+                                <select class="matching-select w-1/2 p-2 border rounded-md" data-prompt-index="${i}">
+                                    <option value="">Pilih...</option>
+                                    ${matches.map(m => `<option value="${m}" ${studentAnswer.answer && studentAnswer.answer[i] === m ? 'selected' : ''}>${m}</option>`).join('')}
+                                </select>
+                            </div>
+                        `;
+                    });
+                    answerHtml += `</div></div>`;
+                    break;
+            }
+            answerArea.innerHTML = answerHtml;
+            
+            updateAnswerSelectionUI();
+
+            document.getElementById('prev-question-btn').disabled = index === 0;
+            document.getElementById('next-question-btn').style.display = index === state.exam.data.questions.length - 1 ? 'none' : 'inline-block';
+            
+            document.querySelectorAll('.question-nav-item').forEach(item => item.classList.remove('current'));
+            document.querySelector(`.question-nav-item[data-index="${index}"]`).classList.add('current');
+            
+            const flagBtn = document.getElementById('flag-question-btn');
+            if (studentAnswer.flagged) {
+                flagBtn.classList.add('bg-yellow-600');
+                flagBtn.textContent = 'Hapus Tanda';
+            } else {
+                flagBtn.classList.remove('bg-yellow-600');
+                flagBtn.textContent = 'Ragu-ragu';
+            }
+        }
+        
+        function updateAnswerSelectionUI() {
+            const index = state.exam.currentQuestionIndex;
+            const question = state.exam.data.questions[index];
+            const studentAnswer = state.exam.answers[index];
+            
+            document.querySelectorAll('.question-option').forEach(el => el.classList.remove('selected'));
+
+            if (studentAnswer.answer !== null) {
+                if (question.type === 'Multiple Choice (Single)') {
+                     document.querySelector(`.question-option[data-index="${studentAnswer.answer}"]`)?.classList.add('selected');
+                } else if (question.type === 'Multiple Choice (Multiple)') {
+                    studentAnswer.answer.forEach(ansIndex => {
+                        document.querySelector(`.question-option[data-index="${ansIndex}"]`)?.classList.add('selected');
+                    });
+                } else if (question.type === 'True/False') {
+                    document.querySelector(`.question-option[data-value="${studentAnswer.answer}"]`)?.classList.add('selected');
+                }
+            }
+        }
+
+        function saveAnswer() {
+            const index = state.exam.currentQuestionIndex;
+            const question = state.exam.data.questions[index];
+            let answer = null;
+            let isCorrect = false;
+            let answerText = null;
+
+            switch (question.type) {
+                case 'Multiple Choice (Single)':
+                    const selectedSingle = document.querySelector('.question-option.selected');
+                    if (selectedSingle) {
+                        answer = parseInt(selectedSingle.dataset.index);
+                        isCorrect = question.options[answer].isCorrect;
+                        answerText = question.options[answer].text;
+                    }
+                    break;
+                case 'Multiple Choice (Multiple)':
+                    answer = [];
+                    const selectedTexts = [];
+                    document.querySelectorAll('.question-option.selected').forEach(el => {
+                        const ansIndex = parseInt(el.dataset.index);
+                        answer.push(ansIndex);
+                        selectedTexts.push(question.options[ansIndex].text);
+                    });
+                     if (answer.length > 0) {
+                        const correctAnswers = question.options.map((opt, i) => opt.isCorrect ? i : -1).filter(i => i !== -1);
+                        isCorrect = answer.length === correctAnswers.length && answer.every(val => correctAnswers.includes(val));
+                     }
+                    answerText = selectedTexts.join(', ');
+                    break;
+                 case 'True/False':
+                    const selectedTF = document.querySelector('.question-option.selected');
+                    if(selectedTF) {
+                        answer = selectedTF.dataset.value;
+                        isCorrect = answer === question.answer;
+                        answerText = answer;
+                    }
+                    break;
+                case 'Short Answer':
+                    answer = document.querySelector('.short-answer-input').value;
+                    isCorrect = answer.trim().toLowerCase() === (question.answer || '').trim().toLowerCase();
+                    answerText = answer;
+                    break;
+                case 'Essay':
+                    answer = document.querySelector('.essay-input').value;
+                    isCorrect = null;
+                    answerText = answer;
+                    break;
+                 case 'Matching':
+                    answer = [];
+                    let matchedTexts = [];
+                    const selects = document.querySelectorAll('.matching-select');
+                    let correctCount = 0;
+                    selects.forEach((sel, i) => {
+                        answer.push(sel.value);
+                        matchedTexts.push(`${question.options[i].prompt} -> ${sel.value}`);
+                        if (sel.value === question.options[i].match) {
+                            correctCount++;
+                        }
+                    });
+                    isCorrect = correctCount === question.options.length;
+                    answerText = matchedTexts.join('; ');
+                    break;
+            }
+            
+            state.exam.answers[index].answer = answer;
+            state.exam.answers[index].isCorrect = isCorrect;
+            state.exam.answers[index].answerText = answerText;
+            
+             const navItem = document.querySelector(`.question-nav-item[data-index="${index}"]`);
+             const isAnswered = answer !== null && answer !== '' && !(Array.isArray(answer) && answer.length === 0);
+             navItem.classList.toggle('answered', isAnswered);
+        }
+        
+        document.getElementById('answer-area').addEventListener('click', e => {
+            if (e.target.classList.contains('question-option')) {
+                const questionType = state.exam.data.questions[state.exam.currentQuestionIndex].type;
+                 if (questionType === 'Multiple Choice (Single)' || questionType === 'True/False') {
+                    document.querySelectorAll('.question-option').forEach(el => el.classList.remove('selected'));
+                    e.target.classList.add('selected');
+                } else if (questionType === 'Multiple Choice (Multiple)') {
+                    e.target.classList.toggle('selected');
+                }
+                saveAnswer();
+            }
+        });
+        
+        document.getElementById('answer-area').addEventListener('input', e => {
+            if (e.target.classList.contains('short-answer-input') || e.target.classList.contains('essay-input')) {
+                saveAnswer();
+            }
+        });
+         document.getElementById('answer-area').addEventListener('change', e => {
+            if (e.target.classList.contains('matching-select')) {
+                saveAnswer();
+            }
+        });
+
+        function renderQuestionNavigation() {
+            const navContainer = document.getElementById('question-navigation');
+            navContainer.innerHTML = '';
+            state.exam.data.questions.forEach((q, index) => {
+                navContainer.innerHTML += `
+                    <button class="question-nav-item w-10 h-10 rounded-md flex items-center justify-center font-semibold" data-index="${index}">
+                        ${index + 1}
+                    </button>
+                `;
+            });
+        }
+        
+        document.getElementById('question-navigation').addEventListener('click', e => {
+            if (e.target.classList.contains('question-nav-item')) {
+                const index = parseInt(e.target.dataset.index);
+                state.exam.currentQuestionIndex = index;
+                renderCurrentQuestion();
+            }
+        });
+
+        document.getElementById('prev-question-btn').addEventListener('click', () => {
+             if (state.exam.currentQuestionIndex > 0) {
+                state.exam.currentQuestionIndex--;
+                renderCurrentQuestion();
+            }
+        });
+
+        document.getElementById('next-question-btn').addEventListener('click', () => {
+             if (state.exam.currentQuestionIndex < state.exam.data.questions.length - 1) {
+                state.exam.currentQuestionIndex++;
+                renderCurrentQuestion();
+            }
+        });
+        
+        document.getElementById('flag-question-btn').addEventListener('click', () => {
+            const index = state.exam.currentQuestionIndex;
+            const answer = state.exam.answers[index];
+            answer.flagged = !answer.flagged;
+            
+            document.querySelector(`.question-nav-item[data-index="${index}"]`).classList.toggle('flagged', answer.flagged);
+            renderCurrentQuestion();
+        });
+
+        async function finishExam() {
+            clearInterval(state.exam.timerInterval);
+            
+            const unanswered = state.exam.answers.filter(a => a.answer === null || a.answer === '' || (Array.isArray(a.answer) && a.answer.length === 0)).length;
+            if (unanswered > 0) {
+                if (!confirm(`Ada ${unanswered} soal yang belum dijawab. Apakah Anda yakin ingin menyelesaikan ujian?`)) {
+                    startTimer(Math.floor((state.exam.endTime - Date.now()) / 1000));
+                    return;
+                }
+            } else {
+                 if (!confirm(`Apakah Anda yakin ingin menyelesaikan dan mengirimkan jawaban Anda?`)) {
+                    startTimer(Math.floor((state.exam.endTime - Date.now()) / 1000));
+                    return;
+                }
+            }
+
+            const correctCount = state.exam.answers.filter(a => a.isCorrect === true).length;
+            const totalScorable = state.exam.answers.filter(a => a.isCorrect !== null).length;
+            const score = totalScorable > 0 ? Math.round((correctCount / totalScorable) * 100) : 100;
+
+            const payload = {
+                result: {
+                    subjectId: state.exam.data.subject.id,
+                    studentId: state.exam.data.studentId,
+                    studentName: state.exam.data.studentName,
+                    class: state.exam.data.studentClass,
+                    score: score,
+                    answers: state.exam.answers,
+                }
+            };
+
+            const result = await callAppsScript('saveResult', payload);
+            if (result) {
+                document.getElementById('final-score').textContent = score;
+                showPage('exam-result-page');
+            }
+        }
+        
+        document.getElementById('finish-exam-btn').addEventListener('click', finishExam);
+
+        function startTimer(durationInMinutes) {
+            if(state.exam.timerInterval) clearInterval(state.exam.timerInterval);
+            state.exam.endTime = Date.now() + durationInMinutes * 60 * 1000;
+            const timerEl = document.getElementById('exam-timer');
+
+            state.exam.timerInterval = setInterval(() => {
+                const remaining = state.exam.endTime - Date.now();
+                if (remaining <= 0) {
+                    clearInterval(state.exam.timerInterval);
+                    timerEl.textContent = '00:00:00';
+                    alert('Waktu habis! Ujian akan diselesaikan secara otomatis.');
+                    finishExam();
+                    return;
+                }
+                const hours = Math.floor(remaining / (1000 * 60 * 60)).toString().padStart(2, '0');
+                const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+                const seconds = Math.floor((remaining % (1000 * 60)) / 1000).toString().padStart(2, '0');
+                timerEl.textContent = `${hours}:${minutes}:${seconds}`;
+            }, 1000);
+        }
+
+        // --- GENERAL EVENT LISTENERS & INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            generateClassOptions('student-class');
+            
+            document.getElementById('show-teacher-login').addEventListener('click', () => showPage('teacher-login-page'));
+            document.getElementById('show-student-token').addEventListener('click', () => showPage('student-token-page'));
+            
+            document.querySelectorAll('.back-to-landing').forEach(btn => {
+                btn.addEventListener('click', () => showPage('landing-page'));
+            });
+
+            document.getElementById('logout-button').addEventListener('click', () => {
+                state.currentUser = null;
+                showPage('landing-page');
+                location.reload(); 
+            });
+
+            document.getElementById('back-to-home-btn').addEventListener('click', () => {
+                showPage('landing-page');
+                location.reload();
+            });
+            
+            // Dashboard Tabs
+            document.querySelectorAll('.dashboard-tab').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    document.querySelectorAll('.dashboard-tab').forEach(t => t.classList.remove('border-b-2', 'border-blue-500', 'text-blue-500'));
+                    e.target.classList.add('border-b-2', 'border-blue-500', 'text-blue-500');
+                    
+                    document.querySelectorAll('.dashboard-view').forEach(v => v.classList.add('hidden'));
+                    document.getElementById(e.target.dataset.target).classList.remove('hidden');
+                    
+                    if (e.target.dataset.target !== 'subject-management-view') {
+                        document.getElementById('subject-detail-view').classList.add('hidden');
+                    }
+                });
+            });
+
+            // Subject Detail Tabs
+             document.querySelectorAll('.subject-detail-tab').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    document.querySelectorAll('.subject-detail-tab').forEach(t => t.classList.remove('border-b-2', 'border-blue-500', 'text-blue-500'));
+                    e.target.classList.add('border-b-2', 'border-blue-500', 'text-blue-500');
+                    
+                    document.querySelectorAll('.subject-detail-content').forEach(v => v.classList.add('hidden'));
+                    document.getElementById(e.target.dataset.target).classList.remove('hidden');
+                });
+            });
+        });
+        
+        function populateClassFilter(selectId, onChangeCallback, dataList) {
+            const select = document.getElementById(selectId);
+            if (!select) return;
+            const classes = [...new Set(dataList.map(item => item.class))].sort();
+            select.innerHTML = '<option value="">Semua Kelas</option>';
+            classes.forEach(c => {
+                select.innerHTML += `<option value="${c}">${c}</option>`;
+            });
+            select.removeEventListener('change', onChangeCallback); // Prevent multiple listeners
+            select.addEventListener('change', onChangeCallback);
+        }
+
+    </script>
+</body>
+</html>
+
