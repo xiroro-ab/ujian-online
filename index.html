@@ -84,7 +84,7 @@
             <div class="container mx-auto px-4 py-3 flex justify-between items-center">
                 <div class="flex items-center space-x-3">
                     <img src="https://raw.githubusercontent.com/xiroro-ab/ujian-online/refs/heads/main/logo.png" alt="Logo Aplikasi" class="w-8 h-8">
-                    <h1 class="text-xl md:text-2xl font-bold text-white">Aplikasi CBT SMPN 58</h1>
+                    <h1 class="text-xl md:text-2xl font-bold text-white">Aplikasi CBT SMPN58</h1>
                 </div>
                 <div class="flex items-center space-x-4">
                     <button id="logout-button" class="hidden bg-red-500 hover:bg-red-600 px-4 py-2 rounded-md text-sm font-semibold transition-all duration-200 ease-in-out flex items-center space-x-2">
@@ -842,8 +842,23 @@
                 });
 
                 if (examData) {
+                    // --- NEW LOGIC FOR RESUMING PROGRESS ---
+                    const progressKey = `cbt-progress-${examData.studentId}-${examData.subject.id}`;
+                    const savedProgress = localStorage.getItem(progressKey);
+
+                    if (savedProgress) {
+                        const confirmed = await showConfirmation('Kami menemukan progres ujian yang belum selesai. Apakah Anda ingin melanjutkannya?');
+                        if (confirmed) {
+                            state.currentExam = JSON.parse(savedProgress);
+                            startExam();
+                            return; // Exit the function to avoid starting a new exam
+                        } else {
+                            localStorage.removeItem(progressKey); // Clear progress if user wants to start over
+                        }
+                    }
+                    // --- END OF NEW LOGIC ---
+
                     state.currentExam = examData;
-                    // Initialize student answers
                     state.currentExam.studentAnswers = examData.questions.map(q => ({
                         questionId: q.id,
                         answer: q.type === 'multiple_choice_multiple' ? [] : (q.type === 'matching' ? [] : null),
@@ -1251,24 +1266,6 @@
                 }
             });
 
-            document.getElementById('tokensTableBody').addEventListener('click', async (e) => {
-                const deleteBtn = e.target.closest('.delete-token-btn');
-                if (deleteBtn) {
-                    const tokenId = deleteBtn.dataset.id;
-                    const confirmed = await showConfirmation(`Apakah Anda yakin ingin menghapus token "${tokenId}"?`);
-                    if (confirmed) {
-                        const result = await apiCall('deleteToken', { id: tokenId });
-                        if (result && result.success) {
-                            showToast('Token berhasil dihapus.');
-                            const updatedTokens = await apiCall('getTokens', { subjectId: state.currentSubject.id });
-                            state.tokens = updatedTokens || [];
-                            renderTokens();
-                        }
-                    }
-                }
-            });
-
-
             // Results Management
             function renderResults() {
                 const tableBody = document.getElementById('resultsTableBody');
@@ -1434,6 +1431,23 @@
                             state.results = updatedResults || [];
                             renderResults();
                             populateResultClassFilter();
+                        }
+                    }
+                }
+            });
+
+            document.getElementById('tokensTableBody').addEventListener('click', async (e) => {
+                const deleteBtn = e.target.closest('.delete-token-btn');
+                if (deleteBtn) {
+                    const tokenId = deleteBtn.dataset.id;
+                    const confirmed = await showConfirmation(`Apakah Anda yakin ingin menghapus token "${tokenId}"?`);
+                    if (confirmed) {
+                        const result = await apiCall('deleteToken', { id: tokenId });
+                        if (result && result.success) {
+                            showToast('Token berhasil dihapus.');
+                            const updatedTokens = await apiCall('getTokens', { subjectId: state.currentSubject.id });
+                            state.tokens = updatedTokens || [];
+                            renderTokens();
                         }
                     }
                 }
@@ -1862,6 +1876,10 @@
                     }
                 }
                 renderQuestionNavigation();
+                 if (state.currentExam) {
+                    const progressKey = `cbt-progress-${state.currentExam.studentId}-${state.currentExam.subject.id}`;
+                    localStorage.setItem(progressKey, JSON.stringify(state.currentExam));
+                }
             }
 
             function renderQuestionNavigation() {
@@ -1992,6 +2010,8 @@
                 if (saveOp) {
                     document.getElementById('finalScore').textContent = score;
                     showPage('resultPage');
+                    const progressKey = `cbt-progress-${state.currentExam.studentId}-${state.currentExam.subject.id}`;
+                    localStorage.removeItem(progressKey);
                 }
             }
 
@@ -2106,5 +2126,4 @@
     </script>
 </body>
 </html>
-
 
