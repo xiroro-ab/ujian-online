@@ -84,7 +84,7 @@
             <div class="container mx-auto px-4 py-3 flex justify-between items-center">
                 <div class="flex items-center space-x-3">
                     <img src="https://raw.githubusercontent.com/xiroro-ab/ujian-online/refs/heads/main/logo.png" alt="Logo Aplikasi" class="w-8 h-8">
-                    <h1 class="text-xl md:text-2xl font-bold text-white">Aplikasi CBT Pro</h1>
+                    <h1 class="text-xl md:text-2xl font-bold text-white">Aplikasi CBT SMPN 58</h1>
                 </div>
                 <div class="flex items-center space-x-4">
                     <button id="logout-button" class="hidden bg-red-500 hover:bg-red-600 px-4 py-2 rounded-md text-sm font-semibold transition-all duration-200 ease-in-out flex items-center space-x-2">
@@ -1704,7 +1704,7 @@
             // --- EXAM FLOW ---
             function renderMedia(url, isAnswer = false) {
                 if (!url || typeof url !== 'string' || !url.startsWith('http')) return '';
-                const sizeClass = isAnswer ? 'max-h-24' : 'max-w-sm';
+                const sizeClass = isAnswer ? 'max-h-24 w-auto' : 'w-full max-w-sm h-auto';
 
                 // Check for common video/audio extensions first
                 if (/\.(mp4|webm|ogg)$/i.test(url)) {
@@ -2106,3 +2106,5 @@
     </script>
 </body>
 </html>
+
+
