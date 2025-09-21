@@ -205,9 +205,9 @@
 <body class="min-h-screen flex flex-col">
 
     <!-- App Container -->
-    <main id="app" class="w-full max-w-7xl mx-auto flex-grow flex items-center justify-center p-4">
+    <main id="app" class="w-full max-w-7xl mx-auto flex-grow flex flex-col p-4">
         <!-- Landing Page -->
-        <div id="page-landing" class="w-full">
+        <div id="page-landing" class="w-full flex-grow flex items-center justify-center">
              <div class="max-w-lg mx-auto p-8 rounded-xl text-center">
                 <img src="https://raw.githubusercontent.com/xiroro-ab/ujian-online/refs/heads/main/logo.png" alt="App Logo" class="w-48 h-48 mx-auto mb-8" style="animation: zigzag-float 7s ease-in-out infinite;">
                 <h1 class="text-2xl md:text-3xl font-bold mb-4 bg-gradient-to-r from-fuchsia-500 to-pink-600 text-transparent bg-clip-text">Aplikasi Ujian Online</h1>
@@ -227,7 +227,7 @@
         </div>
 
         <!-- Guru Login Page -->
-        <div id="page-guru-login" class="hidden w-full">
+        <div id="page-guru-login" class="hidden w-full flex-grow flex items-center justify-center">
             <div class="max-w-md mx-auto neon-glow-card p-8 rounded-xl">
                  <img src="https://raw.githubusercontent.com/xiroro-ab/ujian-online/refs/heads/main/logo.png" alt="App Logo" class="w-32 h-32 mx-auto mb-6">
                 <h2 class="text-2xl font-bold text-center mb-6 bg-gradient-to-r from-fuchsia-500 to-pink-600 text-transparent bg-clip-text">Login Guru</h2>
@@ -249,7 +249,7 @@
         </div>
 
         <!-- Siswa Login Page -->
-        <div id="page-siswa-login" class="hidden w-full">
+        <div id="page-siswa-login" class="hidden w-full flex-grow flex items-center justify-center">
            <div class="max-w-md mx-auto neon-glow-card p-8 rounded-xl">
                 <img src="https://raw.githubusercontent.com/xiroro-ab/ujian-online/refs/heads/main/logo.png" alt="App Logo" class="w-32 h-32 mx-auto mb-6">
                 <h2 class="text-2xl font-bold text-center mb-6 bg-gradient-to-r from-fuchsia-500 to-pink-600 text-transparent bg-clip-text">Mulai Ujian</h2>
@@ -279,7 +279,7 @@
         </div>
 
         <!-- Siswa Exam Instruction Page -->
-        <div id="page-exam-instruction" class="hidden w-full">
+        <div id="page-exam-instruction" class="hidden w-full flex-grow flex items-center justify-center">
              <div class="max-w-2xl mx-auto neon-glow-card p-8 rounded-xl">
                 <h2 class="text-2xl font-bold mb-4 bg-gradient-to-r from-fuchsia-500 to-pink-600 text-transparent bg-clip-text">Petunjuk Pengerjaan Ujian</h2>
                 <div id="exam-details" class="text-left space-y-3 my-6"></div>
@@ -298,7 +298,7 @@
         </div>
 
         <!-- Siswa Exam Page -->
-        <div id="page-exam" class="hidden h-screen w-full flex flex-col md:flex-row gap-4 p-4">
+        <div id="page-exam" class="hidden w-full flex-grow flex flex-col md:flex-row gap-4">
             <!-- Left Panel: Navigation -->
             <div class="w-full md:w-1/4 neon-glow-card rounded-lg p-4 flex flex-col">
                 <div class="flex justify-between items-center mb-4">
@@ -324,7 +324,7 @@
         </div>
         
         <!-- Siswa Result Page -->
-        <div id="page-result" class="hidden w-full">
+        <div id="page-result" class="hidden w-full flex-grow flex items-center justify-center">
             <div class="max-w-md mx-auto neon-glow-card p-8 rounded-xl text-center">
                  <h2 class="text-2xl font-bold mb-4 bg-gradient-to-r from-fuchsia-500 to-pink-600 text-transparent bg-clip-text">Ujian Selesai!</h2>
                  <p class="text-base text-gray-300 mb-6">Berikut adalah hasil ujian Anda:</p>
@@ -337,12 +337,12 @@
         </div>
 
         <!-- Guru Dashboard Page -->
-        <div id="page-guru-dashboard" class="hidden w-full">
+        <div id="page-guru-dashboard" class="hidden w-full flex-grow flex flex-col">
             <!-- Guru dashboard content is rendered by JS -->
         </div>
 
         <!-- Guru Manage Subject Page -->
-         <div id="page-manage-subject" class="hidden w-full">
+         <div id="page-manage-subject" class="hidden w-full flex-grow flex flex-col">
             <!-- Manage subject content is rendered by JS -->
         </div>
 
@@ -2009,6 +2009,8 @@
                 // Add new pair
                 answerData.pairs.push({ leftIndex: state.matchingState.selectedLeftIndex, rightIndex: index });
                 state.matchingState.selectedLeftIndex = null;
+                 // Save answer after a successful pair is made
+                saveCurrentAnswer();
             }
             
             // Update UI selection and draw lines
