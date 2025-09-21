@@ -1,0 +1,2075 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ujian Online CBT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #100f1c;
+            --primary-color: #c026d3; /* fuchsia-600 */
+            --secondary-color: #be185d; /* pink-700 */
+            --warning-color: #d97706; /* amber-600 */
+            --glow-color-primary: rgba(192, 38, 211, 0.75);
+            --glow-color-secondary: rgba(190, 24, 93, 0.75);
+            --glow-color-warning: rgba(217, 119, 6, 0.75);
+            --text-glow-color: rgba(255, 255, 255, 0.5);
+        }
+
+        body {
+            font-family: 'Fira Code', monospace;
+            background-color: var(--bg-color);
+            color: #e5e7eb; /* gray-200 */
+            text-shadow: 0 0 2px var(--text-glow-color);
+            font-size: 14px; 
+        }
+
+        .neon-glow-button {
+            background-color: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            box-shadow: 0 0 5px var(--glow-color-primary), 0 0 10px var(--glow-color-primary), inset 0 0 5px var(--glow-color-primary);
+            transition: all 0.3s ease-in-out;
+            animation: pulse-glow 2s infinite alternate;
+        }
+
+        .neon-glow-button:hover, .neon-glow-button.active {
+            color: white;
+            border-color: white;
+            box-shadow: 0 0 10px var(--glow-color-primary), 0 0 20px var(--glow-color-primary), 0 0 40px var(--glow-color-primary), inset 0 0 10px var(--glow-color-primary);
+        }
+
+        .neon-glow-secondary {
+            border-color: var(--secondary-color);
+            color: var(--secondary-color);
+            box-shadow: 0 0 5px var(--glow-color-secondary), 0 0 10px var(--glow-color-secondary), inset 0 0 5px var(--glow-color-secondary);
+        }
+        
+        .neon-glow-secondary:hover {
+            color: white;
+            border-color: white;
+            box-shadow: 0 0 10px var(--glow-color-secondary), 0 0 20px var(--glow-color-secondary), 0 0 40px var(--glow-color-secondary), inset 0 0 10px var(--glow-color-secondary);
+        }
+
+        .neon-glow-warning {
+            border-color: var(--warning-color);
+            color: var(--warning-color);
+            box-shadow: 0 0 5px var(--glow-color-warning), 0 0 10px var(--glow-color-warning), inset 0 0 5px var(--glow-color-warning);
+        }
+
+        .neon-glow-warning:hover {
+             color: white;
+            border-color: white;
+            box-shadow: 0 0 10px var(--glow-color-warning), 0 0 20px var(--glow-color-warning), 0 0 40px var(--glow-color-warning), inset 0 0 10px var(--glow-color-warning);
+        }
+
+        .neon-glow-card {
+            background-color: rgba(23, 22, 38, 0.8);
+            box-shadow: 0 0 10px var(--glow-color-primary);
+            backdrop-filter: blur(5px);
+        }
+        
+        .neon-glow-modal {
+            background-color: rgba(16, 15, 28, 0.9);
+            border: 1px solid var(--primary-color);
+            box-shadow: 0 0 20px var(--glow-color-primary), 0 0 40px var(--glow-color-primary);
+            backdrop-filter: blur(10px);
+        }
+
+        .neon-glow-input {
+            background-color: rgba(30, 28, 50, 0.5);
+            border: 1px solid var(--primary-color);
+            color: #f3f4f6; /* gray-100 */
+        }
+        
+        .neon-glow-input::-webkit-calendar-picker-indicator {
+            filter: invert(1) sepia(100%) saturate(10000%) hue-rotate(270deg);
+        }
+
+        .neon-glow-input:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 8px var(--glow-color-secondary);
+        }
+        
+        @keyframes pulse-glow {
+            from {
+                box-shadow: 0 0 5px var(--glow-color-primary), 0 0 10px var(--glow-color-primary), inset 0 0 5px var(--glow-color-primary);
+            }
+            to {
+                box-shadow: 0 0 10px var(--glow-color-primary), 0 0 20px var(--glow-color-primary), inset 0 0 10px var(--glow-color-primary);
+            }
+        }
+        
+        @keyframes zigzag-float {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(3px, -3px) rotate(-0.5deg); }
+            50% { transform: translate(0, 3px) rotate(0deg); }
+            75% { transform: translate(-3px, -3px) rotate(0.5deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-left-color: var(--primary-color);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes modal-fade-in {
+            from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .modal-content {
+            animation: modal-fade-in 0.3s ease-out forwards;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-color);
+        }
+        .tab-button.active {
+            border-color: var(--primary-color);
+            background: linear-gradient(to top, var(--glow-color-primary), transparent);
+            color: white;
+        }
+        /* Rich Text Editor */
+        .rte-toolbar button {
+            background-color: rgba(255,255,255,0.1);
+            border: 1px solid var(--primary-color);
+        }
+        .rte-toolbar button.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .rte-content {
+            min-height: 120px;
+        }
+
+        /* Custom Styles for new features */
+        .question-nav-button {
+            width: 40px;
+            height: 40px;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .question-media-embed {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 0.5rem;
+            margin: 0.5rem auto;
+        }
+        .option-media-embed {
+            max-height: 5rem; /* 80px */
+            margin-left: 0.5rem;
+            border-radius: 0.25rem;
+            vertical-align: middle;
+        }
+        
+        /* Matching Question Styles */
+        .matching-item {
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        .matching-item.selected {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px var(--glow-color-primary);
+        }
+        #matching-canvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- App Container -->
+    <main id="app" class="w-full max-w-7xl mx-auto flex-grow flex items-center justify-center p-4">
+        <!-- Landing Page -->
+        <div id="page-landing" class="w-full">
+             <div class="max-w-lg mx-auto p-8 rounded-xl text-center">
+                <img src="https://raw.githubusercontent.com/xiroro-ab/ujian-online/refs/heads/main/logo.png" alt="App Logo" class="w-48 h-48 mx-auto mb-8" style="animation: zigzag-float 7s ease-in-out infinite;">
+                <h1 class="text-2xl md:text-3xl font-bold mb-4 bg-gradient-to-r from-fuchsia-500 to-pink-600 text-transparent bg-clip-text">Aplikasi Ujian Online</h1>
+                <p class="text-gray-400 mb-10">Selamat Datang! Silakan pilih peran Anda.</p>
+                <div class="space-y-6 flex flex-col items-center">
+                    <button onclick="navigateTo('page-guru-login')" class="w-full max-w-xs neon-glow-button font-bold py-3 px-8 rounded-lg text-base flex items-center justify-center">
+                        <i class="fas fa-user-tie mr-3"></i>
+                        <span>Masuk sebagai Guru</span>
+                    </button>
+                    <button onclick="navigateTo('page-siswa-login')" class="w-full max-w-xs neon-glow-button neon-glow-secondary font-bold py-3 px-8 rounded-lg text-base flex items-center justify-center">
+                        <i class="fas fa-user-graduate mr-3"></i>
+                        <span>Masuk sebagai Siswa</span>
+                    </button>
+                </div>
+                 <button id="about-btn" class="mt-10 text-gray-400 hover:text-white transition-colors duration-300">About this App</button>
+            </div>
+        </div>
+
+        <!-- Guru Login Page -->
+        <div id="page-guru-login" class="hidden w-full">
+            <div class="max-w-md mx-auto neon-glow-card p-8 rounded-xl">
+                 <img src="https://raw.githubusercontent.com/xiroro-ab/ujian-online/refs/heads/main/logo.png" alt="App Logo" class="w-32 h-32 mx-auto mb-6">
+                <h2 class="text-2xl font-bold text-center mb-6 bg-gradient-to-r from-fuchsia-500 to-pink-600 text-transparent bg-clip-text">Login Guru</h2>
+                <form id="guru-login-form" class="space-y-6">
+                    <div>
+                        <label for="username" class="block mb-2 text-sm font-medium text-gray-300">Username</label>
+                        <input type="text" id="username" name="username" class="w-full p-3 rounded-lg neon-glow-input" required>
+                    </div>
+                    <div>
+                        <label for="password" class="block mb-2 text-sm font-medium text-gray-300">Password</label>
+                        <input type="password" id="password" name="password" class="w-full p-3 rounded-lg neon-glow-input" required>
+                    </div>
+                    <div class="flex items-center justify-between space-x-4 pt-4">
+                        <button type="button" onclick="navigateTo('page-landing')" class="w-full neon-glow-button neon-glow-secondary font-bold py-3 px-6 rounded-lg">Kembali</button>
+                        <button type="submit" class="w-full neon-glow-button font-bold py-3 px-6 rounded-lg">Login</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Siswa Login Page -->
+        <div id="page-siswa-login" class="hidden w-full">
+           <div class="max-w-md mx-auto neon-glow-card p-8 rounded-xl">
+                <img src="https://raw.githubusercontent.com/xiroro-ab/ujian-online/refs/heads/main/logo.png" alt="App Logo" class="w-32 h-32 mx-auto mb-6">
+                <h2 class="text-2xl font-bold text-center mb-6 bg-gradient-to-r from-fuchsia-500 to-pink-600 text-transparent bg-clip-text">Mulai Ujian</h2>
+                <form id="siswa-login-form" class="space-y-6">
+                    <div>
+                        <label for="kelas-select" class="block mb-2 text-sm font-medium text-gray-300">Pilih Kelas</label>
+                        <select id="kelas-select" class="w-full p-3 rounded-lg neon-glow-input" required>
+                            <option value="">Memuat kelas...</option>
+                        </select>
+                    </div>
+                     <div>
+                        <label for="nama-select" class="block mb-2 text-sm font-medium text-gray-300">Pilih Nama</label>
+                        <select id="nama-select" class="w-full p-3 rounded-lg neon-glow-input" disabled required>
+                            <option value="">Pilih kelas terlebih dahulu</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="token" class="block mb-2 text-sm font-medium text-gray-300">Token Ujian</label>
+                        <input type="text" id="token" name="token" class="w-full p-3 rounded-lg neon-glow-input" required>
+                    </div>
+                    <div class="flex items-center justify-between space-x-4 pt-4">
+                        <button type="button" onclick="navigateTo('page-landing')" class="w-full neon-glow-button neon-glow-secondary font-bold py-3 px-6 rounded-lg">Kembali</button>
+                        <button type="submit" class="w-full neon-glow-button font-bold py-3 px-6 rounded-lg">Mulai Ujian</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Siswa Exam Instruction Page -->
+        <div id="page-exam-instruction" class="hidden w-full">
+             <div class="max-w-2xl mx-auto neon-glow-card p-8 rounded-xl">
+                <h2 class="text-2xl font-bold mb-4 bg-gradient-to-r from-fuchsia-500 to-pink-600 text-transparent bg-clip-text">Petunjuk Pengerjaan Ujian</h2>
+                <div id="exam-details" class="text-left space-y-3 my-6"></div>
+                <div class="text-left my-6 p-4 bg-black/30 rounded-lg">
+                    <h3 class="font-bold mb-2 text-fuchsia-400">Keterangan Navigasi Soal</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li class="flex items-center"><div class="w-5 h-5 rounded-md bg-blue-600 mr-3"></div> Soal yang sedang aktif / dikerjakan.</li>
+                        <li class="flex items-center"><div class="w-5 h-5 rounded-md bg-green-600/70 mr-3"></div> Soal yang telah dijawab.</li>
+                        <li class="flex items-center"><div class="w-5 h-5 rounded-md bg-yellow-500/70 mr-3"></div> Soal yang Anda tandai 'Ragu-ragu'.</li>
+                        <li class="flex items-center"><div class="w-5 h-5 rounded-md bg-gray-700 mr-3"></div> Soal yang belum dikerjakan.</li>
+                    </ul>
+                </div>
+                <p class="text-sm text-gray-400 mb-6">Jika Anda tidak sengaja menutup halaman ini, Anda dapat melanjutkan ujian dengan login kembali menggunakan token yang sama.</p>
+                <button id="start-exam-btn" class="w-full neon-glow-button font-bold py-3 px-6 rounded-lg text-base">Mulai Kerjakan</button>
+            </div>
+        </div>
+
+        <!-- Siswa Exam Page -->
+        <div id="page-exam" class="hidden h-screen w-full flex flex-col md:flex-row gap-4 p-4">
+            <!-- Left Panel: Navigation -->
+            <div class="w-full md:w-1/4 neon-glow-card rounded-lg p-4 flex flex-col">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-base font-bold">Navigasi Soal</h3>
+                    <div id="timer" class="font-mono text-lg bg-red-600/50 text-white px-3 py-1 rounded-md">00:00:00</div>
+                </div>
+                <div id="question-nav-grid" class="flex-grow overflow-y-auto grid grid-cols-5 sm:grid-cols-6 md:grid-cols-5 gap-2 content-start">
+                    <!-- Navigation buttons will be injected here -->
+                </div>
+            </div>
+            <!-- Right Panel: Question Content -->
+            <div class="w-full md:w-3/4 neon-glow-card rounded-lg p-6 flex flex-col">
+                <div id="question-content" class="flex-grow overflow-y-auto pr-2">
+                    <!-- Question will be injected here -->
+                </div>
+                <div class="mt-6 flex flex-col sm:flex-row items-center gap-2">
+                    <button id="prev-question-btn" class="w-full sm:flex-1 neon-glow-button neon-glow-secondary font-bold py-2 px-6 rounded-lg">Sebelumnya</button>
+                    <button id="ragu-ragu-btn" class="w-full sm:flex-1 neon-glow-button neon-glow-warning font-bold py-2 px-6 rounded-lg">Ragu-ragu</button>
+                    <button id="next-question-btn" class="w-full sm:flex-1 neon-glow-button font-bold py-2 px-6 rounded-lg">Selanjutnya</button>
+                    <button id="finish-exam-btn" class="hidden w-full sm:flex-1 neon-glow-button font-bold py-2 px-6 rounded-lg bg-green-500/20 border-green-500 text-green-400 hover:border-green-400 hover:text-white">Selesaikan Ujian</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Siswa Result Page -->
+        <div id="page-result" class="hidden w-full">
+            <div class="max-w-md mx-auto neon-glow-card p-8 rounded-xl text-center">
+                 <h2 class="text-2xl font-bold mb-4 bg-gradient-to-r from-fuchsia-500 to-pink-600 text-transparent bg-clip-text">Ujian Selesai!</h2>
+                 <p class="text-base text-gray-300 mb-6">Berikut adalah hasil ujian Anda:</p>
+                 <div class="bg-fuchsia-500/20 p-6 rounded-lg mb-8">
+                     <p class="text-sm text-gray-400">SKOR AKHIR</p>
+                     <p id="final-score" class="text-6xl font-bold text-white">100</p>
+                 </div>
+                 <button onclick="clearExamStateAndLogout()" class="w-full neon-glow-button font-bold py-3 px-6 rounded-lg">Kembali ke Halaman Awal</button>
+            </div>
+        </div>
+
+        <!-- Guru Dashboard Page -->
+        <div id="page-guru-dashboard" class="hidden w-full">
+            <!-- Guru dashboard content is rendered by JS -->
+        </div>
+
+        <!-- Guru Manage Subject Page -->
+         <div id="page-manage-subject" class="hidden w-full">
+            <!-- Manage subject content is rendered by JS -->
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer id="footer" class="text-center text-gray-500 text-sm p-4">
+        Copyright &copy; 2025 Aris Bermansyah, S.Kom
+    </footer>
+
+    <!-- Universal Loader -->
+    <div id="loader" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[100]">
+        <div class="spinner w-16 h-16 rounded-full"></div>
+    </div>
+    
+    <!-- Universal Notification -->
+    <div id="notification" class="hidden fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-60 z-[90] p-4">
+        <div class="modal-content neon-glow-modal max-w-sm w-full p-6 rounded-xl text-center">
+            <h3 id="notification-title" class="text-2xl font-bold mb-4">Title</h3>
+            <p id="notification-message" class="text-gray-300 mb-6">Message here.</p>
+            <button id="notification-close-btn" class="neon-glow-button font-bold py-2 px-8 rounded-lg">OK</button>
+        </div>
+    </div>
+    
+    <!-- Universal Modal -->
+    <div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+        <div id="modal-content-wrapper" class="modal-content neon-glow-modal max-w-2xl w-full rounded-xl">
+             <div class="flex justify-between items-center p-4 border-b border-fuchsia-500/30">
+                <h3 id="modal-title" class="text-xl font-bold">Modal Title</h3>
+                <button id="modal-close-btn-x" class="text-gray-400 hover:text-white text-3xl">&times;</button>
+            </div>
+            <form id="modal-form">
+                <div id="modal-body" class="p-6 max-h-[70vh] overflow-y-auto">
+                    <!-- Modal content goes here -->
+                </div>
+                <div id="modal-footer" class="p-4 border-t border-fuchsia-500/30 flex justify-end items-center gap-4">
+                    <button type="button" id="modal-close-btn-footer" class="neon-glow-button neon-glow-secondary font-bold py-2 px-6 rounded-lg">Batal</button>
+                    <button type="submit" id="modal-action-btn" class="neon-glow-button font-bold py-2 px-6 rounded-lg">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <script>
+        // --- CONFIGURATION ---
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyYLACPr6iYwZJAiJQk39H7BzVduQd0_HcUGF4TArY4aUC4hD7LitzkMr008JtGwY8y/exec";
+
+        // --- GLOBAL STATE ---
+        let state = {
+            currentPage: 'page-landing',
+            currentUser: null,
+            students: [],
+            subjects: [],
+            questions: [],
+            tokens: [],
+            results: [],
+            currentExam: null, 
+            examTimer: null,
+            currentSubject: null, 
+            classFilter: 'all',
+            resultClassFilter: 'all',
+            // For matching question UI
+            matchingState: {
+                selectedLeftIndex: null,
+                resizeObserver: null,
+            }
+        };
+
+        // --- UTILS ---
+        const $ = (selector) => document.querySelector(selector);
+        const $$ = (selector) => document.querySelectorAll(selector);
+
+        const showLoader = () => $('#loader').classList.remove('hidden');
+        const hideLoader = () => $('#loader').classList.add('hidden');
+
+        function showNotification(title, message, type = 'info') {
+            const notif = $('#notification');
+            $('#notification-title').textContent = title;
+            $('#notification-message').textContent = message;
+            
+            const titleEl = $('#notification-title');
+            titleEl.classList.remove('text-green-400', 'text-red-400', 'text-blue-400');
+            if (type === 'success') titleEl.classList.add('text-green-400');
+            else if (type === 'error') titleEl.classList.add('text-red-400');
+            else titleEl.classList.add('text-blue-400');
+            
+            notif.classList.remove('hidden');
+        }
+        
+        const hideNotification = () => $('#notification').classList.add('hidden');
+
+        function showModal(title, bodyHtml, onSave, modalConfig = {}) {
+            $('#modal-title').textContent = title;
+            $('#modal-body').innerHTML = bodyHtml;
+            $('#modal-action-btn').style.display = 'block';
+            $('#modal-close-btn-footer').style.display = 'block';
+
+            $('#modal').classList.remove('hidden');
+            
+            const form = $('#modal-form');
+            form.onsubmit = async (e) => {
+                e.preventDefault();
+                await onSave(e);
+            };
+            
+            // Handle cancel button in modal config
+            if (modalConfig.onCancel) {
+                $('#modal-close-btn-footer').onclick = modalConfig.onCancel;
+                $('#modal-close-btn-x').onclick = modalConfig.onCancel;
+            } else {
+                $('#modal-close-btn-footer').onclick = hideModal;
+                 $('#modal-close-btn-x').onclick = hideModal;
+            }
+
+            $('#modal-action-btn').textContent = modalConfig.actionText || 'Simpan';
+            if(modalConfig.hideAction) $('#modal-action-btn').style.display = 'none';
+            if(modalConfig.hideCancel) $('#modal-close-btn-footer').style.display = 'none';
+        }
+        
+        const hideModal = () => {
+          $('#modal').classList.add('hidden');
+          $('#modal-form').reset();
+           // Reset modal close buttons to default behavior
+          $('#modal-close-btn-footer').onclick = hideModal;
+          $('#modal-close-btn-x').onclick = hideModal;
+        }
+
+        function navigateTo(pageId, params = null) {
+            // Cleanup matching question observer if navigating away from exam page
+            if (state.matchingState && state.matchingState.resizeObserver) {
+                state.matchingState.resizeObserver.disconnect();
+                state.matchingState.resizeObserver = null;
+            }
+
+            $$('[id^="page-"]').forEach(page => page.classList.add('hidden'));
+            const targetPage = $(`#${pageId}`);
+            if (targetPage) {
+                targetPage.classList.remove('hidden');
+                state.currentPage = pageId;
+            }
+        }
+
+        async function apiCall(action, payload = {}) {
+            if (!SCRIPT_URL.startsWith('https')) {
+                showNotification('Error Konfigurasi', 'URL Google Apps Script belum diatur.', 'error');
+                return { success: false, message: 'URL Script tidak valid' };
+            }
+            showLoader();
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'cors',
+                    cache: 'no-cache',
+                    credentials: 'omit',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action, payload }),
+                    redirect: 'follow'
+                });
+                const result = await response.json();
+                if (!result.success) {
+                   showNotification('Error dari Server', result.message || 'Terjadi kesalahan.', 'error');
+                }
+                return result;
+            } catch (error) {
+                console.error('API Call Error:', error);
+                showNotification('Error Jaringan', `Tidak dapat terhubung ke server. Detail: ${error.message}`, 'error');
+                return { success: false, message: error.message };
+            } finally {
+                hideLoader();
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            navigateTo('page-landing');
+            
+            $('#guru-login-form').addEventListener('submit', handleGuruLogin);
+            $('#siswa-login-form').addEventListener('submit', handleSiswaLogin);
+            $('#notification-close-btn').addEventListener('click', hideNotification);
+            $('#about-btn').addEventListener('click', showAboutModal);
+            $('#kelas-select').addEventListener('change', populateNamaSelect);
+            
+            $('#modal-close-btn-x').addEventListener('click', hideModal);
+            $('#modal-close-btn-footer').addEventListener('click', hideModal);
+        });
+
+        // --- PAGE LOGIC & RENDERING ---
+
+        function showAboutModal() {
+             const bodyHtml = `
+                <div class="text-center">
+                    <img src="https://raw.githubusercontent.com/xiroro-ab/bab3-sk-kelas8v2-aris/refs/heads/main/1752495560972.jpg" alt="Author" class="w-32 h-32 rounded-full mx-auto mb-4 border-2 border-fuchsia-500 shadow-lg">
+                    <p class="text-gray-300 text-left mb-4">Aplikasi ini dibuat untuk memudahkan guru dan siswa dalam melihat dan mengerjakan soal pada ujian berbasis online. Aplikasi ini masih dalam tahap perkembangan.</p>
+                    <p class="text-gray-300 text-left mb-4">Aplikasi ini dibuat dengan bantuan AI dan atas dasar tersebut saya hanya menambahkan atau merubah hal yang menurut saya tidak sesuai, atau masih banyak error.</p>
+                    <p class="text-gray-300 text-left mb-6">Terima kasih telah menggunakan aplikasi ini.</p>
+                    <p class="font-semibold">Tertanda,</p>
+                    <p class="bg-gradient-to-r from-fuchsia-500 to-pink-600 text-transparent bg-clip-text font-bold text-base">Aris Bermansyah, S.Kom</p>
+                </div>
+            `;
+            const form = $('#modal-form');
+            form.onsubmit = e => { e.preventDefault(); hideModal(); };
+            showModal('Tentang Aplikasi Ini', bodyHtml, () => hideModal(), { actionText: 'Tutup', hideCancel: true });
+        }
+
+        // --- GURU FLOW ---
+        async function handleGuruLogin(e) {
+            e.preventDefault();
+            const username = $('#username').value;
+            const password = $('#password').value;
+            const res = await apiCall('login', { username, password });
+            if (res.success) {
+                state.currentUser = res.data;
+                renderGuruDashboard();
+                navigateTo('page-guru-dashboard');
+            }
+        }
+
+        function renderGuruDashboard() {
+            const container = $('#page-guru-dashboard');
+            container.innerHTML = `
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                    <h1 class="text-2xl font-bold">Dashboard Guru</h1>
+                    <button onclick="logout()" class="neon-glow-button neon-glow-secondary font-bold py-2 px-5 rounded-lg">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                    </button>
+                </div>
+                <div class="flex border-b border-fuchsia-500/30 mb-4 overflow-x-auto">
+                    <button id="tab-btn-students" class="tab-button py-2 px-4 font-semibold border-b-2 border-transparent transition-colors duration-300 whitespace-nowrap">Manajemen Siswa</button>
+                    <button id="tab-btn-subjects" class="tab-button py-2 px-4 font-semibold border-b-2 border-transparent transition-colors duration-300 whitespace-nowrap">Manajemen Mapel</button>
+                </div>
+                <div id="dashboard-content" class="neon-glow-card p-4 rounded-lg"></div>
+            `;
+            $('#tab-btn-students').addEventListener('click', () => switchDashboardTab('students'));
+            $('#tab-btn-subjects').addEventListener('click', () => switchDashboardTab('subjects'));
+
+            switchDashboardTab('students');
+        }
+        
+        function logout() {
+          state = { 
+              currentPage: 'page-landing', 
+              currentUser: null, 
+              students: [], 
+              subjects: [], 
+              questions: [], 
+              tokens: [], 
+              results: [], 
+              currentExam: null, 
+              examTimer: null, 
+              currentSubject: null, 
+              classFilter: 'all',
+              resultClassFilter: 'all',
+              matchingState: {
+                  selectedLeftIndex: null,
+                  resizeObserver: null
+              }
+          }; // Reset state
+          navigateTo('page-landing');
+          location.reload();
+        }
+        
+        async function switchDashboardTab(tabName) {
+            $$('#page-guru-dashboard .tab-button').forEach(btn => btn.classList.remove('active'));
+            $(`#tab-btn-${tabName}`).classList.add('active');
+            const content = $('#dashboard-content');
+            content.innerHTML = '<p>Memuat data...</p>';
+
+            if (tabName === 'students') {
+                const res = await apiCall('getStudents');
+                if (res.success) {
+                    state.students = res.data;
+                    renderStudentsTab();
+                }
+            } else if (tabName === 'subjects') {
+                const res = await apiCall('getSubjects');
+                if (res.success) {
+                    state.subjects = res.data;
+                    renderSubjectsTab();
+                }
+            }
+        }
+        
+        // --- STUDENT MANAGEMENT ---
+        function renderStudentsTab() {
+            const classes = ['all', ...new Set(state.students.map(s => s.class.toString().trim()))].sort();
+            const filteredStudents = state.classFilter === 'all'
+                ? state.students
+                : state.students.filter(s => s.class.toString().trim() === state.classFilter);
+
+            $('#dashboard-content').innerHTML = `
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+                    <div>
+                        <label for="student-class-filter" class="mr-2">Filter Kelas:</label>
+                        <select id="student-class-filter" class="neon-glow-input rounded-md px-2 py-1">
+                            ${classes.map(c => `<option value="${c}" ${state.classFilter === c ? 'selected' : ''}>${c === 'all' ? 'Semua Kelas' : c}</option>`).join('')}
+                        </select>
+                    </div>
+                    <button onclick="handleAddStudent()" class="neon-glow-button font-bold py-2 px-4 rounded-lg self-end sm:self-center"><i class="fas fa-plus mr-2"></i>Tambah Siswa</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="border-b border-fuchsia-500/50">
+                                <th class="p-3">ID</th><th class="p-3">Nama</th><th class="p-3">Kelas</th><th class="p-3"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        ${filteredStudents.map(student => `
+                            <tr class="border-b border-fuchsia-500/20 hover:bg-fuchsia-500/10">
+                                <td class="p-3 text-xs">${student.id}</td>
+                                <td class="p-3 whitespace-nowrap">${student.name}</td>
+                                <td class="p-3">${student.class}</td>
+                                <td class="p-3 text-right">
+                                    <button onclick="handleEditStudent('${student.id}')" class="text-blue-400 hover:text-blue-300 mr-2"><i class="fas fa-edit"></i></button>
+                                    <button onclick="handleDeleteStudent('${student.id}')" class="text-red-400 hover:text-red-300"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        `).join('') || `<tr><td colspan="4" class="p-4 text-center">Belum ada data siswa.</td></tr>`}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            $('#student-class-filter').addEventListener('change', (e) => {
+                state.classFilter = e.target.value;
+                renderStudentsTab();
+            });
+        }
+        
+        function handleAddStudent() {
+            const bodyHtml = `
+                <div class="space-y-4">
+                    <div><label class="block mb-2 text-sm">Nama Lengkap Siswa</label><input type="text" id="studentName" class="w-full p-2 rounded-lg neon-glow-input" required></div>
+                    <div><label class="block mb-2 text-sm">Kelas</label><input type="text" id="studentClass" class="w-full p-2 rounded-lg neon-glow-input" placeholder="Contoh: 7A" required></div>
+                </div>`;
+            showModal('Tambah Siswa Baru', bodyHtml, async () => {
+                const newStudent = { name: $('#studentName').value, class: $('#studentClass').value };
+                const res = await apiCall('saveStudent', newStudent);
+                if (res.success) {
+                    hideModal();
+                    showNotification('Sukses', 'Siswa berhasil ditambahkan.', 'success');
+                    await switchDashboardTab('students');
+                }
+            });
+        }
+
+        function handleEditStudent(studentId) {
+            const student = state.students.find(s => s.id === studentId);
+            if (!student) return;
+            const bodyHtml = `
+                <div class="space-y-4">
+                    <input type="hidden" id="studentId" value="${student.id}">
+                    <div><label class="block mb-2 text-sm">Nama</label><input type="text" id="studentName" class="w-full p-2 rounded-lg neon-glow-input" value="${student.name}" required></div>
+                    <div><label class="block mb-2 text-sm">Kelas</label><input type="text" id="studentClass" class="w-full p-2 rounded-lg neon-glow-input" value="${student.class}" required></div>
+                </div>`;
+            showModal(`Edit: ${student.name}`, bodyHtml, async () => {
+                const updatedStudent = { id: $('#studentId').value, name: $('#studentName').value, class: $('#studentClass').value };
+                const res = await apiCall('saveStudent', updatedStudent);
+                if (res.success) {
+                    hideModal();
+                    showNotification('Sukses', 'Data siswa berhasil diperbarui.', 'success');
+                    await switchDashboardTab('students');
+                }
+            });
+        }
+
+        function handleDeleteStudent(studentId) {
+            const student = state.students.find(s => s.id === studentId);
+            if (!student) return;
+            showModal('Konfirmasi Hapus Siswa', `<p>Anda yakin ingin menghapus <strong>${student.name}</strong>?</p>`, async () => {
+                const res = await apiCall('deleteStudent', { id: studentId });
+                if (res.success) {
+                    hideModal();
+                    showNotification('Sukses', 'Siswa berhasil dihapus.', 'success');
+                    await switchDashboardTab('students');
+                }
+            }, { actionText: 'Hapus' });
+        }
+
+        // --- SUBJECT MANAGEMENT ---
+        function renderSubjectsTab() {
+            $('#dashboard-content').innerHTML = `
+                <div class="flex justify-end items-center mb-4">
+                    <button onclick="handleAddSubject()" class="neon-glow-button font-bold py-2 px-4 rounded-lg"><i class="fas fa-plus mr-2"></i>Tambah Mapel</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="border-b border-fuchsia-500/50">
+                                <th class="p-3">ID</th><th class="p-3">Nama Mapel</th><th class="p-3">Durasi</th><th class="p-3">Jadwal</th><th class="p-3"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        ${state.subjects.map(subject => `
+                            <tr class="border-b border-fuchsia-500/20 hover:bg-fuchsia-500/10">
+                                <td class="p-3 font-mono text-xs">${subject.id}</td>
+                                <td class="p-3">${subject.name}</td>
+                                <td class="p-3">${subject.duration} menit</td>
+                                <td class="p-3">${subject.schedule ? new Date(subject.schedule).toLocaleString('id-ID') : '-'}</td>
+                                <td class="p-3 text-right whitespace-nowrap">
+                                    <button onclick="navigateToManageSubject('${subject.id}')" class="neon-glow-button text-sm py-1 px-3 rounded-md mr-2"><i class="fas fa-cog mr-1"></i>Kelola</button>
+                                    <button onclick="handleEditSubject('${subject.id}')" class="text-blue-400 hover:text-blue-300 mr-2"><i class="fas fa-edit"></i></button>
+                                    <button onclick="handleDeleteSubject('${subject.id}')" class="text-red-400 hover:text-red-300"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        `).join('') || `<tr><td colspan="5" class="p-4 text-center">Belum ada mata pelajaran.</td></tr>`}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+        
+        function handleAddSubject() {
+            const bodyHtml = `
+                <div class="space-y-4">
+                    <div><label class="block mb-2 text-sm">ID Mata Pelajaran</label><input type="text" id="subjectId" class="w-full p-2 rounded-lg neon-glow-input" placeholder="Contoh: MTK-7" required></div>
+                    <div><label class="block mb-2 text-sm">Nama Mata Pelajaran</label><input type="text" id="subjectName" class="w-full p-2 rounded-lg neon-glow-input" required></div>
+                    <div><label class="block mb-2 text-sm">Durasi (menit)</label><input type="number" id="subjectDuration" class="w-full p-2 rounded-lg neon-glow-input" required></div>
+                    <div><label class="block mb-2 text-sm">Jadwal</label><input type="datetime-local" id="subjectSchedule" class="w-full p-2 rounded-lg neon-glow-input" required></div>
+                </div>
+                <h4 class="font-bold mt-6 mb-2 text-fuchsia-400">Pengaturan Poin Soal (Bobot Nilai)</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-black/20 rounded-lg">
+                    ${renderScoringInputs()}
+                </div>
+            `;
+            showModal('Tambah Mata Pelajaran Baru', bodyHtml, async () => {
+                const scoringRules = getScoringRulesFromModal();
+                const newSubject = { 
+                    id: $('#subjectId').value, 
+                    name: $('#subjectName').value, 
+                    duration: $('#subjectDuration').value, 
+                    schedule: $('#subjectSchedule').value, 
+                    scoringRules: JSON.stringify(scoringRules),
+                    isUpdate: false 
+                };
+                const res = await apiCall('saveSubject', newSubject);
+                if (res.success) {
+                    hideModal();
+                    showNotification('Sukses', 'Mata pelajaran berhasil ditambahkan.', 'success');
+                    await switchDashboardTab('subjects');
+                }
+            });
+        }
+        
+        function handleEditSubject(subjectId) {
+            const subject = state.subjects.find(s => s.id === subjectId);
+            if (!subject) return;
+            const currentRules = subject.scoringRules ? JSON.parse(subject.scoringRules) : {};
+             const bodyHtml = `
+                <div class="space-y-4">
+                    <input type="hidden" id="subjectId" value="${subject.id}">
+                    <div><label class="block text-sm mb-2">Nama</label><input type="text" id="subjectName" class="w-full p-2 rounded-lg neon-glow-input" value="${subject.name}" required></div>
+                    <div><label class="block text-sm mb-2">Durasi (menit)</label><input type="number" id="subjectDuration" class="w-full p-2 rounded-lg neon-glow-input" value="${subject.duration}" required></div>
+                    <div><label class="block text-sm mb-2">Jadwal</label><input type="datetime-local" id="subjectSchedule" class="w-full p-2 rounded-lg neon-glow-input" value="${subject.schedule || ''}" required></div>
+                </div>
+                <h4 class="font-bold mt-6 mb-2 text-fuchsia-400">Pengaturan Poin Soal (Bobot Nilai)</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-black/20 rounded-lg">
+                    ${renderScoringInputs(currentRules)}
+                </div>
+                `;
+             showModal(`Edit: ${subject.name}`, bodyHtml, async () => {
+                const scoringRules = getScoringRulesFromModal();
+                const updatedSubject = { 
+                    id: $('#subjectId').value, 
+                    name: $('#subjectName').value, 
+                    duration: $('#subjectDuration').value, 
+                    schedule: $('#subjectSchedule').value, 
+                    scoringRules: JSON.stringify(scoringRules),
+                    isUpdate: true 
+                };
+                const res = await apiCall('saveSubject', updatedSubject);
+                if (res.success) {
+                    hideModal();
+                    showNotification('Sukses', 'Mata pelajaran berhasil diperbarui.', 'success');
+                    await switchDashboardTab('subjects');
+                }
+            });
+        }
+
+        function renderScoringInputs(rules = {}) {
+            const questionTypes = ["Pilihan Ganda", "Pilihan Ganda Kompleks", "Benar/Salah", "Isian Singkat", "Menjodohkan", "Esai"];
+            return questionTypes.map(type => `
+                <div>
+                    <label class="block mb-1 text-sm text-gray-300">${type}</label>
+                    <input type="number" id="points-${type.replace(/[\s/]+/g, '-')}" class="w-full p-2 rounded neon-glow-input" value="${rules[type] || 1}" min="0" step="0.5">
+                </div>
+            `).join('');
+        }
+
+        function getScoringRulesFromModal() {
+            const questionTypes = ["Pilihan Ganda", "Pilihan Ganda Kompleks", "Benar/Salah", "Isian Singkat", "Menjodohkan", "Esai"];
+            const rules = {};
+            questionTypes.forEach(type => {
+                const inputId = `points-${type.replace(/[\s/]+/g, '-')}`;
+                rules[type] = parseFloat($(`#${inputId}`).value) || 1;
+            });
+            return rules;
+        }
+        
+        function handleDeleteSubject(subjectId) {
+            const subject = state.subjects.find(s => s.id === subjectId);
+            if (!subject) return;
+            showModal('Konfirmasi Hapus', `<p>Yakin ingin menghapus <strong>${subject.name}</strong>?</p>`, async () => {
+                 const res = await apiCall('deleteSubject', { id: subjectId });
+                 if (res.success) {
+                    hideModal();
+                    showNotification('Sukses', 'Mata pelajaran berhasil dihapus.', 'success');
+                    await switchDashboardTab('subjects');
+                }
+            }, { actionText: 'Hapus' });
+        }
+
+
+        // --- MANAGE SUBJECT PAGE ---
+        function navigateToManageSubject(subjectId) {
+            state.currentSubject = state.subjects.find(s => s.id === subjectId);
+            if(state.currentSubject) {
+                renderManageSubjectPage();
+                navigateTo('page-manage-subject');
+            }
+        }
+
+        function renderManageSubjectPage() {
+            const { name, id } = state.currentSubject;
+            $('#page-manage-subject').innerHTML = `
+                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                    <div>
+                        <button onclick="navigateTo('page-guru-dashboard'); renderGuruDashboard();" class="neon-glow-button neon-glow-secondary font-bold py-2 px-5 rounded-lg mb-2">
+                            <i class="fas fa-arrow-left mr-2"></i>Kembali
+                        </button>
+                        <h1 class="text-2xl font-bold">Kelola: ${name}</h1>
+                        <p class="text-sm text-gray-400">ID Mapel: ${id}</p>
+                    </div>
+                </div>
+                <div class="flex border-b border-fuchsia-500/30 mb-4 overflow-x-auto">
+                    <button id="subject-tab-questions" class="tab-button py-2 px-4 font-semibold border-b-2 border-transparent transition-colors duration-300 whitespace-nowrap">Manajemen Soal</button>
+                    <button id="subject-tab-tokens" class="tab-button py-2 px-4 font-semibold border-b-2 border-transparent transition-colors duration-300 whitespace-nowrap">Manajemen Token</button>
+                    <button id="subject-tab-results" class="tab-button py-2 px-4 font-semibold border-b-2 border-transparent transition-colors duration-300 whitespace-nowrap">Hasil Ujian</button>
+                    <button id="subject-tab-print" class="tab-button py-2 px-4 font-semibold border-b-2 border-transparent transition-colors duration-300 whitespace-nowrap">Cetak Nilai</button>
+                </div>
+                <div id="subject-content" class="neon-glow-card p-4 rounded-lg min-h-[300px]"></div>
+            `;
+
+            $$('#page-manage-subject .tab-button').forEach(btn => {
+                btn.addEventListener('click', (e) => switchSubjectTab(e.target.id.split('-')[2]));
+            });
+            
+            switchSubjectTab('questions');
+        }
+
+        async function switchSubjectTab(tabName) {
+            $$('#page-manage-subject .tab-button').forEach(btn => btn.classList.remove('active'));
+            $(`#subject-tab-${tabName}`).classList.add('active');
+            $('#subject-content').innerHTML = '<p>Memuat data...</p>';
+            
+            // Refetch questions only if the subject changes
+            if (!state.questions.length || state.questions[0]?.subjectId !== state.currentSubject.id) {
+                const qRes = await apiCall('getQuestions', { subjectId: state.currentSubject.id });
+                if (qRes.success) state.questions = qRes.data;
+            }
+
+            switch(tabName) {
+                case 'questions':
+                    renderQuestionsTab();
+                    break;
+                case 'tokens':
+                     const tRes = await apiCall('getTokens', { subjectId: state.currentSubject.id });
+                     if (tRes.success) {
+                        state.tokens = tRes.data;
+                        renderTokensTab();
+                     }
+                    break;
+                case 'results':
+                    const rRes = await apiCall('getResults', { subjectId: state.currentSubject.id });
+                    if(rRes.success) {
+                        state.results = rRes.data;
+                        renderResultsTab();
+                    }
+                    break;
+                case 'print':
+                    if (!state.results.length || state.results[0]?.subjectId !== state.currentSubject.id) {
+                        const res = await apiCall('getResults', { subjectId: state.currentSubject.id });
+                         if(res.success) state.results = res.data;
+                    }
+                    renderPrintTab();
+                    break;
+            }
+        }
+
+        // --- QUESTIONS TAB ---
+        function renderQuestionsTab() {
+            $('#subject-content').innerHTML = `
+                <div class="flex justify-end mb-4 gap-2">
+                    <button onclick="handleImportQuestions()" class="neon-glow-button neon-glow-secondary font-bold py-2 px-4 rounded-lg"><i class="fas fa-file-upload mr-2"></i>Import Soal</button>
+                    <button onclick="handleAddQuestion()" class="neon-glow-button font-bold py-2 px-4 rounded-lg"><i class="fas fa-plus mr-2"></i>Tambah Soal</button>
+                </div>
+                <div id="questions-list" class="space-y-4">
+                    ${state.questions.length > 0 ? state.questions.map((q, i) => renderQuestionCard(q, i)).join('') : '<p class="text-center text-gray-400">Belum ada soal untuk mata pelajaran ini.</p>'}
+                </div>
+            `;
+        }
+        
+        function handleImportQuestions() {
+            const bodyHtml = `
+                <div class="flex justify-between items-center mb-4">
+                    <p class="text-sm text-gray-400">Unggah, atau salin-tempel data soal Anda di bawah.</p>
+                    <div class="flex gap-2">
+                         <label for="json-file-input" class="neon-glow-button text-sm py-1 px-3 rounded-md cursor-pointer"><i class="fas fa-upload mr-2"></i>Pilih File</label>
+                         <input type="file" id="json-file-input" class="hidden" accept=".json,.txt">
+                         <button type="button" onclick="downloadImportTemplate()" class="neon-glow-button text-sm py-1 px-3 rounded-md"><i class="fas fa-download mr-2"></i>Download Template</button>
+                    </div>
+                </div>
+                <textarea id="json-import-data" class="w-full p-2 rounded-lg neon-glow-input font-mono text-xs" rows="15" placeholder="Tempel data JSON di sini..."></textarea>
+            `;
+
+            showModal('Import Soal Secara Massal', bodyHtml, async () => {
+                const jsonData = $('#json-import-data').value;
+                if (!jsonData) {
+                    showNotification('Error', 'Kotak isian tidak boleh kosong.', 'error');
+                    return;
+                }
+                try {
+                    const questions = JSON.parse(jsonData);
+                    if (!Array.isArray(questions) || questions.length === 0) {
+                        showNotification('Error', 'Format JSON harus berupa array (daftar) soal dan tidak boleh kosong.', 'error');
+                        return;
+                    }
+
+                    const questionsWithSubjectId = questions.map(q => ({...q, subjectId: state.currentSubject.id }));
+                    const res = await apiCall('saveQuestionsBatch', { questions: questionsWithSubjectId });
+
+                    if (res.success) {
+                        hideModal();
+                        showNotification('Sukses', `${questions.length} soal berhasil diimpor.`, 'success');
+                        const qRes = await apiCall('getQuestions', { subjectId: state.currentSubject.id });
+                        if (qRes.success) {
+                            state.questions = qRes.data;
+                            renderQuestionsTab();
+                        }
+                    }
+
+                } catch (e) {
+                    showNotification('Error Format JSON', 'Terdapat kesalahan pada format JSON. ' + e.message, 'error');
+                }
+            }, { actionText: 'Proses Import' });
+
+            $('#json-file-input').addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    $('#json-import-data').value = e.target.result;
+                };
+                reader.onerror = () => {
+                     showNotification('Error', 'Gagal membaca file.', 'error');
+                };
+                reader.readAsText(file);
+            });
+        }
+        
+        function downloadImportTemplate() {
+            const templateData = [
+              {
+                "type": "Pilihan Ganda",
+                "text": "<b>Teks Soal Pilihan Ganda:</b> Apa ibu kota Provinsi Jawa Barat?",
+                "mediaUrl": "",
+                "options": [
+                  {"text": "Jakarta"},
+                  {"text": "Bandung"},
+                  {"text": "Semarang"},
+                  {"text": "Surabaya"}
+                ],
+                "answer": "B"
+              },
+              {
+                "type": "Pilihan Ganda Kompleks",
+                "text": "<i>Teks Soal PG Kompleks:</i> Pilih dua hewan yang merupakan mamalia.",
+                "mediaUrl": "",
+                "options": [
+                  {"text": "Paus"},
+                  {"text": "Hiu"},
+                  {"text": "Lumba-lumba"},
+                  {"text": "Penyu"}
+                ],
+                "answer": ["A", "C"]
+              },
+              {
+                "type": "Benar/Salah",
+                "text": "<u>Teks Soal Benar/Salah:</u> Matahari terbit dari arah barat.",
+                "mediaUrl": "",
+                "options": [],
+                "answer": "Salah"
+              },
+              {
+                "type": "Isian Singkat",
+                "text": "Teks Soal Isian Singkat: Rumus kimia untuk air adalah ___.",
+                "mediaUrl": "",
+                "options": [],
+                "answer": "H2O"
+              },
+              {
+                "type": "Esai",
+                "text": "Teks Soal Esai: Jelaskan secara singkat proses terjadinya hujan.",
+                "mediaUrl": "",
+                "options": [],
+                "answer": "Air menguap, membentuk awan (kondensasi), lalu turun sebagai hujan (presipitasi)."
+              },
+              {
+                "type": "Menjodohkan",
+                "text": "Teks Soal Menjodohkan: Pasangkan nama pahlawan dengan daerah asalnya.",
+                "mediaUrl": "",
+                "options": [
+                  {"q": {"text": "Cut Nyak Dien"}, "a": {"text": "Aceh"}},
+                  {"q": {"text": "Pangeran Diponegoro"}, "a": {"text": "Jawa Tengah"}},
+                  {"q": {"text": "I Gusti Ngurah Rai", "img": "https://placehold.co/100x50?text=Pahlawan"}, "a": {"text": "Bali", "img": "https://placehold.co/100x50?text=Pulau"}}
+                ],
+                "answer": "Otomatis"
+              }
+            ];
+
+            const jsonString = JSON.stringify(templateData, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'template_import_soal.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+
+        function renderQuestionCard(question, index) {
+            if (question.error) {
+                return `<div class="p-4 rounded-lg bg-red-900/50 border border-red-500"><p class="font-bold">Soal #${index + 1} Error</p><p class="text-sm">${question.error}</p></div>`;
+            }
+            let optionsHtml = '';
+            
+            const renderOption = (opt) => {
+                if(typeof opt === 'object' && opt !== null) {
+                    return `
+                        <div class="flex items-center gap-2">
+                            <span>${opt.text || ''}</span>
+                            ${opt.img ? `<img src="${opt.img}" class="option-media-embed">` : ''}
+                        </div>
+                    `;
+                }
+                return `<span>${opt}</span>`;
+            };
+
+            if (['Pilihan Ganda', 'Pilihan Ganda Kompleks'].includes(question.type) && Array.isArray(question.options)) {
+                optionsHtml = `<ol class="list-[upper-alpha] list-inside space-y-1 mt-2">${question.options.map(opt => `<li>${renderOption(opt)}</li>`).join('')}</ol>`;
+            } else if (question.type === 'Menjodohkan' && Array.isArray(question.options)) {
+                optionsHtml = `<div class="grid grid-cols-2 gap-2 mt-2 font-sans text-sm">`;
+                question.options.forEach(pair => {
+                    optionsHtml += `<div class="bg-black/20 p-2 rounded">${renderOption(pair.q)}</div><div class="bg-black/20 p-2 rounded">${renderOption(pair.a)}</div>`;
+                });
+                optionsHtml += `</div>`;
+            }
+             
+             let answerText;
+            if (question.type === 'Menjodohkan') {
+                answerText = question.options.map((pair, idx) => {
+                    const questionLetter = String.fromCharCode(65 + idx);
+                    return `${questionLetter} ➔ ${pair.a.text}`;
+                }).join(', ');
+            } else {
+                answerText = question.answer ? (Array.isArray(question.answer) ? question.answer.join(', ') : question.answer) : 'N/A';
+            }
+
+            return `
+                <div class="p-4 rounded-lg bg-black/30 border border-fuchsia-500/30">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm font-bold text-fuchsia-400">Soal #${index + 1} (${question.type})</p>
+                            <div class="whitespace-pre-wrap mt-1">${question.text}</div>
+                            ${question.mediaUrl ? `<img src="${question.mediaUrl}" class="my-2 question-media-embed">` : ''}
+                            ${optionsHtml}
+                            <p class="text-xs mt-2 text-green-400"><strong>Jawaban:</strong> ${answerText}</p>
+                        </div>
+                        <div class="flex-shrink-0 ml-4">
+                            <button onclick="handleEditQuestion('${question.id}')" class="text-blue-400 hover:text-blue-300 mr-2"><i class="fas fa-edit"></i></button>
+                            <button onclick="handleDeleteQuestion('${question.id}')" class="text-red-400 hover:text-red-300"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function handleAddQuestion() {
+            renderQuestionModal();
+        }
+
+        function handleEditQuestion(questionId) {
+            const question = state.questions.find(q => q.id === questionId);
+            renderQuestionModal(question);
+        }
+        
+        async function handleDeleteQuestion(questionId) {
+            showModal('Konfirmasi Hapus Soal', `<p>Anda yakin ingin menghapus soal ini?</p>`, async () => {
+                const res = await apiCall('deleteQuestion', { id: questionId });
+                if (res.success) {
+                    hideModal();
+                    showNotification('Sukses', 'Soal berhasil dihapus.', 'success');
+                    state.questions = state.questions.filter(q => q.id !== questionId);
+                    renderQuestionsTab();
+                }
+            }, { actionText: 'Hapus' });
+        }
+        
+        // --- TOKENS TAB ---
+        function renderTokensTab() {
+             const classes = [...new Set(state.students.map(s => s.class.toString().trim()))].sort();
+             $('#subject-content').innerHTML = `
+                <div class="p-4 rounded-lg bg-black/30 mb-4">
+                    <h3 class="font-bold mb-2">Buat Token Baru</h3>
+                    <div id="class-checkboxes" class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
+                        ${classes.map(c => `<label class="flex items-center gap-2"><input type="checkbox" name="classGroup" value="${c}" class="form-checkbox h-4 w-4 bg-transparent border-primary-color text-primary-color focus:ring-primary-color">${c}</label>`).join('')}
+                    </div>
+                    <button onclick="handleGenerateToken()" class="neon-glow-button font-bold py-2 px-4 rounded-lg">Buat Token</button>
+                </div>
+                <div>
+                    <h3 class="font-bold mb-2">Token Aktif</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead><tr class="border-b border-fuchsia-500/50"><th class="p-2">Token</th><th class="p-2">Untuk Kelas</th><th class="p-2">Dibuat</th><th class="p-2"></th></tr></thead>
+                            <tbody>
+                                ${state.tokens.map(token => `
+                                <tr class="border-b border-fuchsia-500/20">
+                                    <td class="p-2 font-mono text-lg">${token.id}</td>
+                                    <td class="p-2">${token.classGroup.join(', ')}</td>
+                                    <td class="p-2 text-sm">${token.createdAt}</td>
+                                    <td class="p-2 text-right">
+                                        <button onclick="handleDeleteToken('${token.id}')" class="text-red-400 hover:text-red-300"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>`).join('') || `<tr><td colspan="4" class="text-center p-4">Belum ada token aktif.</td></tr>`}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+             `;
+        }
+
+        async function handleGenerateToken() {
+            const selectedClasses = Array.from($$('input[name="classGroup"]:checked')).map(cb => cb.value);
+            if (selectedClasses.length === 0) {
+                showNotification('Error', 'Pilih minimal satu kelas.', 'error');
+                return;
+            }
+            const res = await apiCall('generateToken', { subjectId: state.currentSubject.id, classGroup: selectedClasses });
+            if (res.success) {
+                showNotification('Sukses', `Token baru berhasil dibuat: ${res.data.token}`, 'success');
+                await switchSubjectTab('tokens');
+            }
+        }
+        
+        async function handleDeleteToken(tokenId) {
+             showModal('Konfirmasi Hapus Token', `<p>Anda yakin ingin menghapus token <strong>${tokenId}</strong>?</p>`, async () => {
+                const res = await apiCall('deleteToken', { id: tokenId });
+                if (res.success) {
+                    hideModal();
+                    showNotification('Sukses', 'Token berhasil dihapus.', 'success');
+                    await switchSubjectTab('tokens');
+                }
+            }, { actionText: 'Hapus' });
+        }
+        
+        // --- RESULTS TAB ---
+        function renderResultsTab() {
+            const classes = ['all', ...new Set(state.results.map(r => r.class.toString().trim()))].sort();
+            const filteredResults = state.resultClassFilter === 'all'
+                ? state.results
+                : state.results.filter(r => r.class.toString().trim() === state.resultClassFilter);
+
+            $('#subject-content').innerHTML = `
+                <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
+                     <div>
+                        <label for="result-class-filter" class="mr-2">Filter Kelas:</label>
+                        <select id="result-class-filter" class="neon-glow-input rounded-md px-2 py-1">
+                            ${classes.map(c => `<option value="${c}" ${state.resultClassFilter === c ? 'selected' : ''}>${c === 'all' ? 'Semua Kelas' : c}</option>`).join('')}
+                        </select>
+                    </div>
+                    <button onclick="handleExportResults()" class="neon-glow-button font-bold py-2 px-4 rounded-lg"><i class="fas fa-file-export mr-2"></i>Export ke Google Sheets</button>
+                </div>
+                 <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead><tr class="border-b border-fuchsia-500/50"><th class="p-2">Nama</th><th class="p-2">Kelas</th><th class="p-2">Skor</th><th class="p-2">Waktu Selesai</th><th class="p-2"></th></tr></thead>
+                        <tbody>
+                             ${filteredResults.map(result => `
+                                <tr class="border-b border-fuchsia-500/20">
+                                    <td class="p-2">${result.studentName}</td>
+                                    <td class="p-2">${result.class}</td>
+                                    <td class="p-2 font-bold">${parseFloat(result.score).toFixed(1)}</td>
+                                    <td class="p-2 text-sm">${result.timestamp}</td>
+                                    <td class="p-2 text-right">
+                                        <button onclick="handleViewStudentResult('${result.id}')" class="text-blue-400 hover:text-blue-300 mr-2" title="Lihat Jawaban Siswa"><i class="fas fa-eye"></i></button>
+                                        <button onclick="handleDeleteResult('${result.id}')" class="text-red-400 hover:text-red-300" title="Hapus agar siswa bisa mengulang"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>`).join('') || `<tr><td colspan="5" class="text-center p-4">Belum ada hasil ujian.</td></tr>`}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+             $('#result-class-filter').addEventListener('change', (e) => {
+                state.resultClassFilter = e.target.value;
+                renderResultsTab();
+            });
+        }
+        
+        async function handleDeleteResult(resultId) {
+             const result = state.results.find(r => r.id === resultId);
+             showModal('Konfirmasi Hapus Hasil', `<p>Hapus hasil ujian <strong>${result.studentName}</strong>? Ini akan memungkinkan siswa untuk mengerjakan ujian kembali.</p>`, async () => {
+                const res = await apiCall('deleteResult', { id: resultId });
+                if (res.success) {
+                    hideModal();
+                    showNotification('Sukses', 'Hasil ujian berhasil dihapus.', 'success');
+                    await switchSubjectTab('results');
+                }
+            }, { actionText: 'Hapus' });
+        }
+        
+        async function handleExportResults() {
+            const res = await apiCall('exportResultsToNewSheet', { subjectId: state.currentSubject.id, classFilter: state.resultClassFilter });
+            if (res.success) {
+                showNotification('Sukses', res.message, 'success');
+            }
+        }
+        
+        // --- PRINT TAB ---
+        function renderPrintTab() {
+             const filteredResults = state.resultClassFilter === 'all'
+                ? state.results
+                : state.results.filter(r => r.class.toString().trim() === state.resultClassFilter);
+            
+            $('#subject-content').innerHTML = `
+                <div class="text-center">
+                    <p class="mb-4">Halaman ini akan mencetak laporan nilai untuk <strong>${state.currentSubject.name}</strong> kelas <strong>${state.resultClassFilter === 'all' ? 'Semua' : state.resultClassFilter}</strong>.</p>
+                    <button onclick="handlePrint()" class="neon-glow-button font-bold py-2 px-6 rounded-lg"><i class="fas fa-print mr-2"></i>Cetak Laporan Nilai</button>
+                    <div id="print-area" class="hidden"></div>
+                </div>`;
+        }
+
+        function handlePrint() {
+            const filteredResults = (state.resultClassFilter === 'all'
+                ? state.results
+                : state.results.filter(r => r.class.toString().trim() === state.resultClassFilter))
+                .sort((a,b) => a.studentName.localeCompare(b.studentName));
+            
+            const printContent = `
+                <style>
+                    body { font-family: Arial, sans-serif; }
+                    table { width: 100%; border-collapse: collapse; }
+                    th, td { border: 1px solid black; padding: 8px; text-align: left; }
+                    th { background-color: #f2f2f2; }
+                    h1, h2 { text-align: center; }
+                </style>
+                <h1>Laporan Hasil Ujian</h1>
+                <h2>${state.currentSubject.name}</h2>
+                <p><strong>Kelas:</strong> ${state.resultClassFilter === 'all' ? 'Semua' : state.resultClassFilter}</p>
+                <p><strong>Tanggal Cetak:</strong> ${new Date().toLocaleDateString('id-ID')}</p>
+                <hr>
+                <table>
+                    <thead><tr><th>No.</th><th>Nama Siswa</th><th>Kelas</th><th>Skor</th></tr></thead>
+                    <tbody>
+                        ${filteredResults.map((r, i) => `
+                            <tr><td>${i+1}</td><td>${r.studentName}</td><td>${r.class}</td><td>${parseFloat(r.score).toFixed(1)}</td></tr>`).join('')}
+                    </tbody>
+                </table>
+            `;
+            
+            const printWindow = window.open('', '', 'height=600,width=800');
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            printWindow.print();
+        }
+        
+        // --- QUESTION MODAL ---
+        function renderQuestionModal(question = null) {
+            const isEdit = question !== null;
+            const title = isEdit ? `Edit Soal #${state.questions.findIndex(q => q.id === question.id) + 1}` : 'Tambah Soal Baru';
+            const bodyHtml = `
+                <input type="hidden" id="questionId" value="${isEdit ? question.id : ''}">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block mb-2 text-sm">Tipe Soal</label>
+                        <select id="questionType" class="w-full p-2 rounded-lg neon-glow-input">
+                            <option value="Pilihan Ganda">Pilihan Ganda</option>
+                            <option value="Pilihan Ganda Kompleks">Pilihan Ganda Kompleks</option>
+                            <option value="Benar/Salah">Benar/Salah</option>
+                            <option value="Isian Singkat">Isian Singkat</option>
+                            <option value="Menjodohkan">Menjodohkan</option>
+                            <option value="Esai">Esai</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block mb-2 text-sm">Teks Soal</label>
+                        <div class="rte-toolbar flex items-center gap-2 mb-2 p-1 rounded-lg border border-fuchsia-500/50">
+                            <button type="button" class="px-2 py-1 rounded" onclick="formatDoc('bold');"><i class="fas fa-bold"></i></button>
+                            <button type="button" class="px-2 py-1 rounded" onclick="formatDoc('italic');"><i class="fas fa-italic"></i></button>
+                            <button type="button" class="px-2 py-1 rounded" onclick="formatDoc('underline');"><i class="fas fa-underline"></i></button>
+                        </div>
+                        <div id="questionText" class="w-full p-2 rounded-lg neon-glow-input rte-content" contenteditable="true"></div>
+                    </div>
+                    <div>
+                        <label class="block mb-2 text-sm">URL Media (Gambar/Video) - Opsional</label>
+                        <input type="url" id="questionMediaUrl" class="w-full p-2 rounded-lg neon-glow-input" value="${isEdit ? (question.mediaUrl || '') : ''}" placeholder="https://contoh.com/gambar.jpg">
+                    </div>
+                    <div id="question-options-container"></div>
+                    <div id="question-answer-container"></div>
+                </div>
+            `;
+            showModal(title, bodyHtml, handleSaveQuestion);
+
+            const typeSelect = $('#questionType');
+            if (isEdit) {
+                typeSelect.value = question.type;
+                $('#questionText').innerHTML = question.text;
+            }
+            
+            typeSelect.onchange = () => renderQuestionFields(typeSelect.value, null);
+            renderQuestionFields(typeSelect.value, question);
+        }
+
+        function formatDoc(command, value = null) {
+            document.execCommand(command, false, value);
+        }
+
+        function renderQuestionFields(type, question = null) {
+            const isEdit = question !== null;
+            const optionsContainer = $('#question-options-container');
+            const answerContainer = $('#question-answer-container');
+            optionsContainer.innerHTML = '';
+            answerContainer.innerHTML = '';
+            
+            switch (type) {
+                case 'Pilihan Ganda':
+                case 'Pilihan Ganda Kompleks': {
+                    optionsContainer.innerHTML = `
+                        <label class="block mb-2 text-sm">Opsi Jawaban</label>
+                        <div id="mc-options-container"></div>
+                        <button type="button" onclick="addQuestionOption()" class="text-sm neon-glow-button py-1 px-2 rounded mt-2"><i class="fas fa-plus"></i> Tambah Opsi</button>
+                    `;
+                    const options = isEdit && Array.isArray(question.options) && question.options.length > 0 ? question.options : [{}, {}];
+                    options.forEach(opt => addQuestionOption(opt, isEdit ? question.answer : null));
+                    
+                    break;
+                }
+                case 'Benar/Salah':
+                    answerContainer.innerHTML = `<label class="block mb-2 text-sm">Jawaban Benar</label>
+                        <div class="flex gap-4">
+                            <label class="flex items-center gap-2"><input type="radio" name="q-answer-tf" value="Benar" class="form-radio" ${isEdit && question.answer === 'Benar' ? 'checked':''}> Benar</label>
+                            <label class="flex items-center gap-2"><input type="radio" name="q-answer-tf" value="Salah" class="form-radio" ${isEdit && question.answer === 'Salah' ? 'checked':''}> Salah</label>
+                        </div>`;
+                    break;
+                case 'Isian Singkat':
+                case 'Esai': {
+                     const label = type === 'Esai' ? 'Kunci Jawaban (Referensi)' : 'Jawaban Benar';
+                     answerContainer.innerHTML = `<label class="block mb-2 text-sm">${label}</label>
+                        <textarea id="q-answer-text" class="w-full p-2 rounded-lg neon-glow-input" rows="3">${isEdit ? (question.answer || '') : ''}</textarea>`;
+                    break;
+                }
+                case 'Menjodohkan': {
+                    let pairsHtml = `<label class="block mb-2 text-sm">Pasangan</label>
+                        <div id="matching-pairs-container">`;
+                    const pairs = isEdit && Array.isArray(question.options) ? question.options : [{q:{}, a:{}}, {q:{}, a:{}}];
+                    pairs.forEach((pair, i) => {
+                        pairsHtml += `
+                            <div class="matching-pair grid grid-cols-2 gap-2 mb-2 p-2 border border-fuchsia-500/20 rounded-lg">
+                                <div>
+                                    <input type="text" class="matching-q-text w-full p-1 rounded neon-glow-input" placeholder="Item ${i+1}" value="${pair.q.text || ''}">
+                                    <input type="url" class="matching-q-img w-full p-1 rounded neon-glow-input mt-1 text-xs" placeholder="URL Gambar Item (opsional)" value="${pair.q.img || ''}">
+                                </div>
+                                <div>
+                                    <input type="text" class="matching-a-text w-full p-1 rounded neon-glow-input" placeholder="Pasangan ${i+1}" value="${pair.a.text || ''}">
+                                    <input type="url" class="matching-a-img w-full p-1 rounded neon-glow-input mt-1 text-xs" placeholder="URL Gambar Pasangan (opsional)" value="${pair.a.img || ''}">
+                                </div>
+                            </div>`;
+                    });
+                    pairsHtml += `</div>
+                        <button type="button" onclick="addMatchingPair()" class="text-sm neon-glow-button py-1 px-2 rounded mt-2"><i class="fas fa-plus"></i> Tambah Pasangan</button>`;
+                    optionsContainer.innerHTML = pairsHtml;
+                    answerContainer.innerHTML = `<p class="text-xs text-gray-400">Jawaban benar ditentukan oleh pasangan yang Anda buat.</p>`;
+                    break;
+                }
+            }
+        }
+
+        function addQuestionOption(value = { text: '', img: '' }, correctAnswer = null) {
+            const container = $('#mc-options-container');
+            if (!container) return;
+            const newOption = document.createElement('div');
+            const type = $('#questionType').value === 'Pilihan Ganda' ? 'radio' : 'checkbox';
+            const index = container.children.length;
+            const letter = String.fromCharCode(65 + index);
+
+            const isChecked = correctAnswer ? (Array.isArray(correctAnswer) ? correctAnswer.includes(letter) : correctAnswer === letter) : false;
+
+            newOption.className = 'option-row flex items-center gap-2 mb-2 p-2 border border-fuchsia-500/20 rounded-lg';
+            newOption.innerHTML = `
+                <input type="${type}" name="q-answer" value="${letter}" class="form-${type} h-5 w-5 bg-transparent border-primary-color text-primary-color focus:ring-primary-color flex-shrink-0" ${isChecked ? 'checked' : ''}>
+                <div class="w-full">
+                    <input type="text" class="question-option-text w-full p-1 rounded neon-glow-input" placeholder="Teks Opsi ${letter}" value="${value.text || ''}">
+                    <input type="url" class="question-option-img w-full p-1 rounded neon-glow-input mt-1 text-xs" placeholder="URL Gambar Opsi (opsional)" value="${value.img || ''}">
+                </div>
+                <button type="button" onclick="removeQuestionOption(this)" class="text-red-400 hover:text-red-300 ml-2 flex-shrink-0"><i class="fas fa-times-circle"></i></button>
+            `;
+            container.appendChild(newOption);
+        }
+
+        function removeQuestionOption(btn) {
+            btn.closest('.option-row').remove();
+            reindexOptions();
+        }
+
+        function reindexOptions() {
+            const container = $('#mc-options-container');
+            if (!container) return;
+            const rows = $$('#mc-options-container .option-row');
+            rows.forEach((row, index) => {
+                const letter = String.fromCharCode(65 + index);
+                row.querySelector('input[name="q-answer"]').value = letter;
+                row.querySelector('.question-option-text').placeholder = `Teks Opsi ${letter}`;
+            });
+        }
+
+        function addMatchingPair() {
+            const container = $('#matching-pairs-container');
+            const pairCount = container.children.length;
+            const newPair = document.createElement('div');
+            newPair.className = "matching-pair grid grid-cols-2 gap-2 mb-2 p-2 border border-fuchsia-500/20 rounded-lg";
+            newPair.innerHTML = `
+                <div>
+                    <input type="text" class="matching-q-text w-full p-1 rounded neon-glow-input" placeholder="Item ${pairCount + 1}">
+                    <input type="url" class="matching-q-img w-full p-1 rounded neon-glow-input mt-1 text-xs" placeholder="URL Gambar Item (opsional)">
+                </div>
+                <div>
+                    <input type="text" class="matching-a-text w-full p-1 rounded neon-glow-input" placeholder="Pasangan ${pairCount + 1}">
+                    <input type="url" class="matching-a-img w-full p-1 rounded neon-glow-input mt-1 text-xs" placeholder="URL Gambar Pasangan (opsional)">
+                </div>`;
+            container.appendChild(newPair);
+        }
+        
+        async function handleSaveQuestion() {
+            const type = $('#questionType').value;
+            let options = null;
+            let answer = null;
+            
+            switch(type) {
+                case 'Pilihan Ganda':
+                case 'Pilihan Ganda Kompleks':
+                    options = Array.from($$('.option-row')).map(row => ({
+                        text: row.querySelector('.question-option-text').value,
+                        img: row.querySelector('.question-option-img').value
+                    }));
+                    const selected = Array.from($$('input[name="q-answer"]:checked')).map(cb => cb.value);
+                    answer = type === 'Pilihan Ganda' ? (selected[0] || null) : selected;
+                    break;
+                case 'Benar/Salah':
+                    const tfAnswer = $('input[name="q-answer-tf"]:checked');
+                    answer = tfAnswer ? tfAnswer.value : null;
+                    break;
+                case 'Isian Singkat':
+                case 'Esai':
+                    answer = $('#q-answer-text').value;
+                    break;
+                case 'Menjodohkan':
+                    options = Array.from($$('.matching-pair')).map(pair => ({
+                        q: { text: pair.querySelector('.matching-q-text').value, img: pair.querySelector('.matching-q-img').value },
+                        a: { text: pair.querySelector('.matching-a-text').value, img: pair.querySelector('.matching-a-img').value }
+                    }));
+                    answer = "Otomatis";
+                    break;
+            }
+
+            const payload = {
+                id: $('#questionId').value,
+                subjectId: state.currentSubject.id,
+                type: type,
+                text: $('#questionText').innerHTML,
+                mediaUrl: $('#questionMediaUrl').value,
+                options: options,
+                answer: answer
+            };
+            
+            const res = await apiCall('saveQuestion', payload);
+            if(res.success) {
+                hideModal();
+                showNotification('Sukses', 'Soal berhasil disimpan', 'success');
+                await switchSubjectTab('questions');
+            }
+        }
+
+        // --- SISWA FLOW ---
+        
+        async function populateKelasSelect() {
+            const res = await apiCall('getStudents');
+            if (res.success) {
+                state.students = res.data;
+                const classes = [...new Set(res.data.map(s => s.class.toString().trim()))].sort();
+                const select = $('#kelas-select');
+                select.innerHTML = '<option value="">-- Pilih Kelas --</option>';
+                classes.forEach(c => select.innerHTML += `<option value="${c}">${c}</option>`);
+            }
+        }
+        
+        function populateNamaSelect() {
+            const selectedClass = $('#kelas-select').value;
+            const namaSelect = $('#nama-select');
+            namaSelect.innerHTML = '<option value="">-- Pilih Nama --</option>';
+            if (selectedClass) {
+                const studentsInClass = state.students
+                    .filter(s => s.class.toString().trim() === selectedClass)
+                    .sort((a,b) => a.name.localeCompare(b.name));
+                studentsInClass.forEach(s => namaSelect.innerHTML += `<option value="${s.id}">${s.name}</option>`);
+                namaSelect.disabled = false;
+            } else {
+                namaSelect.disabled = true;
+            }
+        }
+
+        async function handleSiswaLogin(e) {
+            e.preventDefault();
+            const studentId = $('#nama-select').value;
+            const token = $('#token').value.trim().toUpperCase();
+
+            if (!studentId || !token) {
+                showNotification('Error', 'Harap lengkapi semua field.', 'error');
+                return;
+            }
+
+            // Call backend first to check if user has already completed the exam
+            const res = await apiCall('validateTokenAndStartExam', { studentId, token });
+            const storageKey = `cbt-exam-state-${studentId}-${token}`;
+
+            if (res.success) {
+                // User is allowed to take the exam. Now, check for saved progress.
+                const savedState = localStorage.getItem(storageKey);
+                
+                if (savedState) {
+                    // Found saved progress, ask to resume.
+                    showModal('Lanjutkan Ujian?', '<p>Kami menemukan progres ujian yang belum selesai. Apakah Anda ingin melanjutkannya?</p>',
+                    () => { // On "Yes" (continue)
+                        hideModal();
+                        state.currentExam = JSON.parse(savedState);
+                        startExam(true); // Start exam in resume mode
+                    }, {
+                        actionText: 'Ya, Lanjutkan',
+                        onCancel: () => { // On "No" (start new with fresh data from backend)
+                            localStorage.removeItem(storageKey);
+                            hideModal();
+                            // Start a fresh exam using the data we already received
+                            state.currentExam = res.data;
+                            state.currentExam.studentId = studentId;
+                            state.currentExam.token = token;
+                            state.currentExam.answers = Array(res.data.questions.length).fill(null).map(() => ({ answer: null, isDoubtful: false }));
+                            state.currentExam.currentQuestionIndex = 0;
+                            renderExamInstructions();
+                            navigateTo('page-exam-instruction');
+                        }
+                    });
+                    $('#modal-close-btn-footer').textContent = 'Tidak, Mulai Baru';
+                } else {
+                    // No saved progress, start a fresh exam.
+                    state.currentExam = res.data;
+                    state.currentExam.studentId = studentId;
+                    state.currentExam.token = token;
+                    state.currentExam.answers = Array(res.data.questions.length).fill(null).map(() => ({ answer: null, isDoubtful: false }));
+                    state.currentExam.currentQuestionIndex = 0;
+                    renderExamInstructions();
+                    navigateTo('page-exam-instruction');
+                }
+            } else {
+                // API call failed, likely because the user already finished.
+                // Clean up any lingering local storage just in case.
+                localStorage.removeItem(storageKey);
+            }
+        }
+
+        function renderExamInstructions() {
+            const { subject, questions } = state.currentExam;
+            $('#exam-details').innerHTML = `
+                <p><strong>Mata Pelajaran:</strong> ${subject.name}</p>
+                <p><strong>Jumlah Soal:</strong> ${questions.length}</p>
+                <p><strong>Durasi:</strong> ${subject.duration} menit</p>
+            `;
+            $('#start-exam-btn').onclick = () => startExam(false);
+        }
+
+        function startExam(isResuming = false) {
+            navigateTo('page-exam');
+            renderExamPage();
+            let duration = state.currentExam.subject.duration;
+            if (isResuming && state.currentExam.remainingSeconds) {
+                duration = state.currentExam.remainingSeconds / 60;
+            }
+            startTimer(duration);
+        }
+
+        function renderExamPage() {
+            renderQuestionNav();
+            renderCurrentQuestion();
+            $('#prev-question-btn').onclick = () => navigateQuestion('prev');
+            $('#ragu-ragu-btn').onclick = handleRaguRaguAndNext;
+            $('#next-question-btn').onclick = () => navigateQuestion('next');
+            $('#finish-exam-btn').onclick = () => finishExam(false);
+        }
+        
+        function renderQuestionNav() {
+            const navGrid = $('#question-nav-grid');
+            navGrid.innerHTML = state.currentExam.answers.map((answerData, index) => {
+                let colorClass = 'bg-gray-700 hover:bg-gray-600';
+                if (answerData.answer !== null) colorClass = 'bg-green-600/70 hover:bg-green-600';
+                if (answerData.isDoubtful) colorClass = 'bg-yellow-500/70 hover:bg-yellow-500';
+                if (index === state.currentExam.currentQuestionIndex) colorClass = 'bg-blue-600 text-white ring-2 ring-white';
+                return `<button onclick="jumpToQuestion(${index})" class="question-nav-button rounded-md transition-all duration-200 ${colorClass}">${index + 1}</button>`;
+            }).join('');
+        }
+        
+        function jumpToQuestion(index) {
+            saveCurrentAnswer();
+            state.currentExam.currentQuestionIndex = index;
+            renderCurrentQuestion();
+            renderQuestionNav();
+            saveExamStateToLocalStorage();
+        }
+        
+        function renderCurrentQuestion() {
+            const { questions, answers, currentQuestionIndex } = state.currentExam;
+            const question = questions[currentQuestionIndex];
+            const answerData = answers[currentQuestionIndex];
+            const contentDiv = $('#question-content');
+            
+            if(!question || question.error) {
+                 contentDiv.innerHTML = `<div class="text-center p-8 bg-red-900/50 rounded-lg"><h3 class="text-2xl text-red-400 font-bold mb-2">Gagal Memuat Soal</h3><p>${question ? question.error : 'Data soal tidak ditemukan.'}</p></div>`;
+                 return;
+            }
+
+            let questionHtml = `<div class="mb-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-sm font-bold text-fuchsia-400">Soal No. ${currentQuestionIndex + 1}</span>
+                    <span class="text-xs font-semibold px-2 py-1 bg-fuchsia-500/20 text-fuchsia-300 rounded-full">${question.type}</span>
+                </div>
+                <div class="text-base mt-2 whitespace-pre-wrap">${question.text}</div>
+                ${question.mediaUrl ? `<img src="${question.mediaUrl}" class="my-4 question-media-embed">` : ''}
+            </div>`;
+            
+            const { type, options } = question;
+
+            if (type === 'Pilihan Ganda' && Array.isArray(options)) {
+                questionHtml += `<div class="space-y-3">${options.map((opt, idx) => {
+                    const optionLetter = String.fromCharCode(65 + idx);
+                    const isChecked = answerData.answer === optionLetter;
+                    const optionContent = typeof opt === 'object' ? `${opt.text || ''} ${opt.img ? `<img src="${opt.img}" class="option-media-embed">`:''}`: opt;
+                    return `<label class="flex items-start p-3 rounded-lg border border-gray-600 hover:border-fuchsia-500 cursor-pointer transition-colors ${isChecked ? 'bg-fuchsia-500/20 border-fuchsia-400' : ''}"><input type="radio" name="option" value="${optionLetter}" class="mr-3 mt-1 form-radio h-5 w-5 bg-transparent border-primary-color text-primary-color focus:ring-primary-color" ${isChecked ? 'checked' : ''}><span>${optionLetter}. ${optionContent}</span></label>`;
+                }).join('')}</div>`;
+            } else if (type === 'Pilihan Ganda Kompleks' && Array.isArray(options)) {
+                 questionHtml += `<div class="space-y-3">${options.map((opt, idx) => {
+                    const optionLetter = String.fromCharCode(65 + idx);
+                    const isChecked = Array.isArray(answerData.answer) && answerData.answer.includes(optionLetter);
+                    const optionContent = typeof opt === 'object' ? `${opt.text || ''} ${opt.img ? `<img src="${opt.img}" class="option-media-embed">`:''}`: opt;
+                    return `<label class="flex items-start p-3 rounded-lg border border-gray-600 hover:border-fuchsia-500 cursor-pointer transition-colors ${isChecked ? 'bg-fuchsia-500/20 border-fuchsia-400' : ''}"><input type="checkbox" name="option" value="${optionLetter}" class="mr-3 mt-1 form-checkbox h-5 w-5 bg-transparent border-primary-color text-primary-color focus:ring-primary-color" ${isChecked ? 'checked' : ''}><span>${optionLetter}. ${optionContent}</span></label>`;
+                }).join('')}</div>`;
+            } else if (type === 'Menjodohkan' && Array.isArray(options)) {
+                // Initialize matching state for this question
+                if (!answerData.pairs) {
+                    answerData.pairs = [];
+                }
+                
+                const questionItems = options.map(pair => pair.q);
+                const answerItems = [...options.map(pair => pair.a)];
+                
+                // Shuffle answer items ONCE and store them
+                if (!answerData.shuffledAnswers) {
+                     for (let i = answerItems.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [answerItems[i], answerItems[j]] = [answerItems[j], answerItems[i]];
+                    }
+                    answerData.shuffledAnswers = answerItems;
+                }
+                const shuffledAnswerItems = answerData.shuffledAnswers;
+
+                questionHtml += `<div id="matching-container" class="relative">
+                    <canvas id="matching-canvas"></canvas>
+                    <div class="grid grid-cols-2 gap-4">`;
+                
+                // Left Column: Questions
+                questionHtml += `<div id="matching-left" class="space-y-3"><h4 class="font-bold text-fuchsia-400 text-center">Soal</h4>`;
+                questionItems.forEach((item, idx) => {
+                    const itemContent = `${item.text || ''} ${item.img ? `<img src="${item.img}" class="question-media-embed inline-block align-middle max-h-16">`:''}`;
+                    questionHtml += `<div class="matching-item p-2 rounded-lg bg-black/30 flex items-center gap-2" data-side="left" data-index="${idx}">${String.fromCharCode(65 + idx)}. ${itemContent}</div>`;
+                });
+                questionHtml += `</div>`;
+
+                // Right Column: Shuffled Answers
+                questionHtml += `<div id="matching-right" class="space-y-3"><h4 class="font-bold text-fuchsia-400 text-center">Pilihan Jawaban</h4>`;
+                shuffledAnswerItems.forEach((item, idx) => {
+                    const itemContent = `${item.text || ''} ${item.img ? `<img src="${item.img}" class="option-media-embed inline-block align-middle max-h-16">`:''}`;
+                     questionHtml += `<div class="matching-item p-2 rounded-lg bg-black/30 flex items-center gap-2" data-side="right" data-index="${idx}" data-text="${item.text}">${itemContent}</div>`;
+                });
+                questionHtml += `</div></div></div>`;
+                
+                // Delay setup to ensure DOM is ready
+                setTimeout(() => setupMatchingQuestion(answerData.pairs), 0);
+
+            } else if (type === 'Benar/Salah') {
+                questionHtml += `<div class="space-y-3">
+                    <label class="flex items-center p-3 rounded-lg border border-gray-600 hover:border-fuchsia-500 cursor-pointer transition-colors ${answerData.answer === 'Benar' ? 'bg-fuchsia-500/20 border-fuchsia-400' : ''}">
+                        <input type="radio" name="bs_option" value="Benar" class="mr-3 form-radio h-5 w-5 bg-transparent border-primary-color text-primary-color focus:ring-primary-color" ${answerData.answer === 'Benar' ? 'checked' : ''}> Benar
+                    </label>
+                    <label class="flex items-center p-3 rounded-lg border border-gray-600 hover:border-fuchsia-500 cursor-pointer transition-colors ${answerData.answer === 'Salah' ? 'bg-fuchsia-500/20 border-fuchsia-400' : ''}">
+                        <input type="radio" name="bs_option" value="Salah" class="mr-3 form-radio h-5 w-5 bg-transparent border-primary-color text-primary-color focus:ring-primary-color" ${answerData.answer === 'Salah' ? 'checked' : ''}> Salah
+                    </label>
+                </div>`;
+            } else { // Fallback for Isian Singkat, Esai
+                 questionHtml += `<textarea class="w-full p-3 rounded-lg neon-glow-input mt-4" rows="5" placeholder="Ketik jawaban Anda...">${answerData.answer || ''}</textarea>`;
+            }
+
+            contentDiv.innerHTML = questionHtml;
+            $('#prev-question-btn').classList.toggle('invisible', currentQuestionIndex === 0);
+            const isLastQuestion = currentQuestionIndex === questions.length - 1;
+            $('#next-question-btn').classList.toggle('hidden', isLastQuestion);
+            $('#ragu-ragu-btn').classList.toggle('hidden', isLastQuestion);
+            $('#finish-exam-btn').classList.toggle('hidden', !isLastQuestion);
+        }
+        
+        function saveCurrentAnswer() {
+            const { currentQuestionIndex, questions, answers } = state.currentExam;
+            const questionType = questions[currentQuestionIndex].type;
+            const answerData = answers[currentQuestionIndex];
+            let currentAnswer = null;
+
+            if (questionType === 'Pilihan Ganda') {
+                const selectedOption = $('input[name="option"]:checked');
+                if (selectedOption) currentAnswer = selectedOption.value;
+            } else if (questionType === 'Pilihan Ganda Kompleks') {
+                const selectedOptions = Array.from($$('input[name="option"]:checked')).map(cb => cb.value);
+                currentAnswer = selectedOptions.length > 0 ? selectedOptions : null;
+            } else if (questionType === 'Menjodohkan') {
+                const pairs = answerData.pairs || [];
+                const shuffledAnswers = answerData.shuffledAnswers || [];
+
+                const formattedPairs = pairs.map(pair => ({
+                    questionItem: String.fromCharCode(65 + pair.leftIndex),
+                    answerItem: shuffledAnswers[pair.rightIndex].text
+                }));
+                currentAnswer = formattedPairs.length > 0 ? formattedPairs : null;
+            } else if (questionType === 'Benar/Salah') {
+                const selectedOption = $('input[name="bs_option"]:checked');
+                if (selectedOption) currentAnswer = selectedOption.value;
+            } else { // Fallback for Textarea-based (Isian Singkat, Esai)
+                 const textarea = $('#question-content textarea');
+                 if(textarea && textarea.value.trim() !== '') {
+                     currentAnswer = textarea.value.trim();
+                 }
+            }
+            state.currentExam.answers[currentQuestionIndex].answer = currentAnswer;
+        }
+
+        function handleRaguRaguAndNext() {
+            const { currentQuestionIndex, answers } = state.currentExam;
+            answers[currentQuestionIndex].isDoubtful = true;
+            navigateQuestion('next');
+        }
+        
+        function navigateQuestion(direction) {
+            saveCurrentAnswer();
+            const { questions, currentQuestionIndex } = state.currentExam;
+            let newIndex = currentQuestionIndex;
+            if (direction === 'next' && currentQuestionIndex < questions.length - 1) newIndex++;
+            else if (direction === 'prev' && currentQuestionIndex > 0) newIndex--;
+            jumpToQuestion(newIndex);
+        }
+
+        function startTimer(minutes) {
+            if (state.examTimer) clearInterval(state.examTimer);
+            let seconds = Math.floor(minutes * 60);
+            const timerEl = $('#timer');
+            
+            const updateTimerDisplay = () => {
+                const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
+                const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+                const s = (seconds % 60).toString().padStart(2, '0');
+                timerEl.textContent = `${h}:${m}:${s}`;
+            };
+            
+            updateTimerDisplay();
+
+            state.examTimer = setInterval(() => {
+                if (seconds <= 0) {
+                    clearInterval(state.examTimer);
+                    timerEl.classList.add('animate-pulse');
+                    finishExam(true);
+                    return;
+                }
+                seconds--;
+                state.currentExam.remainingSeconds = seconds;
+                updateTimerDisplay();
+            }, 1000);
+        }
+
+        async function finishExam(isAutoSubmit = false) {
+             clearInterval(state.examTimer);
+             saveCurrentAnswer();
+             
+             const unanswered = state.currentExam.answers.filter(a => a.answer === null).length;
+             const message = isAutoSubmit 
+                ? 'Waktu ujian telah habis. Jawaban Anda akan dikumpulkan.'
+                : `Anda yakin ingin menyelesaikan ujian? ${unanswered > 0 ? `Masih ada ${unanswered} soal yang belum dijawab.` : ''}`;
+             
+             showModal(isAutoSubmit ? 'Waktu Habis' : 'Konfirmasi Selesai Ujian', `<p>${message}</p>`,
+                async () => {
+                    hideModal();
+                    const { studentId, subjectId, token, answers } = state.currentExam;
+                    const res = await apiCall('saveResult', { studentId, subjectId, token, answers: answers.map(a => a.answer) });
+                    if (res.success) {
+                        clearExamStateFromLocalStorage();
+                        $('#final-score').textContent = parseFloat(res.data.score).toFixed(1);
+                        navigateTo('page-result');
+                    }
+                }, { actionText: 'Ya, Selesaikan' });
+        }
+        
+        // --- LOCAL STORAGE & EXAM STATE ---
+        function saveExamStateToLocalStorage() {
+            if (state.currentExam) {
+                const storageKey = `cbt-exam-state-${state.currentExam.studentId}-${state.currentExam.token}`;
+                localStorage.setItem(storageKey, JSON.stringify(state.currentExam));
+            }
+        }
+        
+        function clearExamStateFromLocalStorage() {
+            if (state.currentExam) {
+                const storageKey = `cbt-exam-state-${state.currentExam.studentId}-${state.currentExam.token}`;
+                localStorage.removeItem(storageKey);
+            }
+        }
+
+        function clearExamStateAndLogout() {
+            clearExamStateFromLocalStorage();
+            navigateTo('page-landing');
+            location.reload();
+        }
+        
+        window.addEventListener('beforeunload', saveExamStateToLocalStorage);
+
+
+        // --- RESULT VIEW MODAL for GURU ---
+        function handleViewStudentResult(resultId) {
+            const result = state.results.find(r => r.id === resultId);
+            if (!result) return;
+            
+            const scoringRules = JSON.parse(state.currentSubject.scoringRules || '{}');
+            const getScoreForType = (type) => parseFloat(scoringRules[type] || 1);
+
+            let contentHtml = `<div class="space-y-4">`;
+            state.questions.forEach((q, index) => {
+                const studentAnswerRaw = result.answers[index];
+                const correctAnswer = q.answer;
+                const pointValue = getScoreForType(q.type);
+                
+                let studentAnswerDisplay = '(Tidak Dijawab)';
+                if (studentAnswerRaw !== null && studentAnswerRaw !== undefined) {
+                     if (Array.isArray(studentAnswerRaw)) {
+                        if (q.type === 'Menjodohkan') {
+                            studentAnswerDisplay = studentAnswerRaw.map(ans => `${ans.questionItem} ➔ ${ans.answerItem}`).join('<br>');
+                        } else {
+                            studentAnswerDisplay = studentAnswerRaw.join(', ');
+                        }
+                    } else {
+                        studentAnswerDisplay = studentAnswerRaw.toString();
+                    }
+                }
+
+                let isCorrect = false;
+
+                if (q.type === 'Pilihan Ganda Kompleks') {
+                    const correctSet = new Set(correctAnswer);
+                    const userSet = new Set(studentAnswerRaw || []);
+                    isCorrect = correctSet.size === userSet.size && [...correctSet].every(item => userSet.has(item));
+                } else if (q.type === 'Menjodohkan') {
+                    let correctPairs = 0;
+                    if (Array.isArray(studentAnswerRaw) && Array.isArray(q.options)) {
+                         studentAnswerRaw.forEach(ans => {
+                            const questionIndex = ans.questionItem.charCodeAt(0) - 65; // 'A' -> 0
+                            if (q.options[questionIndex] && q.options[questionIndex].a.text === ans.answerItem) {
+                                correctPairs++;
+                            }
+                        });
+                        isCorrect = correctPairs === q.options.length;
+                    }
+                } else if (studentAnswerRaw !== null) {
+                    isCorrect = studentAnswerRaw.toString().toLowerCase() === correctAnswer.toString().toLowerCase();
+                }
+                
+                let correctAnswerDisplay;
+                if(q.type === 'Menjodohkan') {
+                    correctAnswerDisplay = q.options.map((pair, idx) => {
+                        const questionLetter = String.fromCharCode(65 + idx);
+                        return `${questionLetter} ➔ ${pair.a.text}`;
+                    }).join('<br>');
+                } else {
+                    correctAnswerDisplay = Array.isArray(correctAnswer) ? correctAnswer.join(', ') : correctAnswer;
+                }
+
+                 const correctnessClass = isCorrect ? 'bg-green-500/20 border-green-500' : 'bg-red-500/20 border-red-500';
+                 const correctnessIcon = isCorrect ? '<i class="fas fa-check-circle text-green-400"></i>' : '<i class="fas fa-times-circle text-red-400"></i>';
+
+                contentHtml += `
+                    <div class="p-3 rounded-lg border ${correctnessClass}">
+                        <div class="flex justify-between items-center">
+                            <p class="font-bold">Soal #${index+1}</p>
+                            <span class="text-xs font-semibold px-2 py-1 bg-fuchsia-500/20 text-fuchsia-300 rounded-full">${q.type} (${pointValue} Poin)</span>
+                        </div>
+                        <div class="text-sm mt-1">${q.text}</div>
+                        <hr class="my-2 border-fuchsia-500/20">
+                        <p class="text-xs">Jawaban Siswa: <br><strong class="text-white">${studentAnswerDisplay}</strong></p>
+                        <p class="text-xs">Kunci Jawaban: <br><strong class="text-green-400">${correctAnswerDisplay}</strong></p>
+                        <div class="mt-1">${correctnessIcon}</div>
+                    </div>
+                `;
+            });
+            contentHtml += `</div>`;
+            
+            showModal(`Hasil Jawaban: ${result.studentName}`, contentHtml, () => hideModal(), { actionText: 'Tutup', hideCancel: true });
+        }
+
+        // --- MATCHING QUESTION LOGIC ---
+        function setupMatchingQuestion(savedPairs) {
+            const container = $('#matching-container');
+            if (!container) return;
+
+            const { answers, currentQuestionIndex } = state.currentExam;
+            const answerData = answers[currentQuestionIndex];
+            answerData.pairs = savedPairs || [];
+
+            container.addEventListener('click', handleMatchingClick);
+            
+            // Initial draw
+            setTimeout(() => drawMatchingLines(answerData.pairs), 100);
+
+            // Redraw on resize
+            if(state.matchingState.resizeObserver) state.matchingState.resizeObserver.disconnect();
+            state.matchingState.resizeObserver = new ResizeObserver(() => drawMatchingLines(answerData.pairs || []));
+            state.matchingState.resizeObserver.observe(container);
+        }
+
+        function handleMatchingClick(event) {
+            const item = event.target.closest('.matching-item');
+            if (!item) return;
+            
+            const { answers, currentQuestionIndex } = state.currentExam;
+            const answerData = answers[currentQuestionIndex];
+
+            const side = item.dataset.side;
+            const index = parseInt(item.dataset.index);
+
+            if (side === 'left') {
+                state.matchingState.selectedLeftIndex = index;
+            } else if (side === 'right' && state.matchingState.selectedLeftIndex !== null) {
+                // Remove any existing pair for this left or right item
+                answerData.pairs = answerData.pairs.filter(p => 
+                    p.leftIndex !== state.matchingState.selectedLeftIndex && p.rightIndex !== index
+                );
+                // Add new pair
+                answerData.pairs.push({ leftIndex: state.matchingState.selectedLeftIndex, rightIndex: index });
+                state.matchingState.selectedLeftIndex = null;
+            }
+            
+            // Update UI selection and draw lines
+            updateMatchingSelection();
+            drawMatchingLines(answerData.pairs);
+        }
+
+        function updateMatchingSelection() {
+            $$('.matching-item').forEach(el => el.classList.remove('selected'));
+            if (state.matchingState.selectedLeftIndex !== null) {
+                $(`#matching-left .matching-item[data-index="${state.matchingState.selectedLeftIndex}"]`)?.classList.add('selected');
+            }
+        }
+        
+        function drawMatchingLines(pairs = []) {
+            const canvas = $('#matching-canvas');
+            const container = $('#matching-container');
+            if (!canvas || !container) return;
+
+            const ctx = canvas.getContext('2d');
+            const rect = container.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            pairs.forEach(pair => {
+                const leftEl = $(`#matching-left .matching-item[data-index="${pair.leftIndex}"]`);
+                const rightEl = $(`#matching-right .matching-item[data-index="${pair.rightIndex}"]`);
+
+                if (leftEl && rightEl) {
+                    const leftRect = leftEl.getBoundingClientRect();
+                    const rightRect = rightEl.getBoundingClientRect();
+
+                    const startX = leftRect.right - rect.left;
+                    const startY = leftRect.top - rect.top + leftRect.height / 2;
+                    const endX = rightRect.left - rect.left;
+                    const endY = rightRect.top - rect.top + rightRect.height / 2;
+
+                    ctx.beginPath();
+                    ctx.moveTo(startX, startY);
+                    ctx.lineTo(endX, endY);
+                    ctx.strokeStyle = 'var(--primary-color)';
+                    ctx.lineWidth = 2;
+                    ctx.shadowColor = 'var(--glow-color-primary)';
+                    ctx.shadowBlur = 5;
+                    ctx.stroke();
+                }
+            });
+        }
+
+
+        // --- HOOKS for specific page loads ---
+        const originalNavigateTo = navigateTo;
+        navigateTo = (pageId, params = null) => {
+            originalNavigateTo(pageId, params);
+            if (pageId === 'page-siswa-login') {
+                populateKelasSelect();
+            }
+        };
+
+    </script>
+</body>
+</html>
+
