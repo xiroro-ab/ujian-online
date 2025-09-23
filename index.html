@@ -1698,6 +1698,7 @@
             }
             startTimer(duration);
             addAntiCheatListeners();
+            startWatermarkAnimation();
         }
 
         function renderExamPage() {
@@ -2209,6 +2210,44 @@
             document.removeEventListener('contextmenu', preventContextMenu);
             document.removeEventListener('keydown', preventCopyPaste);
             if(document.fullscreenElement) document.exitFullscreen();
+            stopWatermarkAnimation();
+        }
+
+        function startWatermarkAnimation() {
+            const student = state.students.find(s => s.id === state.currentExam.studentId);
+            if (!student) return;
+
+            const overlay = $('#watermark-overlay');
+            overlay.innerHTML = ''; // Clear previous
+            const text = `${student.name} - ${student.class} - ${new Date().toLocaleTimeString('id-ID')}`;
+
+            for (let i = 0; i < 15; i++) {
+                const watermark = document.createElement('div');
+                watermark.className = 'watermark-text';
+                watermark.textContent = text;
+                
+                // Random properties
+                const angle = (Math.random() * 60) - 30; // -30 to 30 deg
+                const duration = (Math.random() * 20) + 30; // 30s to 50s
+                const startTop = Math.random() * 100;
+                const startLeft = Math.random() * 100;
+                const endX = (Math.random() * 200 - 100) + 'px'; // -100px to 100px
+                const endY = (Math.random() * 200 - 100) + 'px';
+
+                watermark.style.setProperty('--angle', `${angle}deg`);
+                watermark.style.setProperty('--end-x', endX);
+                watermark.style.setProperty('--end-y', endY);
+                watermark.style.top = `${startTop}vh`;
+                watermark.style.left = `${startLeft}vw`;
+                watermark.style.animation = `drift ${duration}s linear infinite alternate`;
+                
+                overlay.appendChild(watermark);
+            }
+        }
+
+        function stopWatermarkAnimation() {
+            const overlay = $('#watermark-overlay');
+            overlay.innerHTML = '';
         }
 
         // --- HOOKS for specific page loads ---
