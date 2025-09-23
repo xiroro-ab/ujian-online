@@ -234,7 +234,7 @@
              <div class="max-w-lg mx-auto p-8 rounded-xl text-center">
                 <img src="https://raw.githubusercontent.com/xiroro-ab/ujian-online/refs/heads/main/logo.png" alt="App Logo" class="w-48 h-48 mx-auto mb-8" style="animation: zigzag-float 7s ease-in-out infinite;">
                 <h1 class="text-2xl md:text-3xl font-bold mb-2 bg-gradient-to-r from-fuchsia-500 to-pink-600 text-transparent bg-clip-text">Aplikasi Ujian Online</h1>
-                <p class="text-2xl md:text-3xl font-bold mb-2 bg-gradient-to-r from-fuchsia-500 to-pink-600 text-transparent bg-clip-text">SMPN 58</p>
+                <p class="text-2xl md:text-3xl font-bold mb-2 bg-gradient-to-r from-fuchsia-500 to-pink-600 text-transparent bg-clip-text">SMPN 58 </p>
                 <p class="text-gray-400 mb-10">Selamat Datang! Silakan pilih peran Anda.</p>
                 <div class="space-y-6 flex flex-col items-center">
                     <button onclick="navigateTo('page-guru-login')" class="w-full max-w-sm neon-glow-button font-bold py-3 px-8 rounded-lg text-base flex items-center justify-center">
@@ -487,18 +487,27 @@
                 await onSave(e);
             };
             
-            // Handle cancel button in modal config
-            if (modalConfig.onCancel) {
-                $('#modal-close-btn-footer').onclick = modalConfig.onCancel;
-                $('#modal-close-btn-x').onclick = modalConfig.onCancel;
+            const closeBtnX = $('#modal-close-btn-x');
+            const closeBtnFooter = $('#modal-close-btn-footer');
+            
+            if (modalConfig.hideCancel) {
+                closeBtnX.style.display = 'none';
+                closeBtnFooter.style.display = 'none';
             } else {
-                $('#modal-close-btn-footer').onclick = hideModal;
-                 $('#modal-close-btn-x').onclick = hideModal;
+                closeBtnX.style.display = 'block';
+                closeBtnFooter.style.display = 'block';
+            }
+
+            if (modalConfig.onCancel) {
+                closeBtnFooter.onclick = modalConfig.onCancel;
+                closeBtnX.onclick = modalConfig.onCancel;
+            } else {
+                closeBtnFooter.onclick = hideModal;
+                 closeBtnX.onclick = hideModal;
             }
 
             $('#modal-action-btn').textContent = modalConfig.actionText || 'Simpan';
             if(modalConfig.hideAction) $('#modal-action-btn').style.display = 'none';
-            if(modalConfig.hideCancel) $('#modal-close-btn-footer').style.display = 'none';
         }
         
         const hideModal = () => {
@@ -1635,15 +1644,23 @@
                 showNotification('Error', 'Harap lengkapi semua field.', 'error');
                 return;
             }
+            
+            const storageKey = `cbt-exam-state-${studentId}-${token}`;
+            const savedState = localStorage.getItem(storageKey);
 
+            if (savedState) {
+                const parsedState = JSON.parse(savedState);
+                if (parsedState.terminated) {
+                    state.currentExam = parsedState;
+                    finishExam(true, 'cheat_resume');
+                    return;
+                }
+            }
+            
             // Call backend first to check if user has already completed the exam
             const res = await apiCall('validateTokenAndStartExam', { studentId, token });
-            const storageKey = `cbt-exam-state-${studentId}-${token}`;
 
             if (res.success) {
-                // User is allowed to take the exam. Now, check for saved progress.
-                const savedState = localStorage.getItem(storageKey);
-                
                 if (savedState) {
                     // Found saved progress, ask to resume.
                     showModal('Lanjutkan Ujian?', '<p>Kami menemukan progres ujian yang belum selesai. Apakah Anda ingin melanjutkannya?</p>',
@@ -1656,32 +1673,29 @@
                         onCancel: () => { // On "No" (start new with fresh data from backend)
                             localStorage.removeItem(storageKey);
                             hideModal();
-                            // Start a fresh exam using the data we already received
-                            state.currentExam = res.data;
-                            state.currentExam.studentId = studentId;
-                            state.currentExam.token = token;
-                            state.currentExam.answers = Array(res.data.questions.length).fill(null).map((_, i) => ({ questionId: res.data.questions[i].id, answer: null, isDoubtful: false }));
-                            state.currentExam.currentQuestionIndex = 0;
-                            renderExamInstructions();
-                            navigateTo('page-exam-instruction');
+                            startNewExam(res.data, studentId, token);
                         }
                     });
                     $('#modal-close-btn-footer').textContent = 'Tidak, Mulai Baru';
                 } else {
                     // No saved progress, start a fresh exam.
-                    state.currentExam = res.data;
-                    state.currentExam.studentId = studentId;
-                    state.currentExam.token = token;
-                    state.currentExam.answers = Array(res.data.questions.length).fill(null).map((_, i) => ({ questionId: res.data.questions[i].id, answer: null, isDoubtful: false }));
-                    state.currentExam.currentQuestionIndex = 0;
-                    renderExamInstructions();
-                    navigateTo('page-exam-instruction');
+                    startNewExam(res.data, studentId, token);
                 }
             } else {
                 // API call failed, likely because the user already finished.
                 // Clean up any lingering local storage just in case.
                 localStorage.removeItem(storageKey);
             }
+        }
+
+        function startNewExam(examData, studentId, token) {
+            state.currentExam = examData;
+            state.currentExam.studentId = studentId;
+            state.currentExam.token = token;
+            state.currentExam.answers = Array(examData.questions.length).fill(null).map((_, i) => ({ questionId: examData.questions[i].id, answer: null, isDoubtful: false }));
+            state.currentExam.currentQuestionIndex = 0;
+            renderExamInstructions();
+            navigateTo('page-exam-instruction');
         }
 
         function renderExamInstructions() {
@@ -1921,7 +1935,7 @@
                 if (seconds <= 0) {
                     clearInterval(state.examTimer);
                     timerEl.classList.add('animate-pulse');
-                    finishExam(true);
+                    finishExam(true, 'timeup');
                     return;
                 }
                 seconds--;
@@ -1935,17 +1949,19 @@
              removeAntiCheatListeners();
              saveCurrentAnswer();
              
-             let title;
-             let message;
-             let config = {};
+             let title, message, config = {};
 
              if(reason === "cheat") {
                  title = 'Ujian Dihentikan';
                  message = `Ujian dihentikan karena Anda telah melampaui batas pelanggaran (${state.currentExam.cheatAttempts} kali). Jawaban Anda akan dikumpulkan.`;
                  config = { actionText: 'OK', hideCancel: true };
-             } else if (isAutoSubmit) {
+             } else if (reason === "timeup") {
                  title = 'Waktu Habis';
                  message = 'Waktu ujian telah habis. Jawaban Anda akan dikumpulkan.';
+                 config = { actionText: 'OK', hideCancel: true };
+             } else if (reason === 'cheat_resume') {
+                 title = 'Ujian Dihentikan';
+                 message = 'Ujian ini telah dihentikan karena pelanggaran sebelumnya. Jawaban terakhir Anda akan dikirimkan.';
                  config = { actionText: 'OK', hideCancel: true };
              } else {
                  const unanswered = state.currentExam.answers.filter(a => a.answer === null).length;
@@ -2006,7 +2022,7 @@
                  contentHtml += `<div class="p-3 rounded-lg border border-yellow-500/50 bg-yellow-500/20 text-center"><i class="fas fa-exclamation-triangle text-yellow-400 mr-2"></i>Siswa ini meninggalkan halaman ujian sebanyak <strong>${result.cheatAttempts}</strong> kali.</div>`;
             }
 
-            result.answers.forEach((studentAnswerObj, index) => {
+            result.answers.forEach((studentAnswerObj) => {
                 const q = originalQuestionsMap.get(studentAnswerObj.questionId);
                 if (!q) return;
 
@@ -2033,7 +2049,7 @@
                     correctnessHtml = `
                         <div class="p-3 rounded-lg border border-blue-500/50 bg-blue-500/20">
                             <div class="flex justify-between items-center">
-                                <p class="font-bold">Soal #${index+1}</p>
+                                <p class="font-bold">Soal #${q.id.substring(0,4)}</p>
                                 <span class="text-xs font-semibold px-2 py-1 bg-blue-500/20 text-blue-300 rounded-full">Penilaian Manual (${pointValue} Poin)</span>
                             </div>
                             <div class="text-sm mt-1">${q.text}</div>
@@ -2192,14 +2208,18 @@
         // --- ANTI-CHEAT ---
         let cheatWarningTimeout;
         const triggerCheatWarning = () => {
-            if (!state.currentExam || $('#modal').classList.contains('active-cheat-modal')) return;
+            if (!state.currentExam || state.currentExam.isFinished) return;
 
-            state.currentExam.cheatAttempts++;
+            state.currentExam.cheatAttempts = (state.currentExam.cheatAttempts || 0) + 1;
             
             const violationLimit = parseInt(state.currentExam.subject.violationLimit, 10);
             if (violationLimit > 0 && state.currentExam.cheatAttempts >= violationLimit) {
-                $('#modal').classList.add('active-cheat-modal'); // Mark modal to prevent re-triggering
-                finishExam(true, 'cheat'); 
+                if (!state.currentExam.isFinished) { 
+                    state.currentExam.isFinished = true;
+                    state.currentExam.terminated = true;
+                    saveExamStateToLocalStorage();
+                    finishExam(true, 'cheat'); 
+                }
                 return;
             }
 
@@ -2212,7 +2232,7 @@
             cheatWarningTimeout = setTimeout(() => {
                 $('#cheat-warning').classList.add('hidden');
                 $('#cheat-warning').classList.remove('active');
-            }, 3000); 
+            }, 5000); 
         };
 
         const handleVisibilityChange = () => {
@@ -2264,4 +2284,3 @@
     </script>
 </body>
 </html>
-
