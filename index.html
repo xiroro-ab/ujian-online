@@ -809,7 +809,10 @@
                 <div class="space-y-4">
                     <div><label class="block mb-2 text-sm">ID Mata Pelajaran</label><input type="text" id="subjectId" class="w-full p-2 rounded-lg neon-glow-input" placeholder="Contoh: MTK-7" required></div>
                     <div><label class="block mb-2 text-sm">Nama Mata Pelajaran</label><input type="text" id="subjectName" class="w-full p-2 rounded-lg neon-glow-input" required></div>
-                    <div><label class="block mb-2 text-sm">Durasi (menit)</label><input type="number" id="subjectDuration" class="w-full p-2 rounded-lg neon-glow-input" required></div>
+                    <div class="grid grid-cols-2 gap-4">
+                         <div><label class="block mb-2 text-sm">Durasi (menit)</label><input type="number" id="subjectDuration" class="w-full p-2 rounded-lg neon-glow-input" required></div>
+                         <div><label class="block mb-2 text-sm">Batas Pelanggaran</label><input type="number" id="violationLimit" class="w-full p-2 rounded-lg neon-glow-input" value="3" min="0"></div>
+                    </div>
                     <div><label class="block mb-2 text-sm">Jadwal</label><input type="datetime-local" id="subjectSchedule" class="w-full p-2 rounded-lg neon-glow-input" required></div>
                 </div>
                 <h4 class="font-bold mt-6 mb-2 text-fuchsia-400">Pengaturan Poin Soal (Bobot Nilai)</h4>
@@ -825,6 +828,7 @@
                     duration: $('#subjectDuration').value, 
                     schedule: $('#subjectSchedule').value, 
                     scoringRules: JSON.stringify(scoringRules),
+                    violationLimit: $('#violationLimit').value,
                     isUpdate: false 
                 };
                 const res = await apiCall('saveSubject', newSubject);
@@ -844,7 +848,10 @@
                 <div class="space-y-4">
                     <input type="hidden" id="subjectId" value="${subject.id}">
                     <div><label class="block text-sm mb-2">Nama</label><input type="text" id="subjectName" class="w-full p-2 rounded-lg neon-glow-input" value="${subject.name}" required></div>
-                    <div><label class="block text-sm mb-2">Durasi (menit)</label><input type="number" id="subjectDuration" class="w-full p-2 rounded-lg neon-glow-input" value="${subject.duration}" required></div>
+                     <div class="grid grid-cols-2 gap-4">
+                        <div><label class="block text-sm mb-2">Durasi (menit)</label><input type="number" id="subjectDuration" class="w-full p-2 rounded-lg neon-glow-input" value="${subject.duration}" required></div>
+                        <div><label class="block text-sm mb-2">Batas Pelanggaran</label><input type="number" id="violationLimit" class="w-full p-2 rounded-lg neon-glow-input" value="${subject.violationLimit || 3}" min="0"></div>
+                    </div>
                     <div><label class="block text-sm mb-2">Jadwal</label><input type="datetime-local" id="subjectSchedule" class="w-full p-2 rounded-lg neon-glow-input" value="${subject.schedule || ''}" required></div>
                 </div>
                 <h4 class="font-bold mt-6 mb-2 text-fuchsia-400">Pengaturan Poin Soal (Bobot Nilai)</h4>
@@ -860,6 +867,7 @@
                     duration: $('#subjectDuration').value, 
                     schedule: $('#subjectSchedule').value, 
                     scoringRules: JSON.stringify(scoringRules),
+                    violationLimit: $('#violationLimit').value,
                     isUpdate: true 
                 };
                 const res = await apiCall('saveSubject', updatedSubject);
@@ -1678,10 +1686,19 @@
 
         function renderExamInstructions() {
             const { subject, questions } = state.currentExam;
+            const violationLimit = parseInt(subject.violationLimit, 10);
+            let violationText = '';
+            if (violationLimit > 0) {
+                violationText = `<p class="text-yellow-400"><i class="fas fa-exclamation-triangle mr-2"></i><strong>Penting:</strong> Batas maksimal pelanggaran (keluar halaman) adalah <strong>${violationLimit}</strong> kali.</p>`;
+            } else {
+                violationText = `<p class="text-gray-400"><i class="fas fa-info-circle mr-2"></i>Setiap aktivitas keluar dari halaman ujian akan dicatat.</p>`;
+            }
+
             $('#exam-details').innerHTML = `
                 <p><strong>Mata Pelajaran:</strong> ${subject.name}</p>
                 <p><strong>Jumlah Soal:</strong> ${questions.length}</p>
                 <p><strong>Durasi:</strong> ${subject.duration} menit</p>
+                ${violationText}
             `;
             $('#start-exam-btn').onclick = () => startExam(false);
         }
@@ -1698,7 +1715,7 @@
             }
             startTimer(duration);
             addAntiCheatListeners();
-            startWatermarkAnimation();
+            startWatermark();
         }
 
         function renderExamPage() {
@@ -1913,17 +1930,31 @@
             }, 1000);
         }
 
-        async function finishExam(isAutoSubmit = false) {
+        async function finishExam(isAutoSubmit = false, reason = "Selesai") {
              clearInterval(state.examTimer);
              removeAntiCheatListeners();
              saveCurrentAnswer();
              
-             const unanswered = state.currentExam.answers.filter(a => a.answer === null).length;
-             const message = isAutoSubmit 
-                ? 'Waktu ujian telah habis. Jawaban Anda akan dikumpulkan.'
-                : `Anda yakin ingin menyelesaikan ujian? ${unanswered > 0 ? `Masih ada ${unanswered} soal yang belum dijawab.` : ''}`;
+             let title;
+             let message;
+             let config = {};
+
+             if(reason === "cheat") {
+                 title = 'Ujian Dihentikan';
+                 message = `Ujian dihentikan karena Anda telah melampaui batas pelanggaran (${state.currentExam.cheatAttempts} kali). Jawaban Anda akan dikumpulkan.`;
+                 config = { actionText: 'OK', hideCancel: true };
+             } else if (isAutoSubmit) {
+                 title = 'Waktu Habis';
+                 message = 'Waktu ujian telah habis. Jawaban Anda akan dikumpulkan.';
+                 config = { actionText: 'OK', hideCancel: true };
+             } else {
+                 const unanswered = state.currentExam.answers.filter(a => a.answer === null).length;
+                 title = 'Konfirmasi Selesai Ujian';
+                 message = `Anda yakin ingin menyelesaikan ujian? ${unanswered > 0 ? `Masih ada ${unanswered} soal yang belum dijawab.` : ''}`;
+                 config = { actionText: 'Ya, Selesaikan' };
+             }
              
-             showModal(isAutoSubmit ? 'Waktu Habis' : 'Konfirmasi Selesai Ujian', `<p>${message}</p>`,
+             showModal(title, `<p>${message}</p>`,
                 async () => {
                     hideModal();
                     const { studentId, subjectId, token, answers, cheatAttempts } = state.currentExam;
@@ -1933,7 +1964,7 @@
                         $('#final-score').textContent = parseFloat(res.data.score).toFixed(1);
                         navigateTo('page-result');
                     }
-                }, { actionText: 'Ya, Selesaikan' });
+                }, config);
         }
         
         // --- LOCAL STORAGE & EXAM STATE ---
@@ -1975,7 +2006,7 @@
                  contentHtml += `<div class="p-3 rounded-lg border border-yellow-500/50 bg-yellow-500/20 text-center"><i class="fas fa-exclamation-triangle text-yellow-400 mr-2"></i>Siswa ini meninggalkan halaman ujian sebanyak <strong>${result.cheatAttempts}</strong> kali.</div>`;
             }
 
-            result.answers.forEach((studentAnswerObj) => {
+            result.answers.forEach((studentAnswerObj, index) => {
                 const q = originalQuestionsMap.get(studentAnswerObj.questionId);
                 if (!q) return;
 
@@ -2002,7 +2033,7 @@
                     correctnessHtml = `
                         <div class="p-3 rounded-lg border border-blue-500/50 bg-blue-500/20">
                             <div class="flex justify-between items-center">
-                                <p class="font-bold">Soal Esai</p>
+                                <p class="font-bold">Soal #${index+1}</p>
                                 <span class="text-xs font-semibold px-2 py-1 bg-blue-500/20 text-blue-300 rounded-full">Penilaian Manual (${pointValue} Poin)</span>
                             </div>
                             <div class="text-sm mt-1">${q.text}</div>
@@ -2161,10 +2192,19 @@
         // --- ANTI-CHEAT ---
         let cheatWarningTimeout;
         const triggerCheatWarning = () => {
-            if (!state.currentExam || $('#cheat-warning').classList.contains('active')) return;
-            
-            $('#cheat-warning').classList.add('active');
+            if (!state.currentExam || $('#modal').classList.contains('active-cheat-modal')) return;
+
             state.currentExam.cheatAttempts++;
+            
+            const violationLimit = parseInt(state.currentExam.subject.violationLimit, 10);
+            if (violationLimit > 0 && state.currentExam.cheatAttempts >= violationLimit) {
+                $('#modal').classList.add('active-cheat-modal'); // Mark modal to prevent re-triggering
+                finishExam(true, 'cheat'); 
+                return;
+            }
+
+            if ($('#cheat-warning').classList.contains('active')) return;
+            $('#cheat-warning').classList.add('active');
             $('#cheat-count-display').textContent = `Jumlah Pelanggaran: ${state.currentExam.cheatAttempts}`;
             $('#cheat-warning').classList.remove('hidden');
 
@@ -2172,7 +2212,7 @@
             cheatWarningTimeout = setTimeout(() => {
                 $('#cheat-warning').classList.add('hidden');
                 $('#cheat-warning').classList.remove('active');
-            }, 5000); // Show warning for 5 seconds
+            }, 3000); 
         };
 
         const handleVisibilityChange = () => {
@@ -2210,44 +2250,6 @@
             document.removeEventListener('contextmenu', preventContextMenu);
             document.removeEventListener('keydown', preventCopyPaste);
             if(document.fullscreenElement) document.exitFullscreen();
-            stopWatermarkAnimation();
-        }
-
-        function startWatermarkAnimation() {
-            const student = state.students.find(s => s.id === state.currentExam.studentId);
-            if (!student) return;
-
-            const overlay = $('#watermark-overlay');
-            overlay.innerHTML = ''; // Clear previous
-            const text = `${student.name} - ${student.class} - ${new Date().toLocaleTimeString('id-ID')}`;
-
-            for (let i = 0; i < 15; i++) {
-                const watermark = document.createElement('div');
-                watermark.className = 'watermark-text';
-                watermark.textContent = text;
-                
-                // Random properties
-                const angle = (Math.random() * 60) - 30; // -30 to 30 deg
-                const duration = (Math.random() * 20) + 30; // 30s to 50s
-                const startTop = Math.random() * 100;
-                const startLeft = Math.random() * 100;
-                const endX = (Math.random() * 200 - 100) + 'px'; // -100px to 100px
-                const endY = (Math.random() * 200 - 100) + 'px';
-
-                watermark.style.setProperty('--angle', `${angle}deg`);
-                watermark.style.setProperty('--end-x', endX);
-                watermark.style.setProperty('--end-y', endY);
-                watermark.style.top = `${startTop}vh`;
-                watermark.style.left = `${startLeft}vw`;
-                watermark.style.animation = `drift ${duration}s linear infinite alternate`;
-                
-                overlay.appendChild(watermark);
-            }
-        }
-
-        function stopWatermarkAnimation() {
-            const overlay = $('#watermark-overlay');
-            overlay.innerHTML = '';
         }
 
         // --- HOOKS for specific page loads ---
