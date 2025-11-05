@@ -1,0 +1,2731 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ujian Online CBT</title>
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/xiroro-ab/smp58dataguru/refs/heads/main/ico.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #100f1c;
+            --primary-color: #c026d3; /* fuchsia-600 */
+            --secondary-color: #be185d; /* pink-700 */
+            --warning-color: #d97706; /* amber-600 */
+            --glow-color-primary: rgba(192, 38, 211, 0.75);
+            --glow-color-secondary: rgba(190, 24, 93, 0.75);
+            --glow-color-warning: rgba(217, 119, 6, 0.75);
+            --text-glow-color: rgba(255, 255, 255, 0.5);
+        }
+
+        body {
+            font-family: 'Fira Code', monospace;
+            background-color: var(--bg-color);
+            color: #e5e7eb; /* gray-200 */
+            text-shadow: 0 0 2px var(--text-glow-color);
+            font-size: 14px; 
+        }
+
+        .neon-glow-button {
+            background-color: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            box-shadow: 0 0 5px var(--glow-color-primary), 0 0 10px var(--glow-color-primary), inset 0 0 5px var(--glow-color-primary);
+            transition: all 0.3s ease-in-out;
+            animation: pulse-glow 2s infinite alternate;
+        }
+
+        .neon-glow-button:hover, .neon-glow-button.active {
+            color: white;
+            border-color: white;
+            box-shadow: 0 0 10px var(--glow-color-primary), 0 0 20px var(--glow-color-primary), 0 0 40px var(--glow-color-primary), inset 0 0 10px var(--glow-color-primary);
+        }
+
+        .neon-glow-secondary {
+            border-color: var(--secondary-color);
+            color: var(--secondary-color);
+            box-shadow: 0 0 5px var(--glow-color-secondary), 0 0 10px var(--glow-color-secondary), inset 0 0 5px var(--glow-color-secondary);
+        }
+        
+        .neon-glow-secondary:hover {
+            color: white;
+            border-color: white;
+            box-shadow: 0 0 10px var(--glow-color-secondary), 0 0 20px var(--glow-color-secondary), 0 0 40px var(--glow-color-secondary), inset 0 0 10px var(--glow-color-secondary);
+        }
+
+        .neon-glow-warning {
+            border-color: var(--warning-color);
+            color: var(--warning-color);
+            box-shadow: 0 0 5px var(--glow-color-warning), 0 0 10px var(--glow-color-warning), inset 0 0 5px var(--glow-color-warning);
+        }
+
+        .neon-glow-warning:hover {
+             color: white;
+            border-color: white;
+            box-shadow: 0 0 10px var(--glow-color-warning), 0 0 20px var(--glow-color-warning), 0 0 40px var(--glow-color-warning), inset 0 0 10px var(--glow-color-warning);
+        }
+
+        .neon-glow-card {
+            background-color: rgba(23, 22, 38, 0.8);
+            box-shadow: 0 0 10px var(--glow-color-primary);
+            backdrop-filter: blur(5px);
+        }
+        
+        .neon-glow-modal {
+            background-color: rgba(16, 15, 28, 0.9);
+            border: 1px solid var(--primary-color);
+            box-shadow: 0 0 20px var(--glow-color-primary), 0 0 40px var(--glow-color-primary);
+            backdrop-filter: blur(10px);
+        }
+
+        .neon-glow-input {
+            background-color: rgba(30, 28, 50, 0.5);
+            border: 1px solid var(--primary-color);
+            color: #f3f4f6; /* gray-100 */
+        }
+        
+        .neon-glow-input::-webkit-calendar-picker-indicator {
+            filter: invert(1) sepia(100%) saturate(10000%) hue-rotate(270deg);
+        }
+
+        .neon-glow-input:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 8px var(--glow-color-secondary);
+        }
+        
+        @keyframes pulse-glow {
+            from {
+                box-shadow: 0 0 5px var(--glow-color-primary), 0 0 10px var(--glow-color-primary), inset 0 0 5px var(--glow-color-primary);
+            }
+            to {
+                box-shadow: 0 0 10px var(--glow-color-primary), 0 0 20px var(--glow-color-primary), inset 0 0 10px var(--glow-color-primary);
+            }
+        }
+        
+        @keyframes zigzag-float {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(3px, -3px) rotate(-0.5deg); }
+            50% { transform: translate(0, 3px) rotate(0deg); }
+            75% { transform: translate(-3px, -3px) rotate(0.5deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-left-color: var(--primary-color);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes modal-fade-in {
+            from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .modal-content {
+            animation: modal-fade-in 0.3s ease-out forwards;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-color);
+        }
+        .tab-button.active {
+            border-color: var(--primary-color);
+            background: linear-gradient(to top, var(--glow-color-primary), transparent);
+            color: white;
+        }
+        /* Rich Text Editor */
+        .rte-toolbar button {
+            background-color: rgba(255,255,255,0.1);
+            border: 1px solid var(--primary-color);
+        }
+        .rte-toolbar button.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .rte-content {
+            min-height: 120px;
+        }
+
+        /* Custom Styles for new features */
+        .question-nav-button {
+            width: 40px;
+            height: 40px;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .question-media-embed {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 0.5rem;
+            margin: 0.5rem auto;
+        }
+        .option-media-embed {
+            max-height: 5rem; /* 80px */
+            margin-left: 0.5rem;
+            border-radius: 0.25rem;
+            vertical-align: middle;
+        }
+        
+        /* Matching Question Styles */
+        .matching-item {
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        .matching-item.selected {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px var(--glow-color-primary);
+        }
+        #matching-canvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+        }
+
+        /* Watermark Styles */
+        #watermark-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 120;
+        }
+        .watermark-text {
+            position: absolute;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.08);
+            transform-origin: center;
+            white-space: nowrap;
+        }
+        @keyframes drift {
+            0% { transform: translate(0, 0) rotate(var(--angle)); }
+            100% { transform: translate(var(--end-x), var(--end-y)) rotate(var(--angle)); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- App Container -->
+    <main id="app" class="w-full max-w-7xl mx-auto flex-grow flex flex-col p-4">
+        <!-- Landing Page -->
+        <div id="page-landing" class="w-full flex-grow flex items-center justify-center">
+             <div class="max-w-lg mx-auto p-8 rounded-xl text-center">
+                 <img src="https://raw.githubusercontent.com/xiroro-ab/ujian-online/refs/heads/main/logo.png" alt="App Logo" class="w-48 h-48 mx-auto mb-8" style="animation: zigzag-float 7s ease-in-out infinite;">
+                 <h1 class="text-2xl md:text-3xl font-bold mb-2 bg-gradient-to-r from-fuchsia-500 to-pink-600 text-transparent bg-clip-text">Aplikasi Ujian Online</h1>
+                 <p class="text-2xl md:text-3xl font-bold mb-2 bg-gradient-to-r from-fuchsia-500 to-pink-600 text-transparent bg-clip-text">SMPN 58 </p>
+                 <p class="text-gray-400 mb-10">Selamat Datang! Silakan pilih peran Anda.</p>
+                 <div class="space-y-6 flex flex-col items-center">
+                     <button onclick="navigateTo('page-guru-login')" class="w-full max-w-sm neon-glow-button font-bold py-3 px-8 rounded-lg text-base flex items-center justify-center">
+                         <i class="fas fa-user-tie mr-3"></i>
+                         <span>Masuk sebagai Guru</span>
+                     </button>
+                     <button onclick="navigateTo('page-siswa-login')" class="w-full max-w-sm neon-glow-button neon-glow-secondary font-bold py-3 px-8 rounded-lg text-base flex items-center justify-center">
+                         <i class="fas fa-user-graduate mr-3"></i>
+                         <span>Masuk sebagai Siswa</span>
+                     </button>
+                 </div>
+                  <button id="about-btn" class="mt-10 text-gray-400 hover:text-white transition-colors duration-300">About this App</button>
+            </div>
+        </div>
+
+        <!-- Guru Login Page -->
+        <div id="page-guru-login" class="hidden w-full flex-grow flex items-center justify-center">
+            <div class="max-w-lg mx-auto neon-glow-card p-8 rounded-xl w-full">
+                 <img src="https://raw.githubusercontent.com/xiroro-ab/ujian-online/refs/heads/main/logo.png" alt="App Logo" class="w-32 h-32 mx-auto mb-6">
+                <h2 class="text-2xl font-bold text-center mb-6 bg-gradient-to-r from-fuchsia-500 to-pink-600 text-transparent bg-clip-text">Login Guru</h2>
+                <form id="guru-login-form" class="space-y-6">
+                    <div>
+                        <label for="username" class="block mb-2 text-sm font-medium text-gray-300">Username</label>
+                        <input type="text" id="username" name="username" class="w-full p-3 rounded-lg neon-glow-input" required>
+                    </div>
+                    <div>
+                        <label for="password" class="block mb-2 text-sm font-medium text-gray-300">Password</label>
+                        <input type="password" id="password" name="password" class="w-full p-3 rounded-lg neon-glow-input" required>
+                    </div>
+                    <div class="flex items-center justify-between space-x-4 pt-4">
+                        <button type="button" onclick="navigateTo('page-landing')" class="w-full neon-glow-button neon-glow-secondary font-bold py-3 px-6 rounded-lg">Kembali</button>
+                        <button type="submit" class="w-full neon-glow-button font-bold py-3 px-6 rounded-lg">Login</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Siswa Login Page -->
+        <div id="page-siswa-login" class="hidden w-full flex-grow flex items-center justify-center">
+           <div class="max-w-lg mx-auto neon-glow-card p-8 rounded-xl w-full">
+                <img src="https://raw.githubusercontent.com/xiroro-ab/ujian-online/refs/heads/main/logo.png" alt="App Logo" class="w-32 h-32 mx-auto mb-6">
+                <h2 class="text-2xl font-bold text-center mb-6 bg-gradient-to-r from-fuchsia-500 to-pink-600 text-transparent bg-clip-text">Mulai Ujian</h2>
+                <form id="siswa-login-form" class="space-y-6">
+                    <div>
+                        <label for="kelas-select" class="block mb-2 text-sm font-medium text-gray-300">Pilih Kelas</label>
+                        <select id="kelas-select" class="w-full p-3 rounded-lg neon-glow-input" required>
+                            <option value="">Memuat kelas...</option>
+                        </select>
+                    </div>
+                     <div>
+                        <label for="nama-select" class="block mb-2 text-sm font-medium text-gray-300">Pilih Nama</label>
+                        <select id="nama-select" class="w-full p-3 rounded-lg neon-glow-input" disabled required>
+                            <option value="">Pilih kelas terlebih dahulu</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="token" class="block mb-2 text-sm font-medium text-gray-300">Token Ujian</label>
+                        <input type="text" id="token" name="token" class="w-full p-3 rounded-lg neon-glow-input" required>
+                    </div>
+                    <div class="flex items-center justify-between space-x-4 pt-4">
+                        <button type="button" onclick="navigateTo('page-landing')" class="w-full neon-glow-button neon-glow-secondary font-bold py-3 px-6 rounded-lg">Kembali</button>
+                        <button type="submit" class="w-full neon-glow-button font-bold py-3 px-6 rounded-lg">Mulai Ujian</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Siswa Exam Instruction Page -->
+        <div id="page-exam-instruction" class="hidden w-full flex-grow flex items-center justify-center">
+             <div class="max-w-2xl mx-auto neon-glow-card p-8 rounded-xl">
+                <h2 class="text-2xl font-bold mb-4 bg-gradient-to-r from-fuchsia-500 to-pink-600 text-transparent bg-clip-text">Petunjuk Pengerjaan Ujian</h2>
+                <div id="exam-details" class="text-left space-y-3 my-6"></div>
+                <div class="text-left my-6 p-4 bg-black/30 rounded-lg">
+                    <h3 class="font-bold mb-2 text-fuchsia-400">Keterangan Navigasi Soal</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li class="flex items-center"><div class="w-5 h-5 rounded-md bg-blue-600 mr-3"></div> Soal yang sedang aktif / dikerjakan.</li>
+                        <li class="flex items-center"><div class="w-5 h-5 rounded-md bg-green-600/70 mr-3"></div> Soal yang telah dijawab.</li>
+                        <li class="flex items-center"><div class="w-5 h-5 rounded-md bg-yellow-500/70 mr-3"></div> Soal yang Anda tandai 'Ragu-ragu'.</li>
+                        <li class="flex items-center"><div class="w-5 h-5 rounded-md bg-gray-700 mr-3"></div> Soal yang belum dikerjakan.</li>
+                    </ul>
+                </div>
+                <p class="text-sm text-gray-400 mb-6">Jika Anda tidak sengaja menutup halaman ini, Anda dapat melanjutkan ujian dengan login kembali menggunakan token yang sama.</p>
+                <button id="start-exam-btn" class="w-full neon-glow-button font-bold py-3 px-6 rounded-lg text-base">Mulai Kerjakan</button>
+            </div>
+        </div>
+
+        <!-- Siswa Exam Page -->
+        <div id="page-exam" class="hidden w-full flex-grow flex flex-col md:flex-row gap-4">
+            <!-- Left Panel: Navigation -->
+            <div class="w-full md:w-1/4 neon-glow-card rounded-lg p-4 flex flex-col">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-base font-bold">Navigasi Soal</h3>
+                    <div id="timer" class="font-mono text-lg bg-red-600/50 text-white px-3 py-1 rounded-md">00:00:00</div>
+                </div>
+                <div id="question-nav-grid" class="flex-grow overflow-y-auto grid grid-cols-5 sm:grid-cols-6 md:grid-cols-5 gap-2 content-start">
+                    <!-- Navigation buttons will be injected here -->
+                </div>
+            </div>
+            <!-- Right Panel: Question Content -->
+            <div class="w-full md:w-3/4 neon-glow-card rounded-lg p-6 flex flex-col">
+                <div id="question-content" class="flex-grow overflow-y-auto pr-2">
+                    <!-- Question will be injected here -->
+                </div>
+                <div class="mt-6 flex flex-col sm:flex-row items-center gap-2">
+                    <button id="prev-question-btn" class="w-full sm:flex-1 neon-glow-button neon-glow-secondary font-bold py-2 px-6 rounded-lg">Sebelumnya</button>
+                    <button id="ragu-ragu-btn" class="w-full sm:flex-1 neon-glow-button neon-glow-warning font-bold py-2 px-6 rounded-lg">Ragu-ragu</button>
+                    <button id="next-question-btn" class="w-full sm:flex-1 neon-glow-button font-bold py-2 px-6 rounded-lg">Selanjutnya</button>
+                    <button id="finish-exam-btn" class="hidden w-full sm:flex-1 neon-glow-button font-bold py-2 px-6 rounded-lg bg-green-500/20 border-green-500 text-green-400 hover:border-green-400 hover:text-white">Selesaikan Ujian</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Siswa Result Page -->
+        <div id="page-result" class="hidden w-full flex-grow flex items-center justify-center">
+            <div class="max-w-md mx-auto neon-glow-card p-8 rounded-xl text-center">
+                 <h2 class="text-2xl font-bold mb-4 bg-gradient-to-r from-fuchsia-500 to-pink-600 text-transparent bg-clip-text">Ujian Selesai!</h2>
+                 <p class="text-base text-gray-300 mb-6">Berikut adalah hasil ujian Anda:</p>
+                 <div class="bg-fuchsia-500/20 p-6 rounded-lg mb-8">
+                     <p class="text-sm text-gray-400">SKOR AKHIR</p>
+                     <p id="final-score" class="text-6xl font-bold text-white">100</p>
+                 </div>
+                 <button onclick="clearExamStateAndLogout()" class="w-full neon-glow-button font-bold py-3 px-6 rounded-lg">Kembali ke Halaman Awal</button>
+            </div>
+        </div>
+
+        <!-- Guru Dashboard Page -->
+        <div id="page-guru-dashboard" class="hidden w-full flex-grow flex flex-col">
+            <!-- Guru dashboard content is rendered by JS -->
+        </div>
+
+        <!-- Guru Manage Subject Page -->
+         <div id="page-manage-subject" class="hidden w-full flex-grow flex flex-col">
+            <!-- Manage subject content is rendered by JS -->
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer id="footer" class="text-center text-gray-500 text-sm p-4">
+        Copyright &copy; 2025 Aris Bermansyah, S.Kom
+    </footer>
+
+    <!-- Universal Loader -->
+    <div id="loader" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[100]">
+        <div class="spinner w-16 h-16 rounded-full"></div>
+    </div>
+    
+    <!-- Universal Notification -->
+    <div id="notification" class="hidden fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-60 z-[90] p-4">
+        <div class="modal-content neon-glow-modal max-w-sm w-full p-6 rounded-xl text-center">
+            <h3 id="notification-title" class="text-2xl font-bold mb-4">Title</h3>
+            <p id="notification-message" class="text-gray-300 mb-6">Message here.</p>
+            <button id="notification-close-btn" class="neon-glow-button font-bold py-2 px-8 rounded-lg">OK</button>
+        </div>
+    </div>
+    
+    <!-- Universal Modal -->
+    <div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+        <div id="modal-content-wrapper" class="modal-content neon-glow-modal max-w-2xl w-full rounded-xl">
+             <div class="flex justify-between items-center p-4 border-b border-fuchsia-500/30">
+                 <h3 id="modal-title" class="text-xl font-bold">Modal Title</h3>
+                 <button id="modal-close-btn-x" class="text-gray-400 hover:text-white text-3xl">&times;</button>
+            </div>
+            <form id="modal-form">
+                <div id="modal-body" class="p-6 max-h-[70vh] overflow-y-auto">
+                    <!-- Modal content goes here -->
+                </div>
+                <div id="modal-footer" class="p-4 border-t border-fuchsia-500/30 flex justify-end items-center gap-4">
+                    <button type="button" id="modal-close-btn-footer" class="neon-glow-button neon-glow-secondary font-bold py-2 px-6 rounded-lg">Batal</button>
+                    <button type="submit" id="modal-action-btn" class="neon-glow-button font-bold py-2 px-6 rounded-lg">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Anti-Cheat Warning Overlay -->
+    <div id="cheat-warning" class="hidden fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-[110] text-center p-4">
+        <div class="modal-content text-white max-w-lg">
+            <i class="fas fa-exclamation-triangle text-5xl text-yellow-400 mb-4 animate-pulse"></i>
+            <h2 class="text-3xl font-bold mb-2">PERINGATAN!</h2>
+            <p class="text-lg">Aktivitas di luar halaman ujian terdeteksi.</p>
+            <p class="mt-4 text-gray-300">Harap fokus pada ujian. Pelanggaran berulang akan dicatat dan dapat mengakibatkan ujian Anda dihentikan secara otomatis.</p>
+            <p class="text-yellow-400 font-bold text-2xl mt-6" id="cheat-count-display"></p>
+        </div>
+    </div>
+
+    <!-- Watermark Overlay -->
+    <div id="watermark-overlay"></div>
+
+
+    <script>
+// --- CONFIGURATION ---
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw5ls4vn0EP3CfruEwIqSorfqJcZ-B9VBBvAUqoLZPbK6yQbEkg0U9Z7c59v3SFVamg/exec";
+
+/**
+ * =================================================================
+ * ===== HELPER "LINK AJAIB" (INI ADALAH PERBAIKAN FINAL) =====
+ * =================================================================
+ * Ini adalah format link Google yang berbeda, yang dirancang
+ * untuk menampilkan gambar secara langsung dan tidak diblokir.
+ */
+function buildDriveUrl(fileId) {
+    if (!fileId) return "";
+    // Format "Pintu Samping" yang baru dan lebih baik
+    return `https://lh3.googleusercontent.com/d/${fileId}`;
+}
+// =================================================================
+
+// FUNGSI GLOBAL UNTUK MERENDER OPSI JAWABAN (VERSI DRIVE LANGSUNG)
+function renderOption(opt) {
+    if (typeof opt === 'object' && opt !== null) {
+        // --- PERUBAHAN DI SINI ---
+        // Kita sekarang menggunakan <img> SRC secara langsung.
+        const mediaHtml = opt.img
+            ? `<img src="${buildDriveUrl(opt.img.trim())}" class="option-media-embed" alt="Memuat media opsi..." loading="lazy">`
+            : '';
+        // --- AKHIR PERUBAHAN ---
+
+        return `
+            <div class="flex items-center gap-2">
+                <span>${opt.text || ''}</span>
+                ${mediaHtml}
+            </div>
+        `;
+    }
+    return `<span>${opt}</span>`;
+}
+
+// --- GLOBAL STATE --- (Tetap Sama)
+let state = {
+    currentPage: 'page-landing',
+    currentUser: null,
+    students: [],
+    subjects: [],
+    questions: [],
+    tokens: [],
+    results: [],
+    currentExam: null, 
+    examTimer: null,
+    currentSubject: null, 
+    classFilter: 'all',
+    resultClassFilter: 'all',
+    matchingState: {
+        selectedLeftIndex: null,
+        resizeObserver: null,
+    }
+};
+
+// --- UTILS --- (Tetap Sama)
+const $ = (selector) => document.querySelector(selector);
+const $$ = (selector) => document.querySelectorAll(selector);
+const showLoader = () => $('#loader').classList.remove('hidden');
+const hideLoader = () => $('#loader').classList.add('hidden');
+function showNotification(title, message, type = 'info') {
+    const notif = $('#notification');
+    $('#notification-title').textContent = title;
+    $('#notification-message').textContent = message;
+    const titleEl = $('#notification-title');
+    titleEl.classList.remove('text-green-400', 'text-red-400', 'text-blue-400');
+    if (type === 'success') titleEl.classList.add('text-green-400');
+    else if (type === 'error') titleEl.classList.add('text-red-400');
+    else titleEl.classList.add('text-blue-400');
+    notif.classList.remove('hidden');
+}
+const hideNotification = () => $('#notification').classList.add('hidden');
+function showModal(title, bodyHtml, onSave, modalConfig = {}) {
+    $('#modal-title').textContent = title;
+    $('#modal-body').innerHTML = bodyHtml;
+    $('#modal-action-btn').style.display = 'block';
+    $('#modal-close-btn-footer').style.display = 'block';
+    $('#modal').classList.remove('hidden');
+    const form = $('#modal-form');
+    form.onsubmit = async (e) => {
+        e.preventDefault();
+        await onSave(e);
+    };
+    const closeBtnX = $('#modal-close-btn-x');
+    const closeBtnFooter = $('#modal-close-btn-footer');
+    if (modalConfig.hideCancel) {
+        closeBtnX.style.display = 'none';
+        closeBtnFooter.style.display = 'none';
+    } else {
+        closeBtnX.style.display = 'block';
+        closeBtnFooter.style.display = 'block';
+    }
+    if (modalConfig.onCancel) {
+        closeBtnFooter.onclick = modalConfig.onCancel;
+        closeBtnX.onclick = modalConfig.onCancel;
+    } else {
+        closeBtnFooter.onclick = hideModal;
+            closeBtnX.onclick = hideModal;
+    }
+    $('#modal-action-btn').textContent = modalConfig.actionText || 'Simpan';
+    if(modalConfig.hideAction) $('#modal-action-btn').style.display = 'none';
+}
+const hideModal = (resetHandlers = true) => {
+    $('#modal').classList.add('hidden');
+    $('#modal-form').reset();
+    if (resetHandlers) {
+        $('#modal-close-btn-footer').onclick = hideModal;
+        $('#modal-close-btn-x').onclick = hideModal;
+    }
+}
+function navigateTo(pageId, params = null) {
+    if (state.matchingState && state.matchingState.resizeObserver) {
+        state.matchingState.resizeObserver.disconnect();
+        state.matchingState.resizeObserver = null;
+    }
+    $$('[id^="page-"]').forEach(page => page.classList.add('hidden'));
+    const targetPage = $(`#${pageId}`);
+    if (targetPage) {
+        targetPage.classList.remove('hidden');
+        state.currentPage = pageId;
+    }
+}
+// GANTI SELURUH FUNGSI 'apiCall' LAMA ANDA DENGAN INI
+
+async function apiCall(action, payload = {}) {
+    if (!SCRIPT_URL.startsWith('https')) {
+        showNotification('Error Konfigurasi', 'URL Google Apps Script belum diatur.', 'error');
+        return { success: false, message: 'URL Script tidak valid' };
+    }
+    showLoader();
+
+    // --- LOGIKA TIMEOUT BARU (15 DETIK) ---
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+        controller.abort();
+    }, 15000); // 15 detik
+
+    try {
+        const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'cors',
+            cache: 'no-cache',
+            credentials: 'omit',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action, payload }),
+            redirect: 'follow',
+            signal: controller.signal // <-- Terapkan timeout
+        });
+
+        clearTimeout(timeoutId); // Batalkan timeout jika berhasil
+
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+            const result = await response.json();
+            if (!result.success) {
+                showNotification('Error dari Server', result.message || 'Terjadi kesalahan.', 'error');
+            }
+            return result;
+        } else {
+            const textResponse = await response.text();
+            console.error("Server tidak mengembalikan JSON. Respons:", textResponse);
+            throw new Error('Server tidak memberikan balasan data yang valid (menerima HTML). Pastikan skrip sudah di-deploy dengan benar menggunakan "versi baru".');
+        }
+    } catch (error) {
+        clearTimeout(timeoutId); // Batalkan timeout jika error
+
+        console.error('API Call Error:', error);
+        let errorMessage = error.message;
+
+        if (error.name === 'AbortError') {
+            // --- INI ADALAH PESAN TIMEOUT KITA ---
+            errorMessage = 'Koneksi ke server terlalu lama (Timeout). Periksa koneksi internet Anda dan coba lagi.';
+        } else if (error.message.includes('Failed to fetch')) {
+            errorMessage = 'Gagal terhubung ke server. Periksa koneksi internet Anda atau server mungkin sedang sibuk.';
+        }
+
+        showNotification('Error Jaringan', errorMessage, 'error');
+        return { success: false, message: errorMessage };
+    } finally {
+        hideLoader();
+    }
+}
+
+// --- EVENT LISTENERS & PAGE LOGIC ---
+document.addEventListener('DOMContentLoaded', () => {
+    navigateTo('page-landing');
+    $('#guru-login-form').addEventListener('submit', handleGuruLogin);
+    $('#siswa-login-form').addEventListener('submit', handleSiswaLogin);
+    $('#notification-close-btn').addEventListener('click', hideNotification);
+    $('#about-btn').addEventListener('click', showAboutModal);
+    $('#kelas-select').addEventListener('change', populateNamaSelect);
+    $('#modal-close-btn-x').addEventListener('click', hideModal);
+    $('#modal-close-btn-footer').addEventListener('click', hideModal);
+});
+function showResumeConfirmationModal(storageKey, studentId, token) {
+    const modalContainer = $('#notification');
+    const modalContent = modalContainer.querySelector('.modal-content');
+    modalContent.innerHTML = `
+        <h3 id="notification-title" class="text-2xl font-bold mb-4 text-blue-400">Progres Ditemukan</h3>
+        <p id="notification-message" class="text-gray-300 mb-6">Kami menemukan progres ujian yang belum selesai. Lanjutkan sesi sebelumnya atau mulai dari awal?</p>
+        <div class="flex gap-4">
+            <button id="resume-no-btn" class="w-full neon-glow-button neon-glow-secondary font-bold py-2 px-6 rounded-lg">Ujian Ulang</button>
+            <button id="resume-yes-btn" class="w-full neon-glow-button font-bold py-2 px-6 rounded-lg">Ya, Lanjutkan</button>
+        </div>
+    `;
+    const closeModal = () => {
+        modalContainer.classList.add('hidden');
+        modalContent.innerHTML = ''; 
+    };
+    $('#resume-yes-btn').onclick = () => {
+    closeModal();
+    const savedState = localStorage.getItem(storageKey);
+    let examData = JSON.parse(savedState);
+
+    // --- INI ADALAH "PENG-UPGRADE" DATA LAMA ---
+    if (examData.questions && !examData.questionIDs) {
+        // Jika data LAMA (berisi .questions)
+        console.log("Meng-upgrade data resume v1 ke v2...");
+        examData.questionIDs = examData.questions.map(q => q.id); // Buat .questionIDs
+        examData.loadedQuestions = {}; // Buat cache soal
+
+        // Simpan soal-soal lama ke cache agar tidak perlu di-fetch ulang
+        examData.questions.forEach(q => {
+            delete q.answer; // Hapus kunci jawaban dari cache
+            examData.loadedQuestions[q.id] = q;
+        });
+        delete examData.questions; // Hapus array .questions yg berbahaya
+    }
+    // --- AKHIR UPGRADE ---
+
+    state.currentExam = examData;
+    startExam(true).catch(e => console.error(e));
+    };
+    $('#resume-no-btn').onclick = async () => {
+        closeModal();
+        localStorage.removeItem(storageKey);
+        const res = await apiCall('validateTokenAndStartExam', { studentId, token });
+        if (res.success) {
+            startNewExam(res.data, studentId, token);
+        }
+    };
+    modalContainer.classList.remove('hidden');
+}
+function showAboutModal() {
+        const bodyHtml = `
+            <div class="text-center">
+                <img src="https://raw.githubusercontent.com/xiroro-ab/bab3-sk-kelas8v2-aris/refs/heads/main/1752495560972.jpg" alt="Author" class="w-32 h-32 rounded-full mx-auto mb-4 border-2 border-fuchsia-500 shadow-lg">
+                <p class="text-gray-300 text-left mb-4">Aplikasi ini dibuat untuk memudahkan guru dan siswa dalam melihat dan mengerjakan soal pada ujian berbasis online. Aplikasi ini masih dalam tahap perkembangan.</p>
+                <p class="text-gray-300 text-left mb-4">Aplikasi ini dibuat dengan bantuan AI dan atas dasar tersebut saya hanya menambahkan atau merubah hal yang menurut saya tidak sesuai, atau masih banyak error.</p>
+                <p class="text-gray-300 text-left mb-6">Terima kasih telah menggunakan aplikasi ini.</p>
+                <p class="font-semibold">Tertanda,</p>
+                <p class="bg-gradient-to-r from-fuchsia-500 to-pink-600 text-transparent bg-clip-text font-bold text-base">Aris Bermansyah, S.Kom</p>
+            </div>
+        `;
+    const form = $('#modal-form');
+    form.onsubmit = e => { e.preventDefault(); hideModal(); };
+    showModal('Tentang Aplikasi Ini', bodyHtml, () => hideModal(), { actionText: 'Tutup', hideCancel: true });
+}
+async function handleGuruLogin(e) {
+    e.preventDefault();
+    const username = $('#username').value;
+    const password = $('#password').value;
+    const res = await apiCall('login', { username, password });
+    if (res.success) {
+        state.currentUser = res.data;
+        renderGuruDashboard();
+        navigateTo('page-guru-dashboard');
+    }
+}
+function renderGuruDashboard() {
+    const container = $('#page-guru-dashboard');
+    container.innerHTML = `
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+            <h1 class="text-2xl font-bold">Dashboard Guru</h1>
+            <button onclick="logout()" class="neon-glow-button neon-glow-secondary font-bold py-2 px-5 rounded-lg">
+                <i class="fas fa-sign-out-alt mr-2"></i>Logout
+            </button>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6" id="dashboard-stats">
+            <div class="neon-glow-card p-4 rounded-lg flex items-center gap-4">
+                <i class="fas fa-users text-3xl text-fuchsia-400"></i>
+                <div>
+                    <p class="text-sm text-gray-400">Total Siswa</p>
+                    <p id="stat-total-siswa" class="text-2xl font-bold">0</p>
+                </div>
+            </div>
+            <div class="neon-glow-card p-4 rounded-lg flex items-center gap-4">
+                <i class="fas fa-school text-3xl text-fuchsia-400"></i>
+                <div>
+                    <p class="text-sm text-gray-400">Total Kelas</p>
+                    <p id="stat-total-kelas" class="text-2xl font-bold">0</p>
+                </div>
+            </div>
+            <div class="neon-glow-card p-4 rounded-lg flex items-center gap-4">
+                <i class="fas fa-book text-3xl text-fuchsia-400"></i>
+                <div>
+                    <p class="text-sm text-gray-400">Total Mapel</p>
+                    <p id="stat-total-mapel" class="text-2xl font-bold">0</p>
+                </div>
+            </div>
+        </div>
+        <div class="flex border-b border-fuchsia-500/30 mb-4 overflow-x-auto">
+            <button id="tab-btn-students" class="tab-button py-2 px-4 font-semibold border-b-2 border-transparent transition-colors duration-300 whitespace-nowrap">Manajemen Siswa</button>
+            <button id="tab-btn-subjects" class="tab-button py-2 px-4 font-semibold border-b-2 border-transparent transition-colors duration-300 whitespace-nowrap">Manajemen Mapel</button>
+        </div>
+        <div id="dashboard-content" class="neon-glow-card p-4 rounded-lg"></div>
+    `;
+    $('#tab-btn-students').addEventListener('click', () => switchDashboardTab('students'));
+    $('#tab-btn-subjects').addEventListener('click', () => switchDashboardTab('subjects'));
+    switchDashboardTab('students');
+}
+function renderDashboardStats() {
+    const totalSiswa = state.students.length;
+    const totalKelas = [...new Set(state.students.map(s => s.class.toString().trim()))].length;
+    const totalMapel = state.subjects.length;
+    const statSiswaEl = $('#stat-total-siswa');
+    const statKelasEl = $('#stat-total-kelas');
+    const statMapelEl = $('#stat-total-mapel');
+    if (statSiswaEl) statSiswaEl.textContent = totalSiswa;
+    if (statKelasEl) statKelasEl.textContent = totalKelas;
+    if (statMapelEl) statMapelEl.textContent = totalMapel;
+}
+function logout() {
+    state = { 
+        currentPage: 'page-landing', 
+        currentUser: null, students: [], subjects: [], questions: [], 
+        tokens: [], results: [], currentExam: null, examTimer: null, 
+        currentSubject: null, classFilter: 'all', resultClassFilter: 'all',
+        matchingState: { selectedLeftIndex: null, resizeObserver: null }
+    }; 
+    navigateTo('page-landing');
+    location.reload();
+}
+async function switchDashboardTab(tabName) {
+    $$('#page-guru-dashboard .tab-button').forEach(btn => btn.classList.remove('active'));
+    $(`#tab-btn-${tabName}`).classList.add('active');
+    const content = $('#dashboard-content');
+    content.innerHTML = '<p>Memuat data...</p>';
+    if (tabName === 'students') {
+        const res = await apiCall('getStudents');
+        if (res.success) {
+            state.students = res.data;
+            renderStudentsTab();
+        }
+    } else if (tabName === 'subjects') {
+        const res = await apiCall('getSubjects');
+        if (res.success) {
+            state.subjects = res.data;
+            renderSubjectsTab();
+        }
+    }
+    renderDashboardStats();
+}
+function renderStudentsTab() {
+    const classes = ['all', ...new Set(state.students.map(s => s.class.toString().trim()))].sort();
+    const filteredStudents = state.classFilter === 'all'
+        ? state.students
+        : state.students.filter(s => s.class.toString().trim() === state.classFilter);
+    $('#dashboard-content').innerHTML = `
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+            <div>
+                <label for="student-class-filter" class="mr-2">Filter Kelas:</label>
+                <select id="student-class-filter" class="neon-glow-input rounded-md px-2 py-1">
+                    ${classes.map(c => `<option value="${c}" ${state.classFilter === c ? 'selected' : ''}>${c === 'all' ? 'Semua Kelas' : c}</option>`).join('')}
+                </select>
+            </div>
+            <button onclick="handleAddStudent()" class="neon-glow-button font-bold py-2 px-4 rounded-lg self-end sm:self-center"><i class="fas fa-plus mr-2"></i>Tambah Siswa</button>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead><tr class="border-b border-fuchsia-500/50"><th class="p-3">ID</th><th class="p-3">Nama</th><th class="p-3">Kelas</th><th class="p-3"></th></tr></thead>
+                <tbody>
+                ${filteredStudents.map(student => `
+                    <tr class="border-b border-fuchsia-500/20 hover:bg-fuchsia-500/10">
+                        <td class="p-3 text-xs">${student.id}</td>
+                        <td class="p-3 whitespace-nowrap">${student.name}</td>
+                        <td class="p-3">${student.class}</td>
+                        <td class="p-3 text-right">
+                            <button onclick="handleEditStudent('${student.id}')" class="text-blue-400 hover:text-blue-300 mr-2"><i class="fas fa-edit"></i></button>
+                            <button onclick="handleDeleteStudent('${student.id}')" class="text-red-400 hover:text-red-300"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `).join('') || `<tr><td colspan="4" class="p-4 text-center">Belum ada data siswa.</td></tr>`}
+                </tbody>
+            </table>
+        </div>
+    `;
+    $('#student-class-filter').addEventListener('change', (e) => {
+        state.classFilter = e.target.value;
+        renderStudentsTab();
+    });
+}
+function handleAddStudent() {
+    const bodyHtml = `
+        <div class="space-y-4">
+            <div><label class="block mb-2 text-sm">Nama Lengkap Siswa</label><input type="text" id="studentName" class="w-full p-2 rounded-lg neon-glow-input" required></div>
+            <div><label class="block mb-2 text-sm">Kelas</label><input type="text" id="studentClass" class="w-full p-2 rounded-lg neon-glow-input" placeholder="Contoh: 7A" required></div>
+        </div>`;
+    showModal('Tambah Siswa Baru', bodyHtml, async () => {
+        const newStudent = { name: $('#studentName').value, class: $('#studentClass').value };
+        const res = await apiCall('saveStudent', newStudent);
+        if (res.success) {
+            hideModal();
+            showNotification('Sukses', 'Siswa berhasil ditambahkan.', 'success');
+            await switchDashboardTab('students');
+        }
+    });
+}
+function handleEditStudent(studentId) {
+    const student = state.students.find(s => s.id === studentId);
+    if (!student) return;
+    const bodyHtml = `
+        <div class="space-y-4">
+            <input type="hidden" id="studentId" value="${student.id}">
+            <div><label class="block mb-2 text-sm">Nama</label><input type="text" id="studentName" class="w-full p-2 rounded-lg neon-glow-input" value="${student.name}" required></div>
+            <div><label class="block mb-2 text-sm">Kelas</label><input type="text" id="studentClass" class="w-full p-2 rounded-lg neon-glow-input" value="${student.class}" required></div>
+        </div>`;
+    showModal(`Edit: ${student.name}`, bodyHtml, async () => {
+        const updatedStudent = { id: $('#studentId').value, name: $('#studentName').value, class: $('#studentClass').value };
+        const res = await apiCall('saveStudent', updatedStudent);
+        if (res.success) {
+            hideModal();
+            showNotification('Sukses', 'Data siswa berhasil diperbarui.', 'success');
+            await switchDashboardTab('students');
+        }
+    });
+}
+function handleDeleteStudent(studentId) {
+    const student = state.students.find(s => s.id === studentId);
+    if (!student) return;
+    showModal('Konfirmasi Hapus Siswa', `<p>Anda yakin ingin menghapus <strong>${student.name}</strong>?</p>`, async () => {
+        const res = await apiCall('deleteStudent', { id: studentId });
+        if (res.success) {
+            hideModal();
+            showNotification('Sukses', 'Siswa berhasil dihapus.', 'success');
+            await switchDashboardTab('students');
+        }
+    }, { actionText: 'Hapus' });
+}
+function renderSubjectsTab() {
+    $('#dashboard-content').innerHTML = `
+        <div class="flex justify-end items-center mb-4">
+            <button onclick="handleAddSubject()" class="neon-glow-button font-bold py-2 px-4 rounded-lg"><i class="fas fa-plus mr-2"></i>Tambah Mapel</button>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="border-b border-fuchsia-500/50">
+                        <th class="p-3">ID</th><th class="p-3">Nama Mapel</th><th class="p-3">Durasi</th><th class="p-3">Jadwal</th><th class="p-3"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                ${state.subjects.map(subject => `
+                    <tr class="border-b border-fuchsia-500/20 hover:bg-fuchsia-500/10">
+                        <td class="p-3 font-mono text-xs">${subject.id}</td>
+                        <td class="p-3">${subject.name}</td>
+                        <td class="p-3">${subject.duration} menit</td>
+                        <td class="p-3">${subject.schedule ? new Date(subject.schedule).toLocaleString('id-ID') : '-'}</td>
+                        <td class="p-3 text-right whitespace-nowrap">
+                            <button onclick="navigateToManageSubject('${subject.id}')" class="neon-glow-button text-sm py-1 px-3 rounded-md mr-2"><i class="fas fa-cog mr-1"></i>Kelola</button>
+                            <button onclick="handleEditSubject('${subject.id}')" class="text-blue-400 hover:text-blue-300 mr-2"><i class="fas fa-edit"></i></button>
+                            <button onclick="handleDeleteSubject('${subject.id}')" class="text-red-400 hover:text-red-300"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `).join('') || `<tr><td colspan="5" class="p-4 text-center">Belum ada mata pelajaran.</td></tr>`}
+                </tbody>
+            </table>
+        </div>
+    `;
+}
+function handleAddSubject() {
+    const bodyHtml = `
+        <div class="space-y-4">
+            <div><label class="block mb-2 text-sm">ID Mata Pelajaran</label><input type="text" id="subjectId" class="w-full p-2 rounded-lg neon-glow-input" placeholder="Contoh: MTK-7" required></div>
+            <div><label class="block mb-2 text-sm">Nama Mata Pelajaran</label><input type="text" id="subjectName" class="w-full p-2 rounded-lg neon-glow-input" required></div>
+            <div class="grid grid-cols-2 gap-4">
+                    <div><label class="block mb-2 text-sm">Durasi (menit)</label><input type="number" id="subjectDuration" class="w-full p-2 rounded-lg neon-glow-input" required></div>
+                    <div><label class="block mb-2 text-sm">Batas Pelanggaran</label><input type="number" id="violationLimit" class="w-full p-2 rounded-lg neon-glow-input" value="3" min="0"></div>
+            </div>
+            <div><label class="block mb-2 text-sm">Jadwal</label><input type="datetime-local" id="subjectSchedule" class="w-full p-2 rounded-lg neon-glow-input" required></div>
+        </div>
+        <h4 class="font-bold mt-6 mb-2 text-fuchsia-400">Pengaturan Poin Soal (Bobot Nilai)</h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-black/20 rounded-lg">
+            ${renderScoringInputs()}
+        </div>
+    `;
+    showModal('Tambah Mata Pelajaran Baru', bodyHtml, async () => {
+        const scoringRules = getScoringRulesFromModal();
+        const newSubject = { 
+            id: $('#subjectId').value, 
+            name: $('#subjectName').value, 
+            duration: $('#subjectDuration').value, 
+            schedule: $('#subjectSchedule').value, 
+            scoringRules: JSON.stringify(scoringRules),
+            violationLimit: $('#violationLimit').value,
+            isUpdate: false 
+        };
+        const res = await apiCall('saveSubject', newSubject);
+        if (res.success) {
+            hideModal();
+            showNotification('Sukses', 'Mata pelajaran berhasil ditambahkan.', 'success');
+            await switchDashboardTab('subjects');
+        }
+    });
+}
+function handleEditSubject(subjectId) {
+    const subject = state.subjects.find(s => s.id === subjectId);
+    if (!subject) return;
+    const currentRules = subject.scoringRules ? JSON.parse(subject.scoringRules) : {};
+        const bodyHtml = `
+            <div class="space-y-4">
+                <input type="hidden" id="subjectId" value="${subject.id}">
+                <div><label class="block text-sm mb-2">Nama</label><input type="text" id="subjectName" class="w-full p-2 rounded-lg neon-glow-input" value="${subject.name}" required></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="block text-sm mb-2">Durasi (menit)</label><input type="number" id="subjectDuration" class="w-full p-2 rounded-lg neon-glow-input" value="${subject.duration}" required></div>
+                    <div><label class="block text-sm mb-2">Batas Pelanggaran</label><input type="number" id="violationLimit" class="w-full p-2 rounded-lg neon-glow-input" value="${subject.violationLimit || 3}" min="0"></div>
+                </div>
+                <div><label class="block text-sm mb-2">Jadwal</label><input type="datetime-local" id="subjectSchedule" class="w-full p-2 rounded-lg neon-glow-input" value="${subject.schedule || ''}" required></div>
+            </div>
+            <h4 class="font-bold mt-6 mb-2 text-fuchsia-400">Pengaturan Poin Soal (Bobot Nilai)</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-black/20 rounded-lg">
+                ${renderScoringInputs(currentRules)}
+            </div>
+            `;
+        showModal(`Edit: ${subject.name}`, bodyHtml, async () => {
+        const scoringRules = getScoringRulesFromModal();
+        const updatedSubject = { 
+            id: $('#subjectId').value, 
+            name: $('#subjectName').value, 
+            duration: $('#subjectDuration').value, 
+            schedule: $('#subjectSchedule').value, 
+            scoringRules: JSON.stringify(scoringRules),
+            violationLimit: $('#violationLimit').value,
+            isUpdate: true 
+        };
+        const res = await apiCall('saveSubject', updatedSubject);
+        if (res.success) {
+            hideModal();
+            showNotification('Sukses', 'Mata pelajaran berhasil diperbarui.', 'success');
+            await switchDashboardTab('subjects');
+        }
+    });
+}
+function renderScoringInputs(rules = {}) {
+    const questionTypes = ["Pilihan Ganda", "Pilihan Ganda Kompleks", "Benar/Salah", "Isian Singkat", "Menjodohkan", "Esai"];
+    return questionTypes.map(type => `
+        <div>
+            <label class="block mb-1 text-sm text-gray-300">${type}</label>
+            <input type="number" id="points-${type.replace(/[\s/]+/g, '-')}" class="w-full p-2 rounded neon-glow-input" value="${rules[type] || 1}" min="0" step="0.5">
+        </div>
+    `).join('');
+}
+function getScoringRulesFromModal() {
+    const questionTypes = ["Pilihan Ganda", "Pilihan Ganda Kompleks", "Benar/Salah", "Isian Singkat", "Menjodohkan", "Esai"];
+    const rules = {};
+    questionTypes.forEach(type => {
+        const inputId = `points-${type.replace(/[\s/]+/g, '-')}`;
+        rules[type] = parseFloat($(`#${inputId}`).value) || 1;
+    });
+    return rules;
+}
+function handleDeleteSubject(subjectId) {
+    const subject = state.subjects.find(s => s.id === subjectId);
+    if (!subject) return;
+    showModal('Konfirmasi Hapus', `<p>Yakin ingin menghapus <strong>${subject.name}</strong>?</p>`, async () => {
+            const res = await apiCall('deleteSubject', { id: subjectId });
+            if (res.success) {
+            hideModal();
+            showNotification('Sukses', 'Mata pelajaran berhasil dihapus.', 'success');
+            await switchDashboardTab('subjects');
+        }
+    }, { actionText: 'Hapus' });
+}
+function navigateToManageSubject(subjectId) {
+    state.currentSubject = state.subjects.find(s => s.id === subjectId);
+    if(state.currentSubject) {
+        renderManageSubjectPage();
+        navigateTo('page-manage-subject');
+    }
+}
+function renderManageSubjectPage() {
+    const { name, id } = state.currentSubject;
+    $('#page-manage-subject').innerHTML = `
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                <div>
+                    <button onclick="navigateTo('page-guru-dashboard'); renderGuruDashboard();" class="neon-glow-button neon-glow-secondary font-bold py-2 px-5 rounded-lg mb-2">
+                        <i class="fas fa-arrow-left mr-2"></i>Kembali
+                    </button>
+                    <h1 class="text-2xl font-bold">Kelola: ${name}</h1>
+                    <p class="text-sm text-gray-400">ID Mapel: ${id}</p>
+                </div>
+        </div>
+        <div class="flex border-b border-fuchsia-500/30 mb-4 overflow-x-auto">
+            <button id="subject-tab-questions" class="tab-button py-2 px-4 font-semibold border-b-2 border-transparent transition-colors duration-300 whitespace-nowrap">Manajemen Soal</button>
+            <button id="subject-tab-tokens" class="tab-button py-2 px-4 font-semibold border-b-2 border-transparent transition-colors duration-300 whitespace-nowrap">Manajemen Token</button>
+            <button id="subject-tab-results" class="tab-button py-2 px-4 font-semibold border-b-2 border-transparent transition-colors duration-300 whitespace-nowrap">Hasil Ujian</button>
+            <button id="subject-tab-print" class="tab-button py-2 px-4 font-semibold border-b-2 border-transparent transition-colors duration-300 whitespace-nowrap">Cetak Nilai</button>
+        </div>
+        <div id="subject-content" class="neon-glow-card p-4 rounded-lg min-h-[300px]"></div>
+    `;
+    $$('#page-manage-subject .tab-button').forEach(btn => {
+        btn.addEventListener('click', (e) => switchSubjectTab(e.target.id.split('-')[2]));
+    });
+    switchSubjectTab('questions');
+}
+async function switchSubjectTab(tabName) {
+    $$('#page-manage-subject .tab-button').forEach(btn => btn.classList.remove('active'));
+    $(`#subject-tab-${tabName}`).classList.add('active');
+    $('#subject-content').innerHTML = '<p>Memuat data...</p>';
+    
+    // Selalu muat ulang soal saat pindah tab, karena cache di-reset per mapel
+    const qRes = await apiCall('getQuestions', { subjectId: state.currentSubject.id });
+    if (qRes.success) state.questions = qRes.data;
+    else state.questions = []; // Kosongkan jika error
+
+    switch(tabName) {
+        case 'questions':
+            renderQuestionsTab();
+            break;
+        case 'tokens':
+                const tRes = await apiCall('getTokens', { subjectId: state.currentSubject.id });
+                if (tRes.success) {
+                    state.tokens = tRes.data;
+                    renderTokensTab();
+                }
+            break;
+        case 'results':
+            const rRes = await apiCall('getResults', { subjectId: state.currentSubject.id });
+            if(rRes.success) {
+                state.results = rRes.data;
+                renderResultsTab();
+            }
+            break;
+        case 'print':
+            if (!state.results.length || state.results[0]?.subjectId !== state.currentSubject.id) {
+                    const res = await apiCall('getResults', { subjectId: state.currentSubject.id });
+                    if(res.success) state.results = res.data;
+            }
+            renderPrintTab();
+            break;
+    }
+}
+function renderQuestionsTab() {
+    // DAFTAR KATEGORI SOAL (SESUAIKAN URUTAN JIKA PERLU)
+const questionTypesOrder = [
+    "Pilihan Ganda", 
+    "Pilihan Ganda Kompleks", 
+    "Menjodohkan", 
+    "Benar/Salah", 
+    "Isian Singkat", 
+    "Esai"
+];
+
+// Buat Peta (Map) untuk efisiensi pengurutan
+const typeOrder = new Map(questionTypesOrder.map((type, index) => [type, index]));
+
+// Urutkan state.questions SEBELUM menampilkannya
+const sortedQuestions = [...state.questions].sort((a, b) => {
+    const orderA = typeOrder.get(a.type) ?? 99; // ?? 99 untuk tipe soal yg tidak dikenal
+    const orderB = typeOrder.get(b.type) ?? 99;
+    return orderA - orderB;
+});
+    $('#subject-content').innerHTML = `
+        <div class="flex justify-end mb-4 gap-2">
+            <button onclick="handleImportQuestions()" class="neon-glow-button neon-glow-secondary font-bold py-2 px-4 rounded-lg"><i class="fas fa-file-upload mr-2"></i>Import Soal</button>
+            <button onclick="handleAddQuestion()" class="neon-glow-button font-bold py-2 px-4 rounded-lg"><i class="fas fa-plus mr-2"></i>Tambah Soal</button>
+        </div>
+        <div id="questions-list" class="space-y-4">
+            ${sortedQuestions.length > 0 ? sortedQuestions.map((q, i) => renderQuestionCard(q, i)).join('') : '<p class="text-center text-gray-400">Belum ada soal untuk mata pelajaran ini.</p>'}
+        </div>
+    `;
+    
+    // Panggil loadDynamicImages versi Google Drive
+    setTimeout(loadDynamicImages, 0);
+}
+
+// FUNGSI IMPORT VERSI GOOGLE SHEETS
+function handleImportQuestions() {
+    // --- GANTI DENGAN ID SHEET TEMPLATE ANDA ---
+    const templateSheetId = "GANTI_DENGAN_ID_SHEET_TEMPLATE_ANDA"; 
+    const templateSheetUrl = `https://docs.google.com/spreadsheets/d/${templateSheetId}/edit`;
+
+    const bodyHtml = `
+        <p class="mb-4">Fitur import ini sekarang menggunakan Google Sheets untuk mempermudah.</p>
+        <ol class="list-decimal list-inside space-y-2 mb-6 text-sm">
+            <li>Buka "Template Import" di Google Sheets (tombol di bawah).</li>
+            <li>Isi data soal Anda (mulai dari <strong>Baris 8</strong>, di bawah contoh).</li>
+            <li>Setelah selesai, kembali ke sini dan tekan tombol <strong>"Proses Import"</strong>.</li>
+            <li>Data di template akan otomatis dihapus setelah berhasil diimpor.</li>
+        </ol>
+        <a href="${templateSheetUrl}" target="_blank" class="w-full neon-glow-button font-bold py-2 px-4 rounded-lg flex items-center justify-center mb-4">
+            <i class="fas fa-table mr-2"></i> Buka Template Import Google Sheets
+        </a>
+        <p class="text-xs text-gray-400 text-center">Pastikan Anda sudah membagikan (share) Sheet Template itu agar bisa diakses oleh 'siapa saja yang memiliki link' (viewer) agar skrip bisa membacanya.</p>
+    `;
+
+    showModal('Import Soal dari Google Sheet', bodyHtml, async () => {
+        const res = await apiCall('importQuestionsFromSheet', { subjectId: state.currentSubject.id });
+
+        if (res.success) {
+            hideModal();
+            showNotification('Sukses', res.message, 'success');
+            const qRes = await apiCall('getQuestions', { subjectId: state.currentSubject.id });
+            if (qRes.success) {
+                state.questions = qRes.data;
+                renderQuestionsTab();
+            }
+        }
+    }, { actionText: 'Proses Import' });
+}
+
+// FUNGSI RENDER KARTU SOAL (VERSI DRIVE LANGSUNG)
+function renderQuestionCard(question, index) {
+    if (question.error) {
+        return `<div class="p-4 rounded-lg bg-red-900/50 border border-red-500"><p class="font-bold">Soal #${index + 1} Error</p><p class="text-sm">${question.error}</p></div>`;
+    }
+    let optionsHtml = '';
+    
+    if (['Pilihan Ganda', 'Pilihan Ganda Kompleks'].includes(question.type) && Array.isArray(question.options)) {
+        optionsHtml = `<ol class="list-[upper-alpha] list-inside space-y-1 mt-2">${question.options.map(opt => `<li>${renderOption(opt)}</li>`).join('')}</ol>`;
+    } else if (question.type === 'Menjodohkan' && Array.isArray(question.options)) {
+        optionsHtml = `<div class="grid grid-cols-2 gap-2 mt-2 font-sans text-sm">`;
+        question.options.forEach(pair => {
+            optionsHtml += `<div class="bg-black/20 p-2 rounded">${renderOption(pair.q)}</div><div class="bg-black/20 p-2 rounded">${renderOption(pair.a)}</div>`;
+        });
+        optionsHtml += `</div>`;
+    }
+      
+    let answerText;
+    if (question.type === 'Menjodohkan') {
+        answerText = question.options.map((pair, idx) => {
+            const questionLetter = String.fromCharCode(65 + idx);
+            return `${questionLetter} ➔ ${pair.a.text}`;
+        }).join(', ');
+    } else {
+        answerText = question.answer ? (Array.isArray(question.answer) ? question.answer.join(', ') : question.answer) : 'N/A';
+    }
+
+    // --- PERUBAHAN DI SINI ---
+    // Kita panggil buildDriveUrl dan gunakan data-src
+    let mediaHtml = '';
+    if (question.mediaUrl && typeof question.mediaUrl === 'string' && question.mediaUrl.trim() !== '') {
+        // Kita gunakan "Link Ajaib" yang baru
+        const imageUrl = buildDriveUrl(question.mediaUrl);
+        mediaHtml = `<img src="${imageUrl}" class="my-2 question-media-embed" alt="Memuat media..." loading="lazy">`;
+             }
+    // --- AKHIR PERUBAHAN ---
+
+    return `
+        <div class="p-4 rounded-lg bg-black/30 border border-fuchsia-500/30">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-sm font-bold text-fuchsia-400">Soal #${index + 1} (${question.type})</p>
+                    <div class="whitespace-pre-wrap mt-1">${question.text}</div>
+                    ${mediaHtml} 
+                    ${optionsHtml}
+                    <p class="text-xs mt-2 text-green-400"><strong>Jawaban:</strong> ${answerText}</p>
+                </div>
+                <div class="flex-shrink-0 ml-4">
+                    <button onclick="handleEditQuestion('${question.id}')" class="text-blue-400 hover:text-blue-300 mr-2"><i class="fas fa-edit"></i></button>
+                    <button onclick="handleDeleteQuestion('${question.id}')" class="text-red-400 hover:text-red-300"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+async function handleDeleteQuestion(questionId) {
+    showModal('Konfirmasi Hapus Soal', `<p>Anda yakin ingin menghapus soal ini?</p>`, async () => {
+        const res = await apiCall('deleteQuestion', { id: questionId });
+        if (res.success) {
+            hideModal();
+            showNotification('Sukses', 'Soal berhasil dihapus.', 'success');
+            state.questions = state.questions.filter(q => q.id !== questionId);
+            renderQuestionsTab();
+        }
+    }, { actionText: 'Hapus' });
+}
+function handleAddQuestion() {
+    renderQuestionModal();
+}
+function handleEditQuestion(questionId) {
+    const question = state.questions.find(q => q.id === questionId);
+    renderQuestionModal(question);
+}
+function renderTokensTab() {
+        const classes = [...new Set(state.students.map(s => s.class.toString().trim()))].sort();
+        $('#subject-content').innerHTML = `
+        <div class="p-4 rounded-lg bg-black/30 mb-4">
+            <h3 class="font-bold mb-2">Buat Token Baru</h3>
+            <div id="class-checkboxes" class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
+                ${classes.map(c => `<label class="flex items-center gap-2"><input type="checkbox" name="classGroup" value="${c}" class="form-checkbox h-4 w-4 bg-transparent border-primary-color text-primary-color focus:ring-primary-color">${c}</label>`).join('')}
+            </div>
+            <button onclick="handleGenerateToken()" class="neon-glow-button font-bold py-2 px-4 rounded-lg">Buat Token</button>
+        </div>
+        <div>
+            <h3 class="font-bold mb-2">Token Aktif</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead><tr class="border-b border-fuchsia-500/50"><th class="p-2">Token</th><th class="p-2">Untuk Kelas</th><th class="p-2">Dibuat</th><th class="p-2"></th></tr></thead>
+                    <tbody>
+                        ${state.tokens.map(token => `
+                        <tr class="border-b border-fuchsia-500/20">
+                            <td class="p-2 font-mono text-lg">${token.id}</td>
+                            <td class="p-2">${token.classGroup.join(', ')}</td>
+                            <td class="p-2 text-sm">${token.createdAt}</td>
+                            <td class="p-2 text-right">
+                                <button onclick="handleDeleteToken('${token.id}')" class="text-red-400 hover:text-red-300"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>`).join('') || `<tr><td colspan="4" class="text-center p-4">Belum ada token aktif.</td></tr>`}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+            `;
+}
+async function handleGenerateToken() {
+    const selectedClasses = Array.from($$('input[name="classGroup"]:checked')).map(cb => cb.value);
+    if (selectedClasses.length === 0) {
+        showNotification('Error', 'Pilih minimal satu kelas.', 'error');
+        return;
+    }
+    const res = await apiCall('generateToken', { subjectId: state.currentSubject.id, classGroup: selectedClasses });
+    if (res.success) {
+        showNotification('Sukses', `Token baru berhasil dibuat: ${res.data.token}`, 'success');
+        await switchSubjectTab('tokens');
+    }
+}
+async function handleDeleteToken(tokenId) {
+        showModal('Konfirmasi Hapus Token', `<p>Anda yakin ingin menghapus token <strong>${tokenId}</strong>?</p>`, async () => {
+        const res = await apiCall('deleteToken', { id: tokenId });
+        if (res.success) {
+            hideModal();
+            showNotification('Sukses', 'Token berhasil dihapus.', 'success');
+            await switchSubjectTab('tokens');
+        }
+    }, { actionText: 'Hapus' });
+}
+function renderResultsTab() {
+    const classes = ['all', ...new Set(state.results.map(r => r.class.toString().trim()))].sort();
+    const filteredResults = state.resultClassFilter === 'all'
+        ? state.results
+        : state.results.filter(r => r.class.toString().trim() === state.resultClassFilter);
+    $('#subject-content').innerHTML = `
+        <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
+                <div>
+                <label for="result-class-filter" class="mr-2">Filter Kelas:</label>
+                <select id="result-class-filter" class="neon-glow-input rounded-md px-2 py-1">
+                    ${classes.map(c => `<option value="${c}" ${state.resultClassFilter === c ? 'selected' : ''}>${c === 'all' ? 'Semua Kelas' : c}</option>`).join('')}
+                </select>
+            </div>
+            <button onclick="handleExportResults()" class="neon-glow-button font-bold py-2 px-4 rounded-lg"><i class="fas fa-file-export mr-2"></i>Export ke Google Sheets</button>
+            <button onclick="handleBulkPrintDossier()" class="neon-glow-button neon-glow-secondary font-bold py-2 px-4 rounded-lg"><i class="fas fa-print mr-2"></i>Cetak Berkas Kelas Ini</button>
+        </div>
+            <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead><tr class="border-b border-fuchsia-500/50"><th class="p-2">Nama</th><th class="p-2">Kelas</th><th class="p-2">Skor</th><th class="p-2">Waktu Selesai</th><th class="p-2"></th></tr></thead>
+                <tbody>
+                        ${filteredResults.map(result => `
+                        <tr class="border-b border-fuchsia-500/20">
+                            <td class="p-2">${result.studentName}</td>
+                            <td class="p-2">${result.class}</td>
+                            <td class="p-2 font-bold">${parseFloat(result.score).toFixed(1)}</td>
+                            <td class="p-2 text-sm">${result.timestamp}</td>
+                            <td class="p-2 text-right">
+                                <button onclick="handleViewStudentResult('${result.id}')" class="text-blue-400 hover:text-blue-300 mr-2" title="Lihat Jawaban Siswa"><i class="fas fa-eye"></i></button>
+                                <button onclick="handleDeleteResult('${result.id}')" class="text-red-400 hover:text-red-300" title="Hapus agar siswa bisa mengulang"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>`).join('') || `<tr><td colspan="5" class="text-center p-4">Belum ada hasil ujian.</td></tr>`}
+                </tbody>
+            </table>
+        </div>
+    `;
+        $('#result-class-filter').addEventListener('change', (e) => {
+        state.resultClassFilter = e.target.value;
+        renderResultsTab();
+    });
+}
+async function handleDeleteResult(resultId) {
+        const result = state.results.find(r => r.id === resultId);
+        showModal('Konfirmasi Hapus Hasil', `<p>Hapus hasil ujian <strong>${result.studentName}</strong>? Ini akan memungkinkan siswa untuk mengerjakan ujian kembali.</p>`, async () => {
+        const res = await apiCall('deleteResult', { id: resultId });
+        if (res.success) {
+            hideModal();
+            showNotification('Sukses', 'Hasil ujian berhasil dihapus.', 'success');
+            await switchSubjectTab('results');
+        }
+    }, { actionText: 'Hapus' });
+}
+async function handleExportResults() {
+    const res = await apiCall('exportResultsToNewSheet', { subjectId: state.currentSubject.id, classFilter: state.resultClassFilter });
+    if (res.success) {
+        showNotification('Sukses', res.message, 'success');
+    }
+}
+function renderPrintTab() {
+        const filteredResults = state.resultClassFilter === 'all'
+        ? state.results
+        : state.results.filter(r => r.class.toString().trim() === state.resultClassFilter);
+    $('#subject-content').innerHTML = `
+        <div class="text-center">
+            <p class="mb-4">Halaman ini akan mencetak laporan nilai untuk <strong>${state.currentSubject.name}</strong> kelas <strong>${state.resultClassFilter === 'all' ? 'Semua' : state.resultClassFilter}</strong>.</p>
+            <button onclick="handlePrint()" class="neon-glow-button font-bold py-2 px-6 rounded-lg"><i class="fas fa-print mr-2"></i>Cetak Laporan Nilai</button>
+            <div id="print-area" class="hidden"></div>
+        </div>`;
+}
+
+/**
+ * FUNGSI (v2) UNTUK MENCETAK LAPORAN NILAI
+ * (Sekarang dengan Kop Surat dan Tanda Tangan Resmi)
+ */
+function handlePrint() {
+    // 1. Ambil data nilai yang difilter (Sama seperti sebelumnya)
+    const filteredResults = (state.resultClassFilter === 'all'
+        ? state.results
+        : state.results.filter(r => r.class.toString().trim() === state.resultClassFilter))
+        .sort((a,b) => a.studentName.localeCompare(b.studentName));
+
+    if (filteredResults.length === 0) {
+        showNotification('Info', 'Tidak ada data nilai di kelas ini untuk dicetak.', 'info');
+        return;
+    }
+
+    // 2. Mulai membangun string HTML
+    let content = `<html><head><title>Laporan Nilai Ujian</title>`;
+
+    // 3. Tambahkan Blok CSS (Kop Surat + Tanda Tangan + TABEL)
+    content += `
+        <style>
+            /* --- CSS Inti Dokumen & Kop Surat (dari contoh Anda) --- */
+            body { font-family: Arial, sans-serif; margin: 20px; font-size: 12px; }
+            h1, h2, h3 { text-align: center; }
+            h1 { font-size: 16pt; margin: 20px 0; }
+            h2 { font-size: 14pt; margin: 15px 0; }
+            p { margin: 4px 0; }
+            .kop-surat { display: flex; align-items: center; border-bottom: 3px solid black; padding-bottom: 10px; margin-bottom: 20px; }
+            .kop-surat .logo { width: 80px; height: 80px; object-fit: contain; }
+            .kop-surat .teks-kop { text-align: center; flex-grow: 1; padding: 0 15px; }
+            .kop-surat .teks-kop h3, .kop-surat .teks-kop p { margin: 0; line-height: 1.4; }
+            
+            /* --- CSS Tanda Tangan (dari contoh Anda) --- */
+            .signature-container { margin-top: 50px; display: flex; justify-content: space-between; page-break-inside: avoid; }
+            .signature-block { width: 40%; text-align: center; }
+            .signature-block .name { font-weight: bold; text-decoration: underline; }
+
+            /* --- CSS UNTUK TABEL NILAI (PENTING) --- */
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { border: 1px solid #000; padding: 8px; text-align: left; word-wrap: break-word; }
+            th { background-color: #f2f2f2; text-align: center; }
+        </style>
+    `;
+    
+    content += `</head><body>`;
+
+    // 4. Tambahkan Kop Surat (HTML dari contoh Anda)
+    content += `
+        <div class="kop-surat">
+            <img src="https://raw.githubusercontent.com/xiroro-ab/smp58dataguru/refs/heads/main/Logo_Palembang.png" alt="Logo Kiri" class="logo">
+            <div class="teks-kop">
+                <h3>PEMERINTAH KOTA PALEMBANG</h3>
+                <h3>DINAS PENDIDIKAN</h3>
+                <h3 style="font-size: 1.2em; font-weight: bold;">SMP NEGERI 58 PALEMBANG</h3>
+                <p style="font-size: 0.9em;">Jl. Komering II, Kel. Demang Lebar Daun, Kec. Ilir Barat I, Kota Palembang 30137</p>
+                <p style="font-size: 0.9em;">Email: palembangsmpn58@gmail.com</p>
+            </div>
+            <img src="https://raw.githubusercontent.com/xiroro-ab/smp58dataguru/refs/heads/main/logo58.png" alt="Logo Kanan" class="logo">
+        </div>
+    `;
+
+    // 5. Tambahkan Header Laporan
+    const kelas = state.resultClassFilter === 'all' ? 'Semua Kelas' : state.resultClassFilter;
+    content += `<h1>LAPORAN HASIL UJIAN</h1>`;
+    content += `<h2>Mata Pelajaran: ${state.currentSubject.name}</h2>`;
+    content += `<p style="text-align: center;"><strong>Kelas:</strong> ${kelas}</p>`;
+    content += `<p style="text-align: center;"><strong>Tanggal Cetak:</strong> ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>`;
+
+    // 6. Tambahkan Tabel Nilai (Inti dari fungsi ini)
+    content += `
+        <table>
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Nama Siswa</th>
+                    <th>Kelas</th>
+                    <th>Skor Akhir</th>
+                    <th>Jumlah Pelanggaran</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${filteredResults.map((r, i) => `
+                    <tr>
+                        <td style="text-align: center;">${i+1}</td>
+                        <td>${r.studentName}</td>
+                        <td style="text-align: center;">${r.class}</td>
+                        <td style="text-align: center;">${parseFloat(r.score).toFixed(1)}</td>
+                        <td style="text-align: center;">${r.cheatAttempts || 0}</td>
+                    </tr>`).join('')}
+            </tbody>
+        </table>
+    `;
+
+    // 7. Tambahkan Tanda Tangan (HTML dari contoh Anda)
+    const tanggalCetak = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    content += `
+        <div class="signature-container">
+            <div class="signature-block">
+                <p>Mengetahui,</p>
+                <p>Kepala SMPN 58 Palembang</p>
+                <br><br><br><br><br>
+                <p class="name">Maya Erniwaty Manalu, S.Pd.</p>
+                <p>NIP. 196803151992032011</p>
+            </div>
+            <div class="signature-block">
+                <p>Palembang, ${tanggalCetak}</p>
+                <p>Guru Mata Pelajaran</p>
+                <br><br><br><br><br>
+                <p class="name">Aris Bermansyah, S.Kom</p>
+                <p>NIPPPK. 199611142024211010</p>
+            </div>
+        </div>
+    `;
+
+    // 8. Tutup HTML dan Tampilkan Dialog Cetak
+    content += `</body></html>`;
+    
+    const printWindow = window.open('', '', 'height=800,width=800');
+    printWindow.document.write(content);
+    printWindow.document.close();
+    
+    setTimeout(() => { 
+        printWindow.focus();
+        printWindow.print();
+    }, 1000);
+}
+
+function renderQuestionModal(question = null) {
+    const isEdit = question !== null;
+    const title = isEdit ? `Edit Soal #${state.questions.findIndex(q => q.id === question.id) + 1}` : 'Tambah Soal Baru';
+
+    // Link pratinjau sekarang memanggil previewMediaInNewTab versi Google Drive
+    const mainMediaPreviewHtml = isEdit && question.mediaUrl
+        ? `<div class="mt-2 text-xs text-gray-400">Media saat ini: 
+             <a href="javascript:void(0)" onclick="previewMediaInNewTab('${question.mediaUrl}')" class="text-fuchsia-400 hover:underline">Lihat Media</a>
+             <br><em class="text-gray-400">Upload file baru untuk menggantinya.</em>
+           </div>`
+        : '';
+    
+    const bodyHtml = `
+        <input type="hidden" id="questionId" value="${isEdit ? question.id : ''}">
+        <div class="space-y-4">
+            <div>
+                <label class="block mb-2 text-sm">Tipe Soal</label>
+                <select id="questionType" class="w-full p-2 rounded-lg neon-glow-input">
+                    <option value="Pilihan Ganda">Pilihan Ganda</option>
+                    <option value="Pilihan Ganda Kompleks">Pilihan Ganda Kompleks</option>
+                    <option value="Benar/Salah">Benar/Salah</option>
+                    <option value="Isian Singkat">Isian Singkat</option>
+                    <option value="Menjodohkan">Menjodohkan</option>
+                    <option value="Esai">Esai</option>
+                </select>
+            </div>
+            <div>
+                <label class="block mb-2 text-sm">Teks Soal</label>
+                <div class="rte-toolbar flex items-center gap-2 mb-2 p-1 rounded-lg border border-fuchsia-500/50">
+                    <button type="button" class="px-2 py-1 rounded" onclick="formatDoc('bold');"><i class="fas fa-bold"></i></button>
+                    <button type="button" class="px-2 py-1 rounded" onclick="formatDoc('italic');"><i class="fas fa-italic"></i></button>
+                    <button type="button" class="px-2 py-1 rounded" onclick="formatDoc('underline');"><i class="fas fa-underline"></i></button>
+                </div>
+                <div id="questionText" class="w-full p-2 rounded-lg neon-glow-input rte-content" contenteditable="true"></div>
+            </div>
+            <div>
+                <label class="block mb-2 text-sm">Upload Media (Gambar/Video) - Opsional</label>
+                <input type="file" id="questionMediaFile" class="w-full p-2 rounded-lg neon-glow-input" accept="image/*,video/*">
+                <input type="hidden" id="questionMediaUrl" value="${isEdit ? (question.mediaUrl || '') : ''}">
+                ${mainMediaPreviewHtml} 
+            </div>
+            <div id="question-options-container"></div>
+            <div id="question-answer-container"></div>
+        </div>
+    `;
+    showModal(title, bodyHtml, handleSaveQuestion);
+
+    const typeSelect = $('#questionType');
+    if (isEdit) {
+        typeSelect.value = question.type;
+        $('#questionText').innerText = question.text.replace(/<br>/g, "\n"); 
+        $('#questionText').innerHTML = question.text; 
+    }
+    
+    typeSelect.onchange = () => renderQuestionFields(typeSelect.value, null);
+    renderQuestionFields(typeSelect.value, question);
+}
+function formatDoc(command, value = null) {
+    document.execCommand(command, false, value);
+}
+function renderQuestionFields(type, question = null) {
+    const isEdit = question !== null;
+    const optionsContainer = $('#question-options-container');
+    const answerContainer = $('#question-answer-container');
+    optionsContainer.innerHTML = '';
+    answerContainer.innerHTML = '';
+    
+    switch (type) {
+        case 'Pilihan Ganda':
+        case 'Pilihan Ganda Kompleks': {
+            optionsContainer.innerHTML = `
+                <label class="block mb-2 text-sm">Opsi Jawaban</label>
+                <div id="mc-options-container"></div>
+                <button type="button" onclick="addQuestionOption()" class="text-sm neon-glow-button py-1 px-2 rounded mt-2"><i class="fas fa-plus"></i> Tambah Opsi</button>
+            `;
+            const options = isEdit && Array.isArray(question.options) && question.options.length > 0 ? question.options : [{}, {}];
+            options.forEach(opt => addQuestionOption(opt, isEdit ? question.answer : null));
+            break;
+        }
+        case 'Benar/Salah':
+            answerContainer.innerHTML = `<label class="block mb-2 text-sm">Jawaban Benar</label>
+                <div class="flex gap-4">
+                    <label class="flex items-center gap-2"><input type="radio" name="q-answer-tf" value="Benar" class="form-radio" ${isEdit && question.answer === 'Benar' ? 'checked':''}> Benar</label>
+                    <label class="flex items-center gap-2"><input type="radio" name="q-answer-tf" value="Salah" class="form-radio" ${isEdit && question.answer === 'Salah' ? 'checked':''}> Salah</label>
+                </div>`;
+            break;
+        case 'Isian Singkat':
+        case 'Esai': {
+                const label = type === 'Esai' ? 'Kunci Jawaban (Referensi)' : 'Jawaban Benar';
+                    answerContainer.innerHTML = `<label class="block mb-2 text-sm">${label}</label>
+                        <textarea id="q-answer-text" class="w-full p-2 rounded-lg neon-glow-input" rows="3">${isEdit ? (question.answer || '') : ''}</textarea>`;
+            break;
+        }
+        case 'Menjodohkan': {
+            let pairsHtml = `<label class="block mb-2 text-sm">Pasangan</label>
+                <div id="matching-pairs-container">`;
+            const pairs = isEdit && Array.isArray(question.options) ? question.options : [{q:{}, a:{}}, {q:{}, a:{}}];
+            pairs.forEach((pair, i) => {
+                pairsHtml += `
+                    <div class="matching-pair grid grid-cols-2 gap-2 mb-2 p-2 border border-fuchsia-500/20 rounded-lg">
+                        <div>
+                            <input type="text" class="matching-q-text w-full p-1 rounded neon-glow-input" placeholder="Item ${i+1}" value="${pair.q.text || ''}">
+                        </div>
+                        <div>
+                            <input type="text" class="matching-a-text w-full p-1 rounded neon-glow-input" placeholder="Pasangan ${i+1}" value="${pair.a.text || ''}">
+                        </div>
+                    </div>`;
+            });
+            pairsHtml += `</div>
+                <button type="button" onclick="addMatchingPair()" class="text-sm neon-glow-button py-1 px-2 rounded mt-2"><i class="fas fa-plus"></i> Tambah Pasangan</button>`;
+            optionsContainer.innerHTML = pairsHtml;
+            answerContainer.innerHTML = `<p class="text-xs text-gray-400">Jawaban benar ditentukan oleh pasangan yang Anda buat.</p>`;
+            break;
+        }
+    }
+}
+function addQuestionOption(value = { text: '', img: '' }, correctAnswer = null) {
+    const container = $('#mc-options-container');
+    if (!container) return;
+    const newOption = document.createElement('div');
+    const type = $('#questionType').value === 'Pilihan Ganda' ? 'radio' : 'checkbox';
+    const index = container.children.length;
+    const letter = String.fromCharCode(65 + index);
+    const isChecked = correctAnswer ? (Array.isArray(correctAnswer) ? correctAnswer.includes(letter) : correctAnswer === letter) : false;
+
+    // Link "Lihat Gambar" sekarang memanggil previewMediaInNewTab
+    const previewLinkHtml = value.img 
+        ? `<div class="text-xs text-gray-400">Gambar saat ini: <a href="javascript:void(0)" onclick="previewMediaInNewTab('${value.img}')" class="text-fuchsia-400 hover:underline">Lihat Media</a></div>` 
+        : '';
+
+    newOption.className = 'option-row flex items-center gap-2 mb-2 p-2 border border-fuchsia-500/20 rounded-lg';
+    newOption.innerHTML = `
+        <input type="${type}" name="q-answer" value="${letter}" class="form-${type} h-5 w-5 bg-transparent border-primary-color text-primary-color focus:ring-primary-color flex-shrink-0" ${isChecked ? 'checked' : ''}>
+        <div class="w-full space-y-1">
+            <input type="text" class="question-option-text w-full p-1 rounded neon-glow-input" placeholder="Teks Opsi ${letter}" value="${value.text || ''}">
+            
+            <input type="file" class="question-option-file w-full text-xs neon-glow-input" accept="image/*,video/*">
+            <input type="hidden" class="question-option-img" value="${value.img || ''}">
+            ${previewLinkHtml}
+        </div>
+        <button type="button" onclick="removeQuestionOption(this)" class="text-red-400 hover:text-red-300 ml-2 flex-shrink-0"><i class="fas fa-times-circle"></i></button>
+    `;
+    container.appendChild(newOption);
+}
+function removeQuestionOption(btn) {
+    btn.closest('.option-row').remove();
+    reindexOptions();
+}
+function reindexOptions() {
+    const container = $('#mc-options-container');
+    if (!container) return;
+    const rows = $$('#mc-options-container .option-row');
+    rows.forEach((row, index) => {
+        const letter = String.fromCharCode(65 + index);
+        row.querySelector('input[name="q-answer"]').value = letter;
+        row.querySelector('.question-option-text').placeholder = `Teks Opsi ${letter}`;
+    });
+}
+function addMatchingPair() {
+    const container = $('#matching-pairs-container');
+    const pairCount = container.children.length;
+    const newPair = document.createElement('div');
+    newPair.className = "matching-pair grid grid-cols-2 gap-2 mb-2 p-2 border border-fuchsia-500/20 rounded-lg";
+    newPair.innerHTML = `
+        <div>
+            <input type="text" class="matching-q-text w-full p-1 rounded neon-glow-input" placeholder="Item ${pairCount + 1}">
+        </div>
+        <div>
+            <input type="text" class="matching-a-text w-full p-1 rounded neon-glow-input" placeholder="Pasangan ${pairCount + 1}">
+        </div>`;
+    container.appendChild(newPair);
+}
+async function handleSaveQuestion() {
+    const type = $('#questionType').value;
+    let options = [];
+    let answer = null;
+    const readFileAsBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = (error) => reject(error);
+            reader.readAsDataURL(file);
+        });
+    };
+    const filePromises = [];
+    const payload = {
+        id: $('#questionId').value,
+        subjectId: state.currentSubject.id,
+        type: type,
+        text: $('#questionText').innerHTML,
+        mediaUrl: $('#questionMediaUrl').value, // Ini ID Google Drive
+        options: [],
+        answer: null,
+        fileData: null 
+    };
+    const mainFileInput = $('#questionMediaFile');
+    if (mainFileInput.files.length > 0) {
+        const file = mainFileInput.files[0];
+        filePromises.push(readFileAsBase64(file).then(base64String => {
+            payload.fileData = { base64: base64String, type: file.type, name: file.name };
+        }));
+    }
+    if (['Pilihan Ganda', 'Pilihan Ganda Kompleks'].includes(type)) {
+        const optionRows = $$('.option-row');
+        optionRows.forEach(row => {
+            const optionData = {
+                text: row.querySelector('.question-option-text').value,
+                img: row.querySelector('.question-option-img').value, // Ini ID Google Drive
+                fileData: null
+            };
+            const fileInput = row.querySelector('.question-option-file');
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                filePromises.push(readFileAsBase64(file).then(base64String => {
+                    optionData.fileData = { base64: base64String, type: file.type, name: file.name };
+                }));
+            }
+            payload.options.push(optionData);
+        });
+        const selected = Array.from($$('input[name="q-answer"]:checked')).map(cb => cb.value);
+        payload.answer = type === 'Pilihan Ganda' ? (selected[0] || null) : selected;
+    } 
+    else if (type === 'Menjodohkan') {
+        payload.options = Array.from($$('.matching-pair')).map(pair => ({
+            q: { text: pair.querySelector('.matching-q-text').value, img: '' },
+            a: { text: pair.querySelector('.matching-a-text').value, img: '' }
+        }));
+        payload.answer = "Otomatis";
+    }
+    else if (type === 'Benar/Salah') {
+        const selected = $('input[name="q-answer-tf"]:checked');
+        payload.answer = selected ? selected.value : null;
+    }
+    else { // Isian Singkat, Esai
+        payload.answer = $('#q-answer-text').value;
+    }
+    try {
+        await Promise.all(filePromises);
+    } catch (error) {
+        showNotification('Error', 'Gagal membaca salah satu file untuk diupload.', 'error');
+        return;
+    }
+    const res = await apiCall('saveQuestion', payload);
+    if(res.success) {
+        hideModal();
+        showNotification('Sukses', 'Soal berhasil disimpan', 'success');
+        const qRes = await apiCall('getQuestions', { subjectId: state.currentSubject.id });
+        if (qRes.success) {
+            state.questions = qRes.data;
+            renderQuestionsTab();
+        }
+    }
+}
+
+// --- SISWA FLOW ---
+async function populateKelasSelect() {
+    const res = await apiCall('getStudents');
+    if (res.success) {
+        state.students = res.data;
+        const classes = [...new Set(res.data.map(s => s.class.toString().trim()))].sort();
+        const select = $('#kelas-select');
+        select.innerHTML = '<option value="">-- Pilih Kelas --</option>';
+        classes.forEach(c => select.innerHTML += `<option value="${c}">${c}</option>`);
+    }
+}
+function populateNamaSelect() {
+    const selectedClass = $('#kelas-select').value;
+    const namaSelect = $('#nama-select');
+    namaSelect.innerHTML = '<option value="">-- Pilih Nama --</option>';
+    if (selectedClass) {
+        const studentsInClass = state.students
+            .filter(s => s.class.toString().trim() === selectedClass)
+            .sort((a,b) => a.name.localeCompare(b.name));
+        studentsInClass.forEach(s => namaSelect.innerHTML += `<option value="${s.id}">${s.name}</option>`);
+        namaSelect.disabled = false;
+    } else {
+        namaSelect.disabled = true;
+    }
+}
+async function handleSiswaLogin(e) {
+    e.preventDefault();
+    const studentId = $('#nama-select').value;
+    const token = $('#token').value.trim().toUpperCase();
+    if (!studentId || !token) {
+        showNotification('Error', 'Harap lengkapi semua field.', 'error');
+        return;
+    }
+    const storageKey = `cbt-exam-state-${studentId}-${token}`;
+    const savedState = localStorage.getItem(storageKey);
+    if (savedState) {
+        const parsedState = JSON.parse(savedState);
+        if (parsedState.terminated) {
+            state.currentExam = parsedState;
+            finishExam(true, 'cheat_resume');
+            return;
+        }
+        showResumeConfirmationModal(storageKey, studentId, token);
+    } else {
+        const res = await apiCall('validateTokenAndStartExam', { studentId, token });
+        if (res.success) {
+            startNewExam(res.data, studentId, token);
+        }
+    }
+}
+function startNewExam(examData, studentId, token) {
+    state.currentExam = examData;
+    state.currentExam.studentId = studentId;
+    state.currentExam.token = token;
+    state.currentExam.answers = Array(examData.questionIDs.length).fill(null).map((_, i) => ({ questionId: examData.questionIDs[i], answer: null, isDoubtful: false }));
+    state.currentExam.questionIDs = examData.questionIDs; // Simpan daftar ID
+    state.currentExam.loadedQuestions = {}; // Buat "cache" soal yg sudah di-load
+    delete state.currentExam.questions; // Hapus data soal yg lama (jika ada)
+    state.currentExam.currentQuestionIndex = 0;
+    state.currentExam.startTime = new Date().toISOString();
+    renderExamInstructions();
+    navigateTo('page-exam-instruction');
+}
+function renderExamInstructions() {
+    const { subject, questionIDs } = state.currentExam;
+    const violationLimit = parseInt(subject.violationLimit, 10);
+    let violationText = '';
+    if (violationLimit > 0) {
+        violationText = `<p class="text-yellow-400"><i class="fas fa-exclamation-triangle mr-2"></i><strong>Penting:</strong> Batas maksimal pelanggaran (keluar halaman) adalah <strong>${violationLimit}</strong> kali.</p>`;
+    } else {
+        violationText = `<p class="text-gray-400"><i class="fas fa-info-circle mr-2"></i>Setiap aktivitas keluar dari halaman ujian akan dicatat.</p>`;
+    }
+    $('#exam-details').innerHTML = `
+        <p><strong>Mata Pelajaran:</strong> ${subject.name}</p>
+        <p><strong>Jumlah Soal:</strong> ${questionIDs.length}</p>
+        <p><strong>Durasi:</strong> ${subject.duration} menit</p>
+        ${violationText}
+    `;
+    $('#start-exam-btn').onclick = () => startExam(false).catch(e => console.error(e));
+}
+async function startExam(isResuming = false) {
+    navigateTo('page-exam');
+    document.documentElement.requestFullscreen().catch(err => {
+        console.warn(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+    });
+    await renderExamPage();
+    let duration = state.currentExam.subject.duration;
+    if (isResuming && state.currentExam.remainingSeconds) {
+        duration = state.currentExam.remainingSeconds / 60;
+    }
+    startTimer(duration);
+    addAntiCheatListeners();
+    startWatermark();
+}
+async function renderExamPage() {
+    renderQuestionNav();
+    await renderCurrentQuestion();
+    $('#prev-question-btn').onclick = () => navigateQuestion('prev').catch(e => console.error(e));
+    $('#ragu-ragu-btn').onclick = () => handleRaguRaguAndNext().catch(e => console.error(e));
+    $('#next-question-btn').onclick = () => navigateQuestion('next').catch(e => console.error(e));
+    $('#finish-exam-btn').onclick = () => finishExam(false);
+}
+function renderQuestionNav() {
+    const navGrid = $('#question-nav-grid');
+    navGrid.innerHTML = state.currentExam.answers.map((answerData, index) => {
+        let colorClass = 'bg-gray-700 hover:bg-gray-600';
+        if (answerData.answer !== null) colorClass = 'bg-green-600/70 hover:bg-green-600';
+        if (answerData.isDoubtful) colorClass = 'bg-yellow-500/70 hover:bg-yellow-500';
+        if (index === state.currentExam.currentQuestionIndex) colorClass = 'bg-blue-600 text-white ring-2 ring-white';
+        return `<button onclick="jumpToQuestion(${index}).catch(e => console.error(e))" class="question-nav-button rounded-md transition-all duration-200 ${colorClass}">${index + 1}</button>`;
+    }).join('');
+}
+async function jumpToQuestion(index) {
+    saveCurrentAnswer();
+    state.currentExam.currentQuestionIndex = index;
+    await renderCurrentQuestion();
+    renderQuestionNav();
+    saveExamStateToLocalStorage();
+}
+async function renderCurrentQuestion() {
+    const { answers, currentQuestionIndex, questionIDs, loadedQuestions, subjectId } = state.currentExam;
+    // --- LOGIKA LOADING SOAL BARU ---
+const questionId = questionIDs[currentQuestionIndex];
+let question = loadedQuestions[questionId]; // Cek di cache dulu
+
+if (!question) {
+    // Jika belum ada, panggil API
+    showLoader(); // Tampilkan loader saat mengambil soal
+    const res = await apiCall('getSingleQuestion', { questionId, subjectId });
+    hideLoader();
+
+    if (res.success) {
+        question = res.data;
+        loadedQuestions[questionId] = question; // Simpan ke cache
+    } else {
+        // Gagal mengambil soal
+        const contentDiv = $('#question-content');
+        contentDiv.innerHTML = `<div class="text-center p-8 bg-red-900/50 rounded-lg"><h3 class="text-2xl text-red-400 font-bold mb-2">Gagal Memuat Soal</h3><p>${res.message || 'Soal ini tidak dapat dimuat.'}</p></div>`;
+        // Atur tombol navigasi agar tidak error
+        $('#prev-question-btn').classList.toggle('invisible', currentQuestionIndex === 0);
+        const isLastQuestion = currentQuestionIndex === questionIDs.length - 1;
+        $('#next-question-btn').classList.toggle('hidden', isLastQuestion);
+        $('#ragu-ragu-btn').classList.toggle('hidden', isLastQuestion);
+        $('#finish-exam-btn').classList.toggle('hidden', !isLastQuestion);
+        return; // Hentikan fungsi
+    }
+}
+// --- AKHIR LOGIKA LOADING ---
+    const answerData = answers[currentQuestionIndex];
+    const contentDiv = $('#question-content');
+    
+    if(!question || question.error) {
+            contentDiv.innerHTML = `<div class="text-center p-8 bg-red-900/50 rounded-lg"><h3 class="text-2xl text-red-400 font-bold mb-2">Gagal Memuat Soal</h3><p>${question ? question.error : 'Data soal tidak ditemukan.'}</p></div>`;
+            return;
+    }
+
+    // --- PERUBAHAN DI SINI ---
+    // Panggil buildDriveUrl, gunakan data-src
+    let mediaHtml = '';
+    if (question.mediaUrl && typeof question.mediaUrl === 'string' && question.mediaUrl.trim() !== '') {
+        const imageUrl = buildDriveUrl(question.mediaUrl);
+        mediaHtml = `<img src="${imageUrl}" class="my-4 question-media-embed" alt="Memuat media soal..." loading="lazy">`;
+            }
+    // --- AKHIR PERUBAHAN ---
+
+    let questionHtml = `<div class="mb-4">
+        <div class="flex justify-between items-center">
+            <span class="text-sm font-bold text-fuchsia-400">Soal No. ${currentQuestionIndex + 1}</span>
+            <span class="text-xs font-semibold px-2 py-1 bg-fuchsia-500/20 text-fuchsia-300 rounded-full">${question.type}</span>
+        </div>
+        <div class="text-base mt-2 whitespace-pre-wrap">${question.text || '(Teks soal tidak dapat dimuat)'}</div>
+        ${mediaHtml}
+    </div>`;
+    
+    const { type, options } = question;
+
+    if (type === 'Pilihan Ganda' || type === 'Pilihan Ganda Kompleks') {
+        const safeOptions = options || [];
+        questionHtml += `<div class="space-y-3">${safeOptions.map((opt, idx) => {
+        const optionLetter = String.fromCharCode(65 + idx);
+        const isChecked = type === 'Pilihan Ganda' 
+            ? answerData.answer === optionLetter
+            : Array.isArray(answerData.answer) && answerData.answer.includes(optionLetter);
+        const inputType = type === 'Pilihan Ganda' ? 'radio' : 'checkbox';
+            const optionContent = renderOption(opt || { text: '(Opsi error)' }); // renderOption sudah di-update
+            return `<label class="flex items-start p-3 rounded-lg border border-gray-600 hover:border-fuchsia-500 cursor-pointer transition-colors ${isChecked ? 'bg-fuchsia-500/20 border-fuchsia-400' : ''}"><input type="${inputType}" name="option" value="${optionLetter}" class="mr-3 mt-1 form-${inputType} h-5 w-5 bg-transparent border-primary-color text-primary-color focus:ring-primary-color" ${isChecked ? 'checked' : ''}><span>${optionLetter}. ${optionContent}</span></label>`;
+        }).join('')}</div>`;
+    } 
+    else if (type === 'Menjodohkan') { // Kita hapus '&& Array.isArray(options)' agar bisa dicek di dalam
+    if (!answerData.pairs) answerData.pairs = [];
+
+    // --- PERBAIKAN DIMULAI DI SINI ---
+
+    // 1. Filter semua data yg rusak. Hanya ambil pasangan (pair) yg LENGKAP
+    const safeOptions = (Array.isArray(options) ? options : [])
+        .filter(pair => pair && pair.q && pair.a && typeof pair.q.text !== 'undefined' && typeof pair.a.text !== 'undefined');
+
+    const questionItems = safeOptions.map(pair => pair.q);
+    const answerItems = [...safeOptions.map(pair => pair.a)];
+    // --- Akhir Pengecekan 1 ---
+
+    if (!answerData.shuffledAnswers) {
+            for (let i = answerItems.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [answerItems[i], answerItems[j]] = [answerItems[j], answerItems[i]]; }
+        answerData.shuffledAnswers = answerItems;
+    }
+
+    // 2. Pastikan shuffledAnswers ada (jika semua data rusak, answerItems bisa jadi kosong)
+    const shuffledAnswerItems = answerData.shuffledAnswers || [];
+
+    questionHtml += `<div id="matching-container" class="relative"><canvas id="matching-canvas"></canvas><div class="grid grid-cols-2 gap-4">`;
+    questionHtml += `<div id="matching-left" class="space-y-3"><h4 class="font-bold text-fuchsia-400 text-center">Soal</h4>`;
+
+    // 3. Pengecekan terakhir saat menampilkan
+    questionItems.forEach((item, idx) => { 
+        const itemContent = `${(item ? item.text : '') || ''}`; // Cek jika item atau item.text null
+        questionHtml += `<div class="matching-item p-2 rounded-lg bg-black/30 flex items-center gap-2" data-side="left" data-index="${idx}">${String.fromCharCode(65 + idx)}. ${itemContent}</div>`; 
+    });
+    questionHtml += `</div>`;
+    questionHtml += `<div id="matching-right" class="space-y-3"><h4 class="font-bold text-fuchsia-400 text-center">Pilihan Jawaban</h4>`;
+
+    shuffledAnswerItems.forEach((item, idx) => { 
+        const itemContent = `${(item ? item.text : '') || ''}`; // Cek jika item atau item.text null
+        const itemDataText = (item ? item.text : '') || '';
+        questionHtml += `<div class="matching-item p-2 rounded-lg bg-black/30 flex items-center gap-2" data-side="right" data-index="${idx}" data-text="${itemDataText}">${itemContent}</div>`; 
+    });
+    questionHtml += `</div></div></div>`;
+    setTimeout(() => setupMatchingQuestion(answerData.pairs), 0);
+} else if (type === 'Benar/Salah') {
+        questionHtml += `<div class="space-y-3">
+            <label class="flex items-center p-3 rounded-lg border border-gray-600 hover:border-fuchsia-500 cursor-pointer transition-colors ${answerData.answer === 'Benar' ? 'bg-fuchsia-500/20 border-fuchsia-400' : ''}"><input type="radio" name="bs_option" value="Benar" class="mr-3 form-radio h-5 w-5 bg-transparent border-primary-color text-primary-color focus:ring-primary-color" ${answerData.answer === 'Benar' ? 'checked' : ''}> Benar</label>
+            <label class="flex items-center p-3 rounded-lg border border-gray-600 hover:border-fuchsia-500 cursor-pointer transition-colors ${answerData.answer === 'Salah' ? 'bg-fuchsia-500/20 border-fuchsia-400' : ''}"><input type="radio" name="bs_option" value="Salah" class="mr-3 form-radio h-5 w-5 bg-transparent border-primary-color text-primary-color focus:ring-primary-color" ${answerData.answer === 'Salah' ? 'checked' : ''}> Salah</label>
+        </div>`;
+    } else { 
+            questionHtml += `<textarea class="w-full p-3 rounded-lg neon-glow-input mt-4" rows="5" placeholder="Ketik jawaban Anda...">${answerData.answer || ''}</textarea>`;
+    }
+
+    contentDiv.innerHTML = questionHtml;
+    
+    // Panggil loadDynamicImages (versi lama)
+    setTimeout(loadDynamicImages, 0);
+
+    // Pengaturan tombol navigasi
+    $('#prev-question-btn').classList.toggle('invisible', currentQuestionIndex === 0);
+    const isLastQuestion = currentQuestionIndex === questionIDs.length - 1;
+    $('#next-question-btn').classList.toggle('hidden', isLastQuestion);
+    $('#ragu-ragu-btn').classList.toggle('hidden', isLastQuestion);
+    $('#finish-exam-btn').classList.toggle('hidden', !isLastQuestion);
+}
+
+            
+function saveCurrentAnswer() {
+    // --- PERBAIKAN DI SINI ---
+const { currentQuestionIndex, answers, questionIDs, loadedQuestions } = state.currentExam;
+
+// Ambil ID soal saat ini
+const questionId = questionIDs[currentQuestionIndex];
+
+// Ambil soal dari cache (sudah pasti ada, karena sudah di-load oleh renderCurrentQuestion)
+const question = loadedQuestions[questionId];
+
+// Jika (karena alasan aneh) soalnya tidak ada di cache, jangan lakukan apa-apa
+if (!question) {
+    console.error("Gagal menyimpan jawaban: Soal saat ini tidak ditemukan di cache.");
+    return; 
+}
+
+const answerData = answers[currentQuestionIndex];
+// --- AKHIR PERBAIKAN ---
+    let currentAnswer = null;
+    switch(question.type) {
+        case 'Pilihan Ganda': {
+            const selectedOption = $('input[name="option"]:checked');
+            if (selectedOption) currentAnswer = selectedOption.value;
+            break;
+        }
+        case 'Pilihan Ganda Kompleks': {
+            const selectedOptions = Array.from($$('input[name="option"]:checked')).map(cb => cb.value);
+            currentAnswer = selectedOptions.length > 0 ? selectedOptions : null;
+            break;
+        }
+        case 'Menjodohkan': {
+            const pairs = answerData.pairs || [];
+            const shuffledAnswers = answerData.shuffledAnswers || [];
+            const formattedPairs = pairs.map(pair => ({
+                questionItem: String.fromCharCode(65 + pair.leftIndex),
+                answerItem: shuffledAnswers[pair.rightIndex].text
+            }));
+            currentAnswer = formattedPairs.length > 0 ? formattedPairs : null;
+            break;
+        }
+        case 'Benar/Salah': {
+            const selectedOption = $('input[name="bs_option"]:checked');
+            if (selectedOption) currentAnswer = selectedOption.value;
+            break;
+        }
+        default: { // Isian Singkat, Esai
+            const textarea = $('#question-content textarea');
+            if(textarea && textarea.value.trim() !== '') {
+                currentAnswer = textarea.value.trim();
+            }
+            break;
+        }
+    }
+    answerData.answer = currentAnswer;
+}
+async function handleRaguRaguAndNext() {
+    const { currentQuestionIndex, answers } = state.currentExam;
+    answers[currentQuestionIndex].isDoubtful = true;
+    await navigateQuestion('next');
+}
+async function navigateQuestion(direction) {
+        saveCurrentAnswer();
+        // --- INI YANG DIUBAH ---
+        const { questionIDs, currentQuestionIndex } = state.currentExam;
+        let newIndex = currentQuestionIndex;
+        
+        // --- DAN INI YANG DIUBAH ---
+        if (direction === 'next' && currentQuestionIndex < questionIDs.length - 1) newIndex++;
+        else if (direction === 'prev' && currentQuestionIndex > 0) newIndex--;
+        
+        await jumpToQuestion(newIndex);
+    }
+function startTimer(minutes) {
+    if (state.examTimer) clearInterval(state.examTimer);
+    let seconds = Math.floor(minutes * 60);
+    const timerEl = $('#timer');
+    const updateTimerDisplay = () => {
+        const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
+        const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+        const s = (seconds % 60).toString().padStart(2, '0');
+        timerEl.textContent = `${h}:${m}:${s}`;
+    };
+    updateTimerDisplay();
+    state.examTimer = setInterval(() => {
+        if (seconds <= 0) {
+            clearInterval(state.examTimer);
+            timerEl.classList.add('animate-pulse');
+            finishExam(true, 'timeup');
+            return;
+        }
+        seconds--;
+        state.currentExam.remainingSeconds = seconds;
+        updateTimerDisplay();
+    }, 1000);
+}
+async function finishExam(isAutoSubmit = false, reason = "Selesai") {
+        clearInterval(state.examTimer);
+        removeAntiCheatListeners();
+        saveCurrentAnswer();
+        let title, message, config = {};
+        if(reason === "cheat") {
+                title = 'Ujian Dihentikan';
+                message = `Ujian dihentikan karena Anda telah melampaui batas pelanggaran (${state.currentExam.cheatAttempts} kali). Jawaban Anda akan dikumpulkan.`;
+                config = { actionText: 'OK', hideCancel: true };
+        } else if (reason === "timeup") {
+                title = 'Waktu Habis';
+                message = 'Waktu ujian telah habis. Jawaban Anda akan dikumpulkan.';
+                config = { actionText: 'OK', hideCancel: true };
+        } else if (reason === 'cheat_resume') {
+                title = 'Ujian Dihentikan';
+                message = 'Ujian ini telah dihentikan karena pelanggaran sebelumnya. Jawaban terakhir Anda akan dikirimkan.';
+                config = { actionText: 'OK', hideCancel: true };
+        } else {
+                const unanswered = state.currentExam.answers.filter(a => a.answer === null).length;
+                title = 'Konfirmasi Selesai Ujian';
+                message = `Anda yakin ingin menyelesaikan ujian? ${unanswered > 0 ? `Masih ada ${unanswered} soal yang belum dijawab.` : ''}`;
+                config = { actionText: 'Ya, Selesaikan' };
+        }
+        showModal(title, `<p>${message}</p>`,
+        async () => {
+            hideModal();
+            const { studentId, subjectId, token, answers, cheatAttempts, startTime } = state.currentExam;
+            const res = await apiCall('saveResult', { studentId, subjectId, token, answers, cheatAttempts, startTime });
+            if (res.success) {
+                clearExamStateFromLocalStorage();
+                $('#final-score').textContent = parseFloat(res.data.score).toFixed(1);
+                navigateTo('page-result');
+            }
+        }, config);
+}
+function saveExamStateToLocalStorage() {
+    if (state.currentExam) {
+        const storageKey = `cbt-exam-state-${state.currentExam.studentId}-${state.currentExam.token}`;
+        localStorage.setItem(storageKey, JSON.stringify(state.currentExam));
+    }
+}
+function clearExamStateFromLocalStorage() {
+    if (state.currentExam) {
+        const storageKey = `cbt-exam-state-${state.currentExam.studentId}-${state.currentExam.token}`;
+        localStorage.removeItem(storageKey);
+    }
+}
+function clearExamStateAndLogout() {
+    clearExamStateFromLocalStorage();
+    navigateTo('page-landing');
+    location.reload();
+}
+window.addEventListener('beforeunload', saveExamStateToLocalStorage);
+
+// GANTI SELURUH FUNGSI 'handleViewStudentResult' LAMA ANDA DENGAN INI:
+
+function handleViewStudentResult(resultId) {
+    const result = state.results.find(r => r.id === resultId);
+    if (!result) return;
+    
+    // Siapkan data yang dibutuhkan oleh 'pabrik'
+    const scoringRules = JSON.parse(state.currentSubject.scoringRules || '{}');
+    const questionsMap = new Map(state.questions.map(q => [q.id, q]));
+
+    // 1. Panggil "Pabrik" untuk membuat HTML inti
+    let contentHtml = generateStudentDossierHtml(result, questionsMap, scoringRules);
+
+    // 2. Tambahkan Tombol Cetak (hanya untuk modal ini)
+    const printButtonHtml = `
+        <button 
+            type="button" 
+            onclick="printStudentDossier('${result.studentName}', '${state.currentSubject.name}')"
+            class="print-dossier-btn neon-glow-button font-bold py-2 px-4 rounded-lg w-full mb-4">
+            <i class="fas fa-print mr-2"></i> Cetak Berkas Siswa Ini
+        </button>
+    `;
+
+    // 3. Gabungkan tombol cetak dan HTML inti
+    contentHtml = printButtonHtml + contentHtml;
+
+    // 4. Tampilkan Modal (logika ini sama seperti sebelumnya)
+    const onSaveCallback = () => {
+        hideModal();
+        switchSubjectTab('results'); 
+    };
+    const onCancelCallback = () => {
+        hideModal();
+        switchSubjectTab('results');
+    };
+
+    showModal(`Hasil Jawaban: ${result.studentName}`, contentHtml, onSaveCallback, { 
+        actionText: 'Tutup', 
+        hideCancel: true, 
+        onCancel: onCancelCallback 
+    });
+}
+
+function setupMatchingQuestion(savedPairs) {
+    const container = $('#matching-container');
+    if (!container) return;
+    const { answers, currentQuestionIndex } = state.currentExam;
+    const answerData = answers[currentQuestionIndex];
+    answerData.pairs = savedPairs || [];
+    container.addEventListener('click', handleMatchingClick);
+    setTimeout(() => drawMatchingLines(answerData.pairs), 100);
+    if(state.matchingState.resizeObserver) state.matchingState.resizeObserver.disconnect();
+    state.matchingState.resizeObserver = new ResizeObserver(() => drawMatchingLines(answerData.pairs || []));
+    state.matchingState.resizeObserver.observe(container);
+}
+function handleMatchingClick(event) {
+    const item = event.target.closest('.matching-item');
+    if (!item) return;
+    const { answers, currentQuestionIndex } = state.currentExam;
+    const answerData = answers[currentQuestionIndex];
+    const side = item.dataset.side;
+    const index = parseInt(item.dataset.index);
+    if (side === 'left') {
+        state.matchingState.selectedLeftIndex = index;
+    } else if (side === 'right' && state.matchingState.selectedLeftIndex !== null) {
+        answerData.pairs = answerData.pairs.filter(p => 
+            p.leftIndex !== state.matchingState.selectedLeftIndex && p.rightIndex !== index
+        );
+        answerData.pairs.push({ leftIndex: state.matchingState.selectedLeftIndex, rightIndex: index });
+        state.matchingState.selectedLeftIndex = null;
+        saveCurrentAnswer();
+    }
+    updateMatchingSelection();
+    drawMatchingLines(answerData.pairs);
+}
+function updateMatchingSelection() {
+    $$('.matching-item').forEach(el => el.classList.remove('selected'));
+    if (state.matchingState.selectedLeftIndex !== null) {
+        $(`#matching-left .matching-item[data-index="${state.matchingState.selectedLeftIndex}"]`)?.classList.add('selected');
+    }
+}
+function drawMatchingLines(pairs = []) {
+    const canvas = $('#matching-canvas');
+    const container = $('#matching-container');
+    if (!canvas || !container) return;
+    const ctx = canvas.getContext('2d');
+    const rect = container.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pairs.forEach(pair => {
+        const leftEl = $(`#matching-left .matching-item[data-index="${pair.leftIndex}"]`);
+        const rightEl = $(`#matching-right .matching-item[data-index="${pair.rightIndex}"]`);
+        if (leftEl && rightEl) {
+            const leftRect = leftEl.getBoundingClientRect();
+            const rightRect = rightEl.getBoundingClientRect();
+            const startX = leftRect.right - rect.left;
+            const startY = leftRect.top - rect.top + leftRect.height / 2;
+            const endX = rightRect.left - rect.left;
+            const endY = rightRect.top - rect.top + rightRect.height / 2;
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(endX, endY);
+            ctx.strokeStyle = 'var(--primary-color)';
+            ctx.lineWidth = 2;
+            ctx.shadowColor = 'var(--glow-color-primary)';
+            ctx.shadowBlur = 5;
+            ctx.stroke();
+        }
+    });
+}
+let cheatWarningTimeout;
+const triggerCheatWarning = () => {
+    if (!state.currentExam || state.currentExam.isFinished) return;
+    state.currentExam.cheatAttempts = (state.currentExam.cheatAttempts || 0) + 1;
+    const violationLimit = parseInt(state.currentExam.subject.violationLimit, 10);
+    if (violationLimit > 0 && state.currentExam.cheatAttempts >= violationLimit) {
+        if (!state.currentExam.isFinished) { 
+            state.currentExam.isFinished = true;
+            state.currentExam.terminated = true;
+            saveExamStateToLocalStorage();
+            finishExam(true, 'cheat'); 
+        }
+        return;
+    }
+    if ($('#cheat-warning').classList.contains('active')) return;
+    $('#cheat-warning').classList.add('active');
+    $('#cheat-count-display').textContent = `Jumlah Pelanggaran: ${state.currentExam.cheatAttempts}`;
+    $('#cheat-warning').classList.remove('hidden');
+    clearTimeout(cheatWarningTimeout);
+    cheatWarningTimeout = setTimeout(() => {
+        $('#cheat-warning').classList.add('hidden');
+        $('#cheat-warning').classList.remove('active');
+    }, 5000); 
+};
+const handleVisibilityChange = () => {
+    if (document.hidden) {
+        triggerCheatWarning();
+    }
+};
+const handleFullscreenChange = () => {
+        if (!document.fullscreenElement) {
+            triggerCheatWarning();
+    }
+};
+const preventCopyPaste = (e) => {
+        if (e.ctrlKey && ['c', 'v', 'x', 'u', 'p'].includes(e.key.toLowerCase())) {
+            e.preventDefault();
+            showNotification('Aksi Diblokir', 'Menyalin dan menempel tidak diizinkan selama ujian.', 'error');
+    }
+};
+const preventContextMenu = (e) => e.preventDefault();
+function addAntiCheatListeners() {
+    if (!state.currentExam) return;
+    state.currentExam.cheatAttempts = state.currentExam.cheatAttempts || 0;
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('contextmenu', preventContextMenu);
+    document.addEventListener('keydown', preventCopyPaste);
+}
+function removeAntiCheatListeners() {
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
+    document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    document.removeEventListener('contextmenu', preventContextMenu);
+    document.removeEventListener('keydown', preventCopyPaste);
+    if(document.fullscreenElement) document.exitFullscreen();
+}
+
+// FUNGSI LOAD GAMBAR (KOSONG - KARENA KITA SUDAH PAKAI <IMG SRC>)
+function loadDynamicImages() {
+ // Fungsi ini sengaja dibiarkan kosong.
+ // Kita tidak lagi menggunakan <div> data-src,
+ // kita langsung menggunakan <img> src di renderQuestionCard/renderCurrentQuestion.
+}
+
+// FUNGSI PREVIEW MEDIA (KEMBALI KE VERSI DRIVE LANGSUNG)
+function previewMediaInNewTab(fileId) {
+    const url = buildDriveUrl(fileId);
+    window.open(url, '_blank');
+}
+
+// --- HOOKS ---
+const originalNavigateTo = navigateTo;
+navigateTo = (pageId, params = null) => {
+    originalNavigateTo(pageId, params);
+    if (pageId === 'page-siswa-login') {
+        populateKelasSelect();
+    }
+};
+
+// TAMBAHKAN FUNGSI JAVASCRIPT BARU INI
+async function saveEssayGrade(resultId, questionId, subjectId) {
+    const inputEl = $(`#essay-score-${questionId}`);
+    const points = parseFloat(inputEl.value);
+
+    if (isNaN(points)) {
+        showNotification('Error', 'Harap masukkan angka yang valid untuk poin.', 'error');
+        return;
+    }
+
+    const res = await apiCall('saveEssayGrade', { resultId, questionId, points });
+
+    if (res.success) {
+        // Tampilkan notifikasi sukses
+        showNotification('Sukses', `Skor berhasil disimpan. Skor akhir baru: ${res.data.newScore.toFixed(1)}`, 'success');
+        
+        // Tutup modal
+        hideModal(false); // false agar event handler tidak di-reset
+        
+        // Muat ulang tab hasil ujian untuk menampilkan skor baru
+        switchSubjectTab('results');
+    }
+    // Pesan error akan ditangani otomatis oleh apiCall
+}
+
+/**
+ * FUNGSI BARU UNTUK MENCETAK BERKAS JAWABAN SISWA
+ * Mengambil konten dari modal, memformatnya untuk kertas, dan membuka dialog cetak.
+ */
+function printStudentDossier(studentName, subjectName) {
+    // 1. Ambil semua HTML dari dalam modal body
+    // Kita kloning agar bisa memodifikasi tanpa merusak modal aslinya
+    const modalBody = $('#modal-body').cloneNode(true);
+    
+    // 2. Hapus elemen yang tidak ingin kita cetak (form input nilai esai)
+    modalBody.querySelectorAll('.essay-grading-form').forEach(el => el.remove());
+    // Hapus tombol "Cetak" itu sendiri
+    modalBody.querySelectorAll('.print-dossier-btn').forEach(el => el.remove());
+    
+    const printContent = modalBody.innerHTML;
+
+    // 3. Buka jendela cetak baru
+    const printWindow = window.open('', '', 'height=800,width=800');
+    
+    // 4. Tulis HTML dan CSS khusus cetak ke jendela baru
+    printWindow.document.write('<html><head><title>Berkas Ujian Siswa</title>');
+    
+    // --- Ini adalah CSS untuk mengubah tema 'NEON' menjadi 'KERTAS' ---
+    printWindow.document.write(`
+        <style>
+            body { 
+                font-family: Arial, sans-serif; 
+                line-height: 1.4; 
+                font-size: 12pt; 
+                color: #000;
+                background: #fff;
+            }
+            /* --- Perbaikan CSS --- */
+
+/* H1 dan H2 tetap di tengah */
+h1, h2 { text-align: center; }
+h1 { font-size: 16pt; margin: 20px 0; }
+h2 { font-size: 14pt; margin: 15px 0; }
+
+/* * KITA HAPUS aturan h3 global yang merusak.
+ * KITA BUAT class khusus untuk header siswa.
+*/
+.student-header { 
+    font-size: 13pt; 
+    margin-top: 40px; 
+    border-bottom: 2px solid #000; 
+    padding-bottom: 10px; 
+    text-align: center; /* <-- SEKARANG DI TENGAH */
+}
+
+/* * Aturan Kop Surat Anda (sudah benar dan akan bekerja sekarang) 
+ * h3 di sini tidak akan terpengaruh garis bawah lagi.
+*/
+.kop-surat { display: flex; align-items: center; border-bottom: 3px solid black; padding-bottom: 10px; margin-bottom: 20px; }
+.kop-surat .logo { width: 80px; height: 80px; object-fit: contain; }
+.kop-surat .teks-kop { text-align: center; flex-grow: 1; padding: 0 15px; }
+.kop-surat .teks-kop h3, .kop-surat .teks-kop p { margin: 0; line-height: 1.4; }
+
+            /* Sembunyikan elemen yg tidak perlu */
+            .no-print, .fas.fa-question-circle, .essay-grading-form, .print-dossier-btn { 
+                display: none !important; 
+            } 
+            
+            /* Atur tampilan kartu soal */
+            .p-3.rounded-lg.border { 
+                border: 1px solid #ccc !important; 
+                padding: 10px; 
+                margin-bottom: 15px; 
+                page-break-inside: avoid; /* Mencegah soal terpotong di tengah halaman */
+            }
+            .font-bold { font-weight: bold; }
+            .text-sm { font-size: 11pt; }
+            .text-xs { font-size: 10pt; }
+            .mt-1 { margin-top: 4px; }
+            .whitespace-pre-wrap { white-space: pre-wrap; }
+            
+            /* Paksa semua warna teks neon menjadi hitam */
+            .text-white, .text-gray-300, .text-fuchsia-400 { color: #000 !important; }
+            
+            /* Jawaban Benar */
+            .text-green-400 { color: #006400 !important; font-weight: bold; }
+            .bg-green-500\\/20 { background: #e0ffe0 !important; }
+            .border-green-500 { border-color: #a0c0a0 !important; }
+            .fas.fa-check-circle { color: #006400 !important; }
+            
+            /* Jawaban Salah */
+            .text-red-400 { color: #8B0000 !important; font-weight: bold; }
+            .bg-red-500\\/20 { background: #ffe0e0 !important; }
+            .border-red-500 { border-color: #c0a0a0 !important; }
+            .fas.fa-times-circle { color: #8B0000 !important; }
+
+            /* Soal Esai */
+            .bg-blue-500\\/20 { background: #e0e0ff !important; }
+            .border-blue-500\\/50 { border-color: #a0a0c0 !important; }
+            .text-blue-300 { color: #00008B !important; }
+            
+            /* Tanda Ragu-ragu (kita ubah jadi teks) */
+            .text-yellow-300 { 
+                color: #555 !important; 
+                background: #fff8e1 !important; 
+                padding: 2px 4px; 
+                border: 1px solid #ccc;
+                font-size: 10pt;
+                font-weight: bold;
+            }
+        </style>
+    `);
+    
+    printWindow.document.write('</head><body>');
+    
+    // 5. Tulis Konten Utama
+    printWindow.document.write(`<h1>Berkas Ujian Siswa</h1>`);
+    printWindow.document.write(`<h2>Mata Pelajaran: ${subjectName}</h2>`);
+    printWindow.document.write(`<h3>Nama Siswa: ${studentName}</h3>`);
+    printWindow.document.write(printContent); // Masukkan semua soal
+    
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    printWindow.focus();
+    
+    // 6. Tampilkan dialog cetak
+    setTimeout(() => {
+        printWindow.print();
+    }, 500); // Beri waktu 0.5 detik agar gambar dan style sempat dimuat
+}
+
+/**
+ * FUNGSI HELPER BARU (PABRIK HTML)
+ * Membuat HTML inti untuk berkas jawaban seorang siswa.
+ */
+function generateStudentDossierHtml(result, questionsMap, scoringRules) {
+    const getScoreForType = (type) => parseFloat(scoringRules[type] || 1);
+    let contentHtml = '<div class="space-y-4">'; // Mulai div
+
+    if (result.cheatAttempts > 0) {
+        contentHtml += `<div class="p-3 rounded-lg border border-yellow-500/50 bg-yellow-500/20 text-center"><i class="fas fa-exclamation-triangle text-yellow-400 mr-2"></i>Siswa ini meninggalkan halaman ujian sebanyak <strong>${result.cheatAttempts}</strong> kali.</div>`;
+    }
+
+    result.answers.forEach((studentAnswerObj, index) => {
+        const q = questionsMap.get(studentAnswerObj.questionId);
+        if (!q) return;
+
+        const studentAnswerRaw = studentAnswerObj.answer;
+        const correctAnswer = q.answer;
+        const pointValue = getScoreForType(q.type);
+        
+        // (Salinan dari logika 'studentAnswerDisplay' Anda)
+        let studentAnswerDisplay = '(Tidak Dijawab)';
+        if (studentAnswerRaw !== null && studentAnswerRaw !== undefined && studentAnswerRaw.length !== 0) {
+            if (Array.isArray(studentAnswerRaw)) {
+                if (q.type === 'Menjodohkan') {
+                    studentAnswerDisplay = studentAnswerRaw.map(ans => `${ans.questionItem} ➔ ${ans.answerItem}`).join('<br>');
+                } else {
+                    studentAnswerDisplay = studentAnswerRaw.join(', ');
+                }
+            } else {
+                studentAnswerDisplay = studentAnswerRaw.toString();
+            }
+        }
+
+        const isDoubtfulHtml = studentAnswerObj.isDoubtful ? '<span class="text-xs font-semibold px-2 py-0.5 bg-yellow-500/20 text-yellow-300 rounded-full" title="Siswa menandai ini ragu-ragu"><i class="fas fa-question-circle"></i> Ragu</span>' : '';
+        const questionHeaderHtml = `<div class="flex items-center gap-2"><p class="font-bold">Soal #${index + 1}</p>${isDoubtfulHtml}</div>`;
+
+        if (q.type === 'Esai') {
+            const currentEssayScore = (result.essayScores && result.essayScores[q.id]) ? result.essayScores[q.id] : '';
+            contentHtml += `
+                <div class="p-3 rounded-lg border border-blue-500/50 bg-blue-500/20">
+                    ${questionHeaderHtml}
+                    <span class="text-xs font-semibold px-2 py-1 bg-blue-500/20 text-blue-300 rounded-full">${q.type} (Maks. ${pointValue} Poin)</span>
+                    <div class="text-sm mt-1 whitespace-pre-wrap">${q.text}</div>
+                    <hr class="my-2 border-fuchsia-500/20">
+                    <p class="text-xs">Jawaban Siswa: <br><strong class="text-white">${studentAnswerDisplay}</strong></p>
+                    <p class="text-xs">Kunci Jawaban (Referensi): <br><strong class="text-green-400">${correctAnswer || '(Tidak ada referensi)'}</strong></p>
+                    
+                    <div class="mt-3 pt-3 border-t border-fuchsia-500/20 flex gap-2 essay-grading-form">
+                        <input type="number" id="essay-score-${q.id}" class="neon-glow-input w-full p-2 rounded-lg text-sm" placeholder="Masukkan Poin (misal: 5)" value="${currentEssayScore}" min="0" max="${pointValue}">
+                        <button type="button" onclick="saveEssayGrade('${result.id}', '${q.id}', '${result.subjectId}')" class="neon-glow-button font-bold py-2 px-4 rounded-lg flex-shrink-0">Simpan</button>
+                    </div>
+                </div>
+            `;
+        } else {
+            // (Salinan dari logika 'isCorrect' Anda)
+            let isCorrect = false;
+            if (q.type === 'Pilihan Ganda Kompleks') {
+                const correctSet = new Set(Array.isArray(correctAnswer) ? correctAnswer : []);
+                const userSet = new Set(Array.isArray(studentAnswerRaw) ? studentAnswerRaw : []);
+                isCorrect = correctSet.size > 0 && correctSet.size === userSet.size && [...correctSet].every(item => userSet.has(item));
+            } else if (q.type === 'Menjodohkan') {
+                let correctPairs = 0;
+                if (Array.isArray(studentAnswerRaw) && Array.isArray(q.options)) {
+                    studentAnswerRaw.forEach(ans => {
+                        const questionIndex = ans.questionItem.charCodeAt(0) - 65;
+                        if (q.options[questionIndex] && q.options[questionIndex].a.text === ans.answerItem) {
+                            correctPairs++;
+                        }
+                    });
+                    isCorrect = correctPairs === q.options.length;
+                }
+            } else if (studentAnswerRaw != null && correctAnswer != null) {
+                isCorrect = studentAnswerRaw.toString().toLowerCase() === correctAnswer.toString().toLowerCase();
+            }
+
+            const correctnessClass = isCorrect ? 'bg-green-500/20 border-green-500' : 'bg-red-500/20 border-red-500';
+            const correctnessIcon = isCorrect ? '<i class="fas fa-check-circle text-green-400"></i>' : '<i class="fas fa-times-circle text-red-400"></i>';
+            
+            let correctAnswerDisplay;
+            if (q.type === 'Menjodohkan') {
+                correctAnswerDisplay = (q.options || []).map((pair, idx) => {
+                    const questionLetter = String.fromCharCode(65 + idx);
+                    return `${questionLetter} ➔ ${pair.a.text}`;
+                }).join('<br>');
+            } else {
+                correctAnswerDisplay = Array.isArray(correctAnswer) ? correctAnswer.join(', ') : (correctAnswer || '(Kunci Jawaban Tidak Diatur)');
+            }
+
+            contentHtml += `
+                <div class="p-3 rounded-lg border ${correctnessClass}">
+                    ${questionHeaderHtml}
+                    <span class="text-xs font-semibold px-2 py-1 bg-fuchsia-500/20 text-fuchsia-300 rounded-full">${q.type} (${pointValue} Poin)</span>
+                    <div class="text-sm mt-1 whitespace-pre-wrap">${q.text}</div>
+                    <hr class="my-2 border-fuchsia-500/20">
+                    <p class="text-xs">Jawaban Siswa: <br><strong class="text-white">${studentAnswerDisplay}</strong></p>
+                    <p class="text-xs">Kunci Jawaban: <br><strong class="text-green-400">${correctAnswerDisplay}</strong></p>
+                    <div class="mt-1">${correctnessIcon}</div>
+                </div>
+            `;
+        }
+    });
+
+    contentHtml += `</div>`; // Tutup div
+    return contentHtml;
+}
+
+/**
+ * FUNGSI (v4) UNTUK MENCETAK BERKAS SECARA MASSAL
+ * (PERBAIKAN: Tanda tangan tidak lagi di lembaran baru)
+ */
+async function handleBulkPrintDossier() {
+    // 1. Ambil data yang relevan
+    const filteredResults = state.resultClassFilter === 'all'
+        ? state.results
+        : state.results.filter(r => r.class.toString().trim() === state.resultClassFilter);
+
+    if (filteredResults.length === 0) {
+        showNotification('Info', 'Tidak ada data siswa di kelas ini untuk dicetak.', 'info');
+        return;
+    }
+
+    const scoringRules = JSON.parse(state.currentSubject.scoringRules || '{}');
+    const questionsMap = new Map(state.questions.map(q => [q.id, q]));
+    
+    showLoader(); 
+    
+    // 2. Buka jendela cetak baru
+    const printWindow = window.open('', '_blank');
+    
+    // 3. Mulai membangun string HTML
+    let content = `<html><head><title>Berkas Ujian Massal</title>`;
+
+    // 4. Tambahkan Blok CSS (Ini sudah benar dari sebelumnya)
+    content += `
+        <style>
+            /* --- CSS Inti Dokumen (dari contoh Anda) --- */
+            body { font-family: Arial, sans-serif; margin: 20px; font-size: 12px; }
+            p { margin: 4px 0; }
+
+            /* --- KOP SURAT (PERBAIKAN) --- */
+            .kop-surat { display: flex; align-items: center; border-bottom: 3px solid black; padding-bottom: 10px; margin-bottom: 20px; }
+            .kop-surat .logo { width: 80px; height: 80px; object-fit: contain; }
+            .kop-surat .teks-kop { text-align: center; flex-grow: 1; padding: 0 15px; }
+            .kop-surat .teks-kop h3, .kop-surat .teks-kop p { margin: 0; line-height: 1.4; }
+            
+            /* --- TANDA TANGAN (dari contoh Anda) --- */
+            .signature-container { margin-top: 50px; display: flex; justify-content: space-between; page-break-inside: avoid; }
+            .signature-block { width: 40%; text-align: center; }
+            .signature-block .name { font-weight: bold; text-decoration: underline; }
+
+            /* --- HEADER LAPORAN (PERBAIKAN) --- */
+            h1, h2 { text-align: center; }
+            h1 { font-size: 16pt; margin: 20px 0; }
+            h2 { font-size: 14pt; margin: 15px 0; }
+            .student-header { font-size: 13pt; margin-top: 40px; border-bottom: 2px solid #000; padding-bottom: 10px; text-align: center; }
+
+            /* --- CSS Laporan Ujian (dari kode saya sebelumnya) --- */
+            .page-break { page-break-after: always; }
+            .no-print, .fas.fa-question-circle, .essay-grading-form, .print-dossier-btn { display: none !important; } 
+            .p-3.rounded-lg.border { border: 1px solid #ccc !important; padding: 10px; margin-bottom: 15px; page-break-inside: avoid; }
+            .font-bold { font-weight: bold; } .text-sm { font-size: 11pt; } .text-xs { font-size: 10pt; }
+            .mt-1 { margin-top: 4px; } .whitespace-pre-wrap { white-space: pre-wrap; }
+            .text-white, .text-gray-300, .text-fuchsia-400 { color: #000 !important; }
+            
+            /* Jawaban Benar */
+            .text-green-400 { color: #006400 !important; font-weight: bold; }
+            .bg-green-500\\/20 { background: #e0ffe0 !important; -webkit-print-color-adjust: exact; }
+            .border-green-500 { border-color: #a0c0a0 !important; }
+            .fas.fa-check-circle { color: #006400 !important; }
+            
+            /* Jawaban Salah */
+            .text-red-400 { color: #8B0000 !important; font-weight: bold; }
+            .bg-red-500\\/20 { background: #ffe0e0 !important; -webkit-print-color-adjust: exact; }
+            .border-red-500 { border-color: #c0a0a0 !important; }
+            .fas.fa-times-circle { color: #8B0000 !important; }
+
+            /* Soal Esai */
+            .bg-blue-500\\/20 { background: #e0e0ff !important; -webkit-print-color-adjust: exact; }
+            .border-blue-500\\/50 { border-color: #a0a0c0 !important; }
+            .text-blue-300 { color: #00008B !important; }
+            
+            /* Tanda Ragu-ragu */
+            .text-yellow-300 { color: #555 !important; background: #fff8e1 !important; border: 1px solid #ccc; font-size: 10pt; font-weight: bold; }
+        </style>
+    `;
+    
+    content += `</head><body>`;
+
+    // 5. Tambahkan Kop Surat (Sudah benar)
+    content += `
+        <div class="kop-surat">
+            <img src="https://raw.githubusercontent.com/xiroro-ab/smp58dataguru/refs/heads/main/Logo_Palembang.png" alt="Logo Kiri" class="logo">
+            <div class="teks-kop">
+                <h3>PEMERINTAH KOTA PALEMBANG</h3>
+                <h3>DINAS PENDIDIKAN</h3>
+                <h3 style="font-size: 1.2em; font-weight: bold;">SMP NEGERI 58 PALEMBANG</h3>
+                <p style="font-size: 0.9em;">Jl. Komering II, Kel. Demang Lebar Daun, Kec. Ilir Barat I, Kota Palembang 30137</p>
+                <p style="font-size: 0.9em;">Email: palembangsmpn58@gmail.com</p>
+            </div>
+            <img src="https://raw.githubusercontent.com/xiroro-ab/smp58dataguru/refs/heads/main/logo58.png" alt="Logo Kanan" class="logo">
+        </div>
+    `;
+
+    // 6. Tambahkan Header Laporan (Sudah benar)
+    const kelas = state.resultClassFilter === 'all' ? 'Semua Kelas' : state.resultClassFilter;
+    content += `<h1>BERKAS HASIL UJIAN SISWA</h1>`;
+    content += `<h2>Mata Pelajaran: ${state.currentSubject.name}</h2>`;
+    content += `<p style="text-align: center;"><strong>Kelas:</strong> ${kelas}</p>`;
+    content += `<p style="text-align: center;"><strong>Tanggal Cetak:</strong> ${new Date().toLocaleDateString('id-ID')}</p>`;
+    
+    // 7. Loop untuk setiap siswa (LOGIKA BARU)
+    for (let i = 0; i < filteredResults.length; i++) {
+        const result = filteredResults[i];
+
+        // --- INI PERBAIKANNYA ---
+        // Tambahkan jeda halaman SEBELUM siswa, KECUALI siswa pertama (i == 0)
+        if (i > 0) {
+            content += '<div class="page-break"></div>';
+        }
+        // --- AKHIR PERBAIKAN ---
+
+        // Panggil "Pabrik" untuk membuat HTML inti
+        const studentHtml = generateStudentDossierHtml(result, questionsMap, scoringRules);
+        
+        // Tulis header siswa (Sudah benar)
+        content += `<h3 class="student-header">Nama Siswa: ${result.studentName} (Skor: ${parseFloat(result.score).toFixed(1)})</h3>`;
+        
+        // Tulis konten jawaban
+        content += studentHtml;
+        
+        // KITA HAPUS JEDA HALAMAN DARI AKHIR LOOP
+    }
+
+    // 8. Tambahkan Tanda Tangan (Akan muncul setelah siswa terakhir)
+    const tanggalCetak = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    content += `
+        <div class="signature-container">
+            <div class="signature-block">
+                <p>Mengetahui,</p>
+                <p>Kepala SMPN 58 Palembang</p>
+                <br><br><br><br><br>
+                <p class="name">Maya Erniwaty Manalu, S.Pd.</p>
+                <p>NIP. 196803151992032011</p>
+            </div>
+            <div class="signature-block">
+                <p>Palembang, ${tanggalCetak}</p>
+                <p>Guru Mata Pelajaran</p>
+                <br><br><br><br><br>
+                <p class="name">Aris Bermansyah, S.Kom</p>
+                <p>NIPPPK. 199611142024211010</p>
+            </div>
+        </div>
+    `;
+
+    // 9. Tutup HTML dan Tampilkan Dialog Cetak
+    content += `</body></html>`;
+    
+    printWindow.document.write(content);
+    printWindow.document.close();
+    hideLoader();
+    
+    // Tampilkan dialog cetak
+    setTimeout(function () { 
+        printWindow.focus();
+        printWindow.print();
+    }, 1000);
+}
+
+    </script>
+</body>
+</html>
