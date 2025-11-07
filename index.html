@@ -1164,6 +1164,8 @@ function handleImportQuestions() {
 }
 
 // FUNGSI RENDER KARTU SOAL (VERSI DRIVE LANGSUNG)
+// GANTI FUNGSI renderQuestionCard LAMA ANDA DENGAN INI
+
 function renderQuestionCard(question, index) {
     if (question.error) {
         return `<div class="p-4 rounded-lg bg-red-900/50 border border-red-500"><p class="font-bold">Soal #${index + 1} Error</p><p class="text-sm">${question.error}</p></div>`;
@@ -1171,70 +1173,67 @@ function renderQuestionCard(question, index) {
     let optionsHtml = '';
     
     if (['Pilihan Ganda', 'Pilihan Ganda Kompleks'].includes(question.type) && Array.isArray(question.options)) {
-        optionsHtml = `<ol class="list-[upper-alpha] list-inside space-y-1 mt-2">${question.options.map(opt => `<li>${renderOption(opt)}</li>`).join('')}</ol>`;
+        optionsHtml = `<ol class="list-[upper-alpha] list-inside space-y-1 mt-2">${(question.options || []).map(opt => `<li>${renderOption(opt || {})}</li>`).join('')}</ol>`;
     } else if (question.type === 'Menjodohkan' && Array.isArray(question.options)) {
         optionsHtml = `<div class="grid grid-cols-2 gap-2 mt-2 font-sans text-sm">`;
-        question.options.forEach(pair => {
-            optionsHtml += `<div class="bg-black/20 p-2 rounded">${renderOption(pair.q)}</div><div class="bg-black/20 p-2 rounded">${renderOption(pair.a)}</div>`;
+        (question.options || []).forEach(pair => {
+            optionsHtml += `<div class="bg-black/20 p-2 rounded">${renderOption(pair.q || {})}</div><div class="bg-black/20 p-2 rounded">${renderOption(pair.a || {})}</div>`;
         });
         optionsHtml += `</div>`;
     }
       
+    // --- LOGIKA TEKS JAWABAN (SUDAH DIPERBAIKI) ---
     let answerText = 'N/A'; // Default
-try {
-    if (question.answer) {
-        if (question.type === 'Pilihan Ganda' && typeof question.answer === 'string') {
-            // Konversi 'A' -> 0
-            const answerIndex = question.answer.charCodeAt(0) - 65; 
-            const opt = (question.options || [])[answerIndex];
-            answerText = `${question.answer}. ${opt ? opt.text : '(Teks tidak ditemukan)'}`;
-
-        } else if (question.type === 'Pilihan Ganda Kompleks' && Array.isArray(question.answer)) {
-            answerText = question.answer.map(letter => {
-                const answerIndex = letter.charCodeAt(0) - 65;
+    try {
+        if (question.answer) {
+            if (question.type === 'Pilihan Ganda' && typeof question.answer === 'string') {
+                const answerIndex = question.answer.charCodeAt(0) - 65; 
                 const opt = (question.options || [])[answerIndex];
-                return `${letter}. ${opt ? opt.text : '(Teks tidak ditemukan)'}`;
-            }).join('<br>'); // Tampilkan sebagai daftar
-
-        } else if (question.type === 'Menjodohkan') {
-            answerText = (question.options || []).map((pair, idx) => {
-                const questionLetter = String.fromCharCode(65 + idx);
-                return `${questionLetter} ➔ ${pair.a.text || ''}`;
-            }).join('<br>');
-
-        } else {
-            // Untuk Benar/Salah, Isian Singkat, Esai (yang jawabannya sudah teks)
-            answerText = Array.isArray(question.answer) ? question.answer.join(', ') : question.answer;
+                answerText = `${question.answer}. ${opt ? opt.text : '(Teks tidak ditemukan)'}`;
+            } else if (question.type === 'Pilihan Ganda Kompleks' && Array.isArray(question.answer)) {
+                answerText = question.answer.map(letter => {
+                    const answerIndex = letter.charCodeAt(0) - 65;
+                    const opt = (question.options || [])[answerIndex];
+                    return `${letter}. ${opt ? opt.text : '(Teks tidak ditemukan)'}`;
+                }).join('<br>');
+            } else if (question.type === 'Menjodohkan') {
+                answerText = (question.options || []).map((pair, idx) => {
+                    const questionLetter = String.fromCharCode(65 + idx);
+                    return `${questionLetter} ➔ ${pair.a.text || ''}`;
+                }).join('<br>');
+            } else {
+                answerText = Array.isArray(question.answer) ? question.answer.join(', ') : question.answer;
+            }
         }
+    } catch (e) {
+        console.error("Error parsing answer text in renderQuestionCard:", e, question);
+        answerText = question.answer ? question.answer.toString() : 'Error';
     }
-} catch (e) {
-    console.error("Error parsing answer text in renderQuestionCard:", e, question);
-    answerText = question.answer ? question.answer.toString() : 'Error'; // Fallback jika ada error
-}
+    // --- AKHIR LOGIKA TEKS JAWABAN ---
 
-    // --- PERUBAHAN DI SINI ---
-    // Kita panggil buildDriveUrl dan gunakan data-src
     let mediaHtml = '';
     if (question.mediaUrl && typeof question.mediaUrl === 'string' && question.mediaUrl.trim() !== '') {
-        // Kita gunakan "Link Ajaib" yang baru
         const imageUrl = buildDriveUrl(question.mediaUrl);
         mediaHtml = `<img src="${imageUrl}" class="my-2 question-media-embed" alt="Memuat media..." loading="lazy">`;
-             }
-    // --- AKHIR PERUBAHAN ---
+    }
 
     return `
         <div class="p-4 rounded-lg bg-black/30 border border-fuchsia-500/30">
             <div class="flex justify-between items-start">
                 <div>
                     <p class="text-sm font-bold text-fuchsia-400">Soal #${index + 1} (${question.type})</p>
-                    <div class="whitespace-pre-wrap mt-1">${question.text}</div>
+                    <div class="whitespace-pre-wrap mt-1">${question.text || ''}</div>
                     ${mediaHtml} 
                     ${optionsHtml}
                     <p class="text-xs mt-2 text-green-400"><strong>Jawaban:</strong> ${answerText}</p>
                 </div>
-                <div class="flex-shrink-0 ml-4">
-                    <button onclick="handleEditQuestion('${question.id}')" class="text-blue-400 hover:text-blue-300 mr-2"><i class="fas fa-edit"></i></button>
-                    <button onclick="handleDeleteQuestion('${question.id}')" class="text-red-400 hover:text-red-300"><i class="fas fa-trash"></i></button>
+                <div class="flex-shrink-0 ml-4 flex flex-col items-end gap-2">
+                    <button onclick="handleEditQuestion('${question.id}')" class="text-blue-400 hover:text-blue-300" title="Edit Soal"><i class="fas fa-edit"></i></button>
+                    <button onclick="handleDeleteQuestion('${question.id}')" class="text-red-400 hover:text-red-300" title="Hapus Soal"><i class="fas fa-trash"></i></button>
+                    
+                    <button onclick="handleInsertQuestionBelow('${question.id}')" class="text-green-400 hover:text-green-300" title="Tambah Soal di Bawah Ini">
+                        <i class="fas fa-plus-circle"></i>
+                    </button>
                 </div>
             </div>
         </div>
@@ -1252,12 +1251,52 @@ async function handleDeleteQuestion(questionId) {
     }, { actionText: 'Hapus' });
 }
 function handleAddQuestion() {
-    renderQuestionModal();
+    renderQuestionModal(null, null);
 }
 function handleEditQuestion(questionId) {
     const question = state.questions.find(q => q.id === questionId);
     renderQuestionModal(question);
 }
+
+// FUNGSI HELPER BARU UNTUK MENDAPATKAN DAFTAR SOAL YANG TERURUT
+function getSortedQuestions() {
+    return [...state.questions].sort((a, b) => {
+        const timeA = a.createdAt || 0;
+        const timeB = b.createdAt || 0;
+        return timeA - timeB;
+    });
+}
+
+// FUNGSI BARU UNTUK TOMBOL "TAMBAH DI BAWAH"
+function handleInsertQuestionBelow(questionId) {
+    const sortedQuestions = getSortedQuestions();
+    const currentIndex = sortedQuestions.findIndex(q => q.id === questionId);
+    
+    if (currentIndex === -1) return; // Tidak ditemukan
+
+    const timeA = sortedQuestions[currentIndex].createdAt || 0;
+    
+    // Cek apakah ini soal terakhir
+    const isLastQuestion = (currentIndex === sortedQuestions.length - 1);
+    
+    let timeB;
+    if (isLastQuestion) {
+        // Jika terakhir, sisipkan di antara soal terakhir dan "sekarang"
+        timeB = Date.now();
+    } else {
+        // Jika di tengah, ambil cap waktu soal berikutnya
+        timeB = sortedQuestions[currentIndex + 1].createdAt || 0;
+    }
+    
+    // Hitung titik tengah. Ini akan menghasilkan angka seperti 123456789.5
+    // Ini adalah "trik" agar soal baru berada di antara dua soal lama.
+    const newTime = timeA + ((timeB - timeA) / 2);
+    
+    // Buka modal dengan cap waktu sisipan
+    renderQuestionModal(null, newTime); 
+}
+
+
 function renderTokensTab() {
         const classes = [...new Set(state.students.map(s => s.class.toString().trim()))].sort();
         $('#subject-content').innerHTML = `
@@ -1508,11 +1547,12 @@ function handlePrint() {
     }, 1000);
 }
 
-function renderQuestionModal(question = null) {
-    const isEdit = question !== null;
-    const title = isEdit ? `Edit Soal #${state.questions.findIndex(q => q.id === question.id) + 1}` : 'Tambah Soal Baru';
+// GANTI FUNGSI renderQuestionModal LAMA ANDA DENGAN INI
 
-    // Link pratinjau sekarang memanggil previewMediaInNewTab versi Google Drive
+function renderQuestionModal(question = null, insertTimestamp = null) { // <-- Perubahan di sini
+    const isEdit = question !== null;
+    const title = isEdit ? `Edit Soal #${getSortedQuestions().findIndex(q => q.id === question.id) + 1}` : 'Tambah Soal Baru';
+
     const mainMediaPreviewHtml = isEdit && question.mediaUrl
         ? `<div class="mt-2 text-xs text-gray-400">Media saat ini: 
              <a href="javascript:void(0)" onclick="previewMediaInNewTab('${question.mediaUrl}')" class="text-fuchsia-400 hover:underline">Lihat Media</a>
@@ -1522,6 +1562,8 @@ function renderQuestionModal(question = null) {
     
     const bodyHtml = `
         <input type="hidden" id="questionId" value="${isEdit ? question.id : ''}">
+        <input type="hidden" id="newQuestionTimestamp" value="${insertTimestamp || ''}"> 
+        
         <div class="space-y-4">
             <div>
                 <label class="block mb-2 text-sm">Tipe Soal</label>
@@ -1565,6 +1607,7 @@ function renderQuestionModal(question = null) {
     typeSelect.onchange = () => renderQuestionFields(typeSelect.value, null);
     renderQuestionFields(typeSelect.value, question);
 }
+
 function formatDoc(command, value = null) {
     document.execCommand(command, false, value);
 }
@@ -1680,6 +1723,9 @@ function addMatchingPair() {
         </div>`;
     container.appendChild(newPair);
 }
+
+// GANTI FUNGSI handleSaveQuestion LAMA ANDA DENGAN INI
+
 async function handleSaveQuestion() {
     const type = $('#questionType').value;
     let options = [];
@@ -1693,16 +1739,21 @@ async function handleSaveQuestion() {
         });
     };
     const filePromises = [];
+    
+    // --- PERUBAHAN DI SINI ---
     const payload = {
         id: $('#questionId').value,
         subjectId: state.currentSubject.id,
         type: type,
         text: $('#questionText').innerHTML,
-        mediaUrl: $('#questionMediaUrl').value, // Ini ID Google Drive
+        mediaUrl: $('#questionMediaUrl').value, 
         options: [],
         answer: null,
-        fileData: null 
+        fileData: null,
+        insertTimestamp: $('#newQuestionTimestamp').value || null // <-- KIRIM CAP WAKTU
     };
+    // --- AKHIR PERUBAHAN ---
+
     const mainFileInput = $('#questionMediaFile');
     if (mainFileInput.files.length > 0) {
         const file = mainFileInput.files[0];
@@ -1715,7 +1766,7 @@ async function handleSaveQuestion() {
         optionRows.forEach(row => {
             const optionData = {
                 text: row.querySelector('.question-option-text').value,
-                img: row.querySelector('.question-option-img').value, // Ini ID Google Drive
+                img: row.querySelector('.question-option-img').value, 
                 fileData: null
             };
             const fileInput = row.querySelector('.question-option-file');
@@ -1750,7 +1801,9 @@ async function handleSaveQuestion() {
         showNotification('Error', 'Gagal membaca salah satu file untuk diupload.', 'error');
         return;
     }
+    
     const res = await apiCall('saveQuestion', payload);
+    
     if(res.success) {
         hideModal();
         showNotification('Sukses', 'Soal berhasil disimpan', 'success');
