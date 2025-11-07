@@ -1072,25 +1072,12 @@ async function switchSubjectTab(tabName) {
     }
 }
 function renderQuestionsTab() {
-    // DAFTAR KATEGORI SOAL (SESUAIKAN URUTAN JIKA PERLU)
-const questionTypesOrder = [
-    "Pilihan Ganda", 
-    "Pilihan Ganda Kompleks", 
-    "Menjodohkan", 
-    "Benar/Salah", 
-    "Isian Singkat", 
-    "Esai"
-];
-
-// Buat Peta (Map) untuk efisiensi pengurutan
-const typeOrder = new Map(questionTypesOrder.map((type, index) => [type, index]));
-
-// Urutkan state.questions SEBELUM menampilkannya
-const sortedQuestions = [...state.questions].sort((a, b) => {
-    const orderA = typeOrder.get(a.type) ?? 99; // ?? 99 untuk tipe soal yg tidak dikenal
-    const orderB = typeOrder.get(b.type) ?? 99;
-    return orderA - orderB;
-});
+// --- PENGURUTAN BARU BERDASARKAN CAP WAKTU (BANK SOAL) ---
+    const sortedQuestions = [...state.questions].sort((a, b) => {
+        const timeA = a.createdAt || 0; // Gunakan 0 jika data lama tidak punya cap waktu
+        const timeB = b.createdAt || 0;
+        return timeA - timeB; // Urutkan dari yang terlama (awal) ke terbaru (akhir)
+    });
     $('#subject-content').innerHTML = `
         <div class="flex justify-end mb-4 gap-2">
             <button onclick="handleImportQuestions()" class="neon-glow-button neon-glow-secondary font-bold py-2 px-4 rounded-lg"><i class="fas fa-file-upload mr-2"></i>Import Soal</button>
@@ -2514,9 +2501,12 @@ h2 { font-size: 14pt; margin: 15px 0; }
     }, 500); // Beri waktu 0.5 detik agar gambar dan style sempat dimuat
 }
 
+// TEMPELKAN INI UNTUK MENGGANTIKAN FUNGSI generateStudentDossierHtml LAMA ANDA
+
 /**
- * FUNGSI HELPER BARU (PABRIK HTML)
- * Membuat HTML inti untuk berkas jawaban seorang siswa.
+ * FUNGSI HELPER (PABRIK HTML) v2
+ * Membuat HTML inti untuk berkas jawaban seorang siswa
+ * (SEKARANG SUDAH DIURUTKAN SESUAI BANK SOAL)
  */
 function generateStudentDossierHtml(result, questionsMap, scoringRules) {
     const getScoreForType = (type) => parseFloat(scoringRules[type] || 1);
@@ -2526,7 +2516,21 @@ function generateStudentDossierHtml(result, questionsMap, scoringRules) {
         contentHtml += `<div class="p-3 rounded-lg border border-yellow-500/50 bg-yellow-500/20 text-center"><i class="fas fa-exclamation-triangle text-yellow-400 mr-2"></i>Siswa ini meninggalkan halaman ujian sebanyak <strong>${result.cheatAttempts}</strong> kali.</div>`;
     }
 
-    result.answers.forEach((studentAnswerObj, index) => {
+    // --- PERBAIKAN URUTAN SOAL ---
+    // Urutkan jawaban siswa agar sesuai urutan di Bank Soal (berdasarkan cap waktu)
+    const sortedAnswers = [...result.answers].sort((a, b) => {
+        const questionA = questionsMap.get(a.questionId);
+        const questionB = questionsMap.get(b.questionId);
+        
+        // Gunakan 0 jika soal tidak ditemukan (data lama) atau tidak ada cap waktu
+        const timeA = (questionA && questionA.createdAt) ? questionA.createdAt : 0;
+        const timeB = (questionB && questionB.createdAt) ? questionB.createdAt : 0;
+        
+        return timeA - timeB; // Urutkan sesuai Bank Soal
+    });
+    // --- AKHIR PERBAIKAN ---
+
+    sortedAnswers.forEach((studentAnswerObj, index) => {
         const q = questionsMap.get(studentAnswerObj.questionId);
         if (!q) return;
 
@@ -2534,39 +2538,31 @@ function generateStudentDossierHtml(result, questionsMap, scoringRules) {
         const correctAnswer = q.answer;
         const pointValue = getScoreForType(q.type);
         
-        // --- BLOK LOGIKA BARU (PERBAIKAN) ---
-let studentAnswerDisplay = '(Tidak Dijawab)';
-try {
-    if (studentAnswerRaw !== null && studentAnswerRaw !== undefined && studentAnswerRaw.length !== 0) {
-
-        if (q.type === 'Pilihan Ganda' && typeof studentAnswerRaw === 'string') {
-            // Konversi 'A' -> 0
-            const answerIndex = studentAnswerRaw.charCodeAt(0) - 65;
-            const opt = (q.options || [])[answerIndex];
-            studentAnswerDisplay = `${studentAnswerRaw}. ${opt ? opt.text : '(Teks tidak ditemukan)'}`;
-
-        } else if (q.type === 'Pilihan Ganda Kompleks' && Array.isArray(studentAnswerRaw)) {
-            // Loop untuk setiap jawaban
-            studentAnswerDisplay = studentAnswerRaw.map(letter => {
-                const answerIndex = letter.charCodeAt(0) - 65;
-                const opt = (q.options || [])[answerIndex];
-                return `${letter}. ${opt ? opt.text : '(Teks tidak ditemukan)'}`;
-            }).join('<br>');
-
-        } else if (q.type === 'Menjodohkan') {
-            // Logika ini sudah benar
-            studentAnswerDisplay = studentAnswerRaw.map(ans => `${ans.questionItem} ➔ ${ans.answerItem}`).join('<br>');
-
-        } else {
-            // Untuk Benar/Salah, Isian Singkat (yang jawabannya sudah teks)
-            studentAnswerDisplay = studentAnswerRaw.toString();
+        // --- LOGIKA "Jawaban Siswa" PINTAR (SUDAH DIPERBAIKI) ---
+        let studentAnswerDisplay = '(Tidak Dijawab)';
+        try {
+            if (studentAnswerRaw !== null && studentAnswerRaw !== undefined && studentAnswerRaw.length !== 0) {
+                if (q.type === 'Pilihan Ganda' && typeof studentAnswerRaw === 'string') {
+                    const answerIndex = studentAnswerRaw.charCodeAt(0) - 65;
+                    const opt = (q.options || [])[answerIndex];
+                    studentAnswerDisplay = `${studentAnswerRaw}. ${opt ? opt.text : '(Teks tidak ditemukan)'}`;
+                } else if (q.type === 'Pilihan Ganda Kompleks' && Array.isArray(studentAnswerRaw)) {
+                    studentAnswerDisplay = studentAnswerRaw.map(letter => {
+                        const answerIndex = letter.charCodeAt(0) - 65;
+                        const opt = (q.options || [])[answerIndex];
+                        return `${letter}. ${opt ? opt.text : '(Teks tidak ditemukan)'}`;
+                    }).join('<br>');
+                } else if (q.type === 'Menjodohkan') {
+                    studentAnswerDisplay = studentAnswerRaw.map(ans => `${ans.questionItem} ➔ ${ans.answerItem}`).join('<br>');
+                } else {
+                    studentAnswerDisplay = studentAnswerRaw.toString();
+                }
+            }
+        } catch (e) {
+            console.error("Error parsing student answer text:", e, q);
+            studentAnswerDisplay = studentAnswerRaw ? studentAnswerRaw.toString() : 'Error';
         }
-    }
-} catch (e) {
-    console.error("Error parsing student answer text:", e, q);
-    studentAnswerDisplay = studentAnswerRaw ? studentAnswerRaw.toString() : 'Error'; // Fallback
-}
-// --- AKHIR BLOK PERBAIKAN ---
+        // --- AKHIR LOGIKA "Jawaban Siswa" ---
 
         const isDoubtfulHtml = studentAnswerObj.isDoubtful ? '<span class="text-xs font-semibold px-2 py-0.5 bg-yellow-500/20 text-yellow-300 rounded-full" title="Siswa menandai ini ragu-ragu"><i class="fas fa-question-circle"></i> Ragu</span>' : '';
         const questionHeaderHtml = `<div class="flex items-center gap-2"><p class="font-bold">Soal #${index + 1}</p>${isDoubtfulHtml}</div>`;
@@ -2581,7 +2577,6 @@ try {
                     <hr class="my-2 border-fuchsia-500/20">
                     <p class="text-xs">Jawaban Siswa: <br><strong class="text-white">${studentAnswerDisplay}</strong></p>
                     <p class="text-xs">Kunci Jawaban (Referensi): <br><strong class="text-green-400">${correctAnswer || '(Tidak ada referensi)'}</strong></p>
-                    
                     <div class="mt-3 pt-3 border-t border-fuchsia-500/20 flex gap-2 essay-grading-form">
                         <input type="number" id="essay-score-${q.id}" class="neon-glow-input w-full p-2 rounded-lg text-sm" placeholder="Masukkan Poin (misal: 5)" value="${currentEssayScore}" min="0" max="${pointValue}">
                         <button type="button" onclick="saveEssayGrade('${result.id}', '${q.id}', '${result.subjectId}')" class="neon-glow-button font-bold py-2 px-4 rounded-lg flex-shrink-0">Simpan</button>
@@ -2589,7 +2584,33 @@ try {
                 </div>
             `;
         } else {
-            // (Salinan dari logika 'isCorrect' Anda)
+            // --- LOGIKA "Kunci Jawaban" PINTAR (SUDAH DIPERBAIKI) ---
+            let correctAnswerDisplay;
+            try {
+                if (q.type === 'Pilihan Ganda' && typeof correctAnswer === 'string') {
+                    const answerIndex = correctAnswer.charCodeAt(0) - 65;
+                    const opt = (q.options || [])[answerIndex];
+                    correctAnswerDisplay = `${correctAnswer}. ${opt ? opt.text : '(Teks tidak ditemukan)'}`;
+                } else if (q.type === 'Pilihan Ganda Kompleks' && Array.isArray(correctAnswer)) {
+                    correctAnswerDisplay = correctAnswer.map(letter => {
+                        const answerIndex = letter.charCodeAt(0) - 65;
+                        const opt = (q.options || [])[answerIndex];
+                        return `${letter}. ${opt ? opt.text : '(Teks tidak ditemukan)'}`;
+                    }).join('<br>');
+                } else if (q.type === 'Menjodohkan') {
+                    correctAnswerDisplay = (q.options || []).map((pair, idx) => {
+                        const questionLetter = String.fromCharCode(65 + idx);
+                        return `${questionLetter} ➔ ${pair.a.text || ''}`;
+                    }).join('<br>');
+                } else {
+                    correctAnswerDisplay = Array.isArray(correctAnswer) ? correctAnswer.join(', ') : (correctAnswer || '(Kunci Jawaban Tidak Diatur)');
+                }
+            } catch (e) {
+                console.error("Error parsing answer text in handleViewStudentResult:", e, q);
+                correctAnswerDisplay = correctAnswer ? correctAnswer.toString() : 'Error';
+            }
+            // --- AKHIR LOGIKA "Kunci Jawaban" ---
+
             let isCorrect = false;
             if (q.type === 'Pilihan Ganda Kompleks') {
                 const correctSet = new Set(Array.isArray(correctAnswer) ? correctAnswer : []);
@@ -2613,36 +2634,6 @@ try {
             const correctnessClass = isCorrect ? 'bg-green-500/20 border-green-500' : 'bg-red-500/20 border-red-500';
             const correctnessIcon = isCorrect ? '<i class="fas fa-check-circle text-green-400"></i>' : '<i class="fas fa-times-circle text-red-400"></i>';
             
-            let correctAnswerDisplay;
-try {
-    if (q.type === 'Pilihan Ganda' && typeof correctAnswer === 'string') {
-        // Konversi 'A' -> 0
-        const answerIndex = correctAnswer.charCodeAt(0) - 65;
-        const opt = (q.options || [])[answerIndex];
-        correctAnswerDisplay = `${correctAnswer}. ${opt ? opt.text : '(Teks tidak ditemukan)'}`;
-
-    } else if (q.type === 'Pilihan Ganda Kompleks' && Array.isArray(correctAnswer)) {
-        correctAnswerDisplay = correctAnswer.map(letter => {
-            const answerIndex = letter.charCodeAt(0) - 65;
-            const opt = (q.options || [])[answerIndex];
-            return `${letter}. ${opt ? opt.text : '(Teks tidak ditemukan)'}`;
-        }).join('<br>');
-
-    } else if (q.type === 'Menjodohkan') {
-        correctAnswerDisplay = (q.options || []).map((pair, idx) => {
-            const questionLetter = String.fromCharCode(65 + idx);
-            return `${questionLetter} ➔ ${pair.a.text || ''}`;
-        }).join('<br>');
-
-    } else {
-        // Untuk Benar/Salah, Isian Singkat, Esai
-        correctAnswerDisplay = Array.isArray(correctAnswer) ? correctAnswer.join(', ') : (correctAnswer || '(Kunci Jawaban Tidak Diatur)');
-    }
-} catch (e) {
-    console.error("Error parsing answer text in handleViewStudentResult:", e, q);
-    correctAnswerDisplay = correctAnswer ? correctAnswer.toString() : 'Error'; // Fallback
-}
-
             contentHtml += `
                 <div class="p-3 rounded-lg border ${correctnessClass}">
                     ${questionHeaderHtml}
