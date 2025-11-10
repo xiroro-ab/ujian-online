@@ -539,20 +539,79 @@ const hideModal = (resetHandlers = true) => {
         $('#modal-close-btn-x').onclick = hideModal;
     }
 }
-function navigateTo(pageId, params = null) {
+function navigateTo(pageId, params = null, isHistoryNav = false) {
+    // Hentikan observer 'Menjodohkan' jika ada
     if (state.matchingState && state.matchingState.resizeObserver) {
         state.matchingState.resizeObserver.disconnect();
         state.matchingState.resizeObserver = null;
     }
+
+    // Sembunyikan semua halaman
     $$('[id^="page-"]').forEach(page => page.classList.add('hidden'));
+    
+    // Tampilkan halaman target
     const targetPage = $(`#${pageId}`);
     if (targetPage) {
         targetPage.classList.remove('hidden');
         state.currentPage = pageId;
+    } else {
+        // Fallback jika halaman tidak ditemukan
+        $('#page-landing').classList.remove('hidden');
+        state.currentPage = 'page-landing';
+        pageId = 'page-landing';
+    }
+
+    // --- (INI ADALAH LOGIKA BARU) ---
+    // Jika ini BUKAN navigasi dari tombol 'Back' (isHistoryNav == false),
+    // maka buat "jejak remah roti" baru di riwayat browser.
+    if (!isHistoryNav) {
+        const historyState = { page: pageId };
+        const title = `Ujian Online - ${pageId.replace('page-', '')}`;
+        const url = `#${pageId}`; // Menggunakan hash agar halaman tidak me-reload
+        
+        try {
+            window.history.pushState(historyState, title, url);
+        } catch (e) {
+            console.error("Gagal pushState: ", e);
+        }
+    }
+    // --- (AKHIR LOGIKA BARU) ---
+}
+
+// TAMBAHKAN FUNGSI BARU INI DI MANA SAJA DALAM SCRIPT ANDA
+/**
+ * Menangani penekanan tombol 'Back' atau 'Forward' di browser/HP.
+ */
+function handleHistoryNavigation(event) {
+    // Cek apakah kita sedang di halaman ujian
+    if (state.currentPage === 'page-exam') {
+        
+        // --- INI PERMINTAAN KEDUA ANDA ---
+        // Siswa menekan 'Back' saat ujian.
+        
+        // 1. Tampilkan peringatan anti-curang
+        triggerCheatWarning(); 
+        
+        // 2. "Dorong" siswa kembali ke halaman ujian
+        // Ini mencegah mereka benar-benar kembali.
+        try {
+            window.history.pushState({ page: 'page-exam' }, '', '#page-exam');
+        } catch (e) { }
+
+    } else {
+        // --- INI PERMINTAAN PERTAMA ANDA ---
+        // Kita tidak sedang ujian, jadi biarkan navigasi 'Back' bekerja.
+        
+        // Ambil 'bab' yang kita simpan di riwayat
+        const pageId = (event.state && event.state.page) ? event.state.page : 'page-landing';
+        
+        // Panggil navigateTo, tapi tandai 'isHistoryNav = true'
+        // Ini memberitahu navigateTo untuk TIDAK membuat jejak baru.
+        navigateTo(pageId, null, true); 
     }
 }
-// GANTI SELURUH FUNGSI 'apiCall' LAMA ANDA DENGAN INI
 
+// GANTI SELURUH FUNGSI 'apiCall' LAMA ANDA DENGAN INI
 async function apiCall(action, payload = {}) {
     if (!SCRIPT_URL.startsWith('https')) {
         showNotification('Error Konfigurasi', 'URL Google Apps Script belum diatur.', 'error');
@@ -622,6 +681,7 @@ document.addEventListener('DOMContentLoaded', () => {
     $('#kelas-select').addEventListener('change', populateNamaSelect);
     $('#modal-close-btn-x').addEventListener('click', hideModal);
     $('#modal-close-btn-footer').addEventListener('click', hideModal);
+    window.onpopstate = handleHistoryNavigation; // Mengaktifkan pendengar tombol 'Back'
 });
 function showResumeConfirmationModal(storageKey, studentId, token) {
     const modalContainer = $('#notification');
