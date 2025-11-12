@@ -467,6 +467,7 @@ function renderOption(opt) {
 }
 
 // --- GLOBAL STATE --- (Tetap Sama)
+let isDuringExam = false;
 let state = {
     currentPage: 'page-landing',
     currentUser: null,
@@ -584,33 +585,45 @@ function navigateTo(pageId, params = null, isHistoryNav = false) {
 /**
  * Menangani penekanan tombol 'Back' atau 'Forward' di browser/HP.
  */
-// GANTI FUNGSI handleHistoryNavigation LAMA ANDA DENGAN INI
-
 function handleHistoryNavigation(event) {
-    if (state.currentPage === 'page-exam') {
+    
+    // 1. Cek "tanda" global. Apakah kita SEDANG dalam ujian?
+    if (isDuringExam) {
         
-        // 1. Panggil "mesin" pelanggaran
+        // 2. Panggil "mesin" pelanggaran (ini akan menambah jumlah cheatAttempts)
         handleViolation(); 
 
-        // 2. Cek apakah ujian sudah selesai (oleh handleViolation)
-        // Jika BELUM, dorong siswa kembali ke ujian.
+        // 3. Cek apakah ujian sudah dihentikan oleh handleViolation
         if (state.currentExam && !state.currentExam.isFinished) {
             try {
-                // --- INI PERBAIKANNYA ---
-                // Kita "menipu" browser dengan menambahkan cap waktu (timestamp)
-                // agar setiap 'push' dianggap unik.
-                window.history.pushState({ page: 'page-exam', ts: Date.now() }, '', '#page-exam');
-                // --- AKHIR PERBAIKAN ---
+                // --- INI ADALAH SOLUSI BARU YANG PALING KUAT ---
+                // Kita ubah URL-nya SETIAP SAAT dengan "dummy hash".
+                
+                const violationCount = state.currentExam.cheatAttempts || 1;
+                
+                // Buat data state unik (objek)
+                const uniqueState = { page: 'page-exam', v: violationCount };
+                
+                // Buat URL unik (string)
+                const uniqueUrlHash = `#page-exam?v=${violationCount}`; // <-- Kuncinya di sini
 
-            } catch (e) { }
+                // Dorong ke history dengan URL yang SELALU BARU
+                window.history.pushState(uniqueState, '', uniqueUrlHash);
+
+            } catch (e) { 
+                console.error("Gagal pushState: ", e);
+            }
         }
 
     } else {
-        // Logika navigasi 'Back' biasa (di luar ujian)
+        // Logika navigasi 'Back' biasa (saat tidak sedang ujian)
         const pageId = (event.state && event.state.page) ? event.state.page : 'page-landing';
         if (pageId === 'page-exam') {
+            // Jika entah bagaimana kembali ke halaman ujian setelah selesai,
+            // lempar ke landing.
             navigateTo('page-landing', null, true);
         } else {
+            // Navigasi back normal
             navigateTo(pageId, null, true); 
         }
     }
@@ -2005,6 +2018,7 @@ function renderExamInstructions() {
     $('#start-exam-btn').onclick = () => startExam(false).catch(e => console.error(e));
 }
 async function startExam(isResuming = false) {
+    isDuringExam = true;
     navigateTo('page-exam');
     document.documentElement.requestFullscreen().catch(err => {
         console.warn(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
@@ -2278,6 +2292,7 @@ function startTimer(minutes) {
 }
 // GANTI FUNGSI 'finishExam' LAMA ANDA DENGAN KODE BARU INI
 async function finishExam(isAutoSubmit = false, reason = "Selesai") {
+    isDuringExam = false;
     clearInterval(state.examTimer);
     removeAntiCheatListeners();
     saveCurrentAnswer(); 
@@ -2369,6 +2384,7 @@ function clearExamStateFromLocalStorage() {
     }
 }
 function clearExamStateAndLogout() {
+    isDuringExam = false;
     clearExamStateFromLocalStorage();
     navigateTo('page-landing');
     location.reload();
