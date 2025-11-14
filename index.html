@@ -3762,13 +3762,12 @@ async function handleSaveStudentGrades(resultId) {
 }
 
 /**
- * FUNGSI MESIN HITUNG (DISALIN DARI CODE.GS)
- * Menghitung poin untuk satu soal non-esai.
+ * FUNGSI 3: "Mesin Hitung Skor"
+ * (VERSI BARU DENGAN POIN PARSIAL UNTUK PG KOMPLEKS)
  */
 function calculateAutoScoreForQuestion(question, userAnswer, getPointValueForType) {
     const correctAnswer = question.answer;
     let points = 0;
-    
     try {
         switch (question.type) {
             case 'Pilihan Ganda':
@@ -3779,7 +3778,6 @@ function calculateAutoScoreForQuestion(question, userAnswer, getPointValueForTyp
                     }
                 }
                 break;
-            
             case 'Isian Singkat':
                 if (userAnswer != null && Array.isArray(correctAnswer) && correctAnswer.length > 0) {
                     const userAnsLower = userAnswer.toString().toLowerCase().trim();
@@ -3794,23 +3792,34 @@ function calculateAutoScoreForQuestion(question, userAnswer, getPointValueForTyp
                 }
                 break;
 
+            // --- INI PERBAIKANNYA ---
             case 'Pilihan Ganda Kompleks':
                 if (Array.isArray(userAnswer) && Array.isArray(correctAnswer) && correctAnswer.length > 0) {
-                    const correctSet = new Set(correctAnswer);
-                    const userSet = new Set(userAnswer);
-                    // (Perbaikan logika: harus sama persis)
-                    const isCorrect = correctSet.size === userSet.size && [...correctSet].every(item => userSet.has(item));
-                    if (isCorrect) {
-                         points = getPointValueForType(question.type);
+                    const correctSet = new Set(correctAnswer); // Jawaban benar (misal: {A, B, C})
+                    
+                    // 1. Cek apakah siswa menjawab salah (misal: D)
+                    let hasWrongAnswer = false;
+                    for (const ans of userAnswer) {
+                        if (!correctSet.has(ans)) {
+                            hasWrongAnswer = true;
+                            break;
+                        }
                     }
-                    // (Logika skor parsial jika Anda mau, tapi ini lebih ketat)
-                    // const hasWrongAnswer = userAnswer.some(ans => !correctAnswer.includes(ans));
-                    // if (!hasWrongAnswer) {
-                    //     points = (userAnswer.length / correctAnswer.length) * getPointValueForType(question.type);
-                    // }
+
+                    // 2. Jika tidak ada jawaban salah, berikan poin parsial
+                    if (!hasWrongAnswer && userAnswer.length > 0) {
+                        const correctAnswersCount = userAnswer.length; // Jumlah yg dijawab benar (misal: 2)
+                        const totalCorrectAnswers = correctSet.size; // Total yg seharusnya (misal: 3)
+                        const fullPoints = getPointValueForType(question.type); // Bobot (misal: 3)
+                        
+                        // Perhitungan: (2 / 3) * 3 = 2 poin
+                        points = (correctAnswersCount / totalCorrectAnswers) * fullPoints;
+                    }
+                    // Jika 'hasWrongAnswer' true, 'points' tetap 0 (hukuman untuk menebak)
                 }
                 break;
-                
+            // --- AKHIR PERBAIKAN ---
+
             case 'Menjodohkan':
                 if (Array.isArray(userAnswer) && Array.isArray(question.options) && question.options.length > 0) {
                     let correctPairs = 0;
