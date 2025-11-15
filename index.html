@@ -3763,7 +3763,7 @@ async function handleSaveStudentGrades(resultId) {
 
 /**
  * FUNGSI 3: "Mesin Hitung Skor"
- * (VERSI BARU DENGAN POIN PARSIAL UNTUK PG KOMPLEKS)
+ * (VERSI BARU DENGAN POIN PENGURANGAN YANG ADIL)
  */
 function calculateAutoScoreForQuestion(question, userAnswer, getPointValueForType) {
     const correctAnswer = question.answer;
@@ -3796,26 +3796,31 @@ function calculateAutoScoreForQuestion(question, userAnswer, getPointValueForTyp
             case 'Pilihan Ganda Kompleks':
                 if (Array.isArray(userAnswer) && Array.isArray(correctAnswer) && correctAnswer.length > 0) {
                     const correctSet = new Set(correctAnswer); // Jawaban benar (misal: {A, B, C})
+                    const totalCorrectAnswers = correctSet.size; // Total yg seharusnya (misal: 3)
+                    const fullPoints = getPointValueForType(question.type); // Bobot (misal: 3)
                     
-                    // 1. Cek apakah siswa menjawab salah (misal: D)
-                    let hasWrongAnswer = false;
+                    // Tentukan nilai per item
+                    const pointsPerCorrect = fullPoints / totalCorrectAnswers; // (misal: 3 / 3 = 1 poin)
+                    const pointsPerIncorrect = pointsPerCorrect; // Penalti (misal: -1 poin)
+
+                    let currentScore = 0;
+
+                    // Loop jawaban siswa
                     for (const ans of userAnswer) {
-                        if (!correctSet.has(ans)) {
-                            hasWrongAnswer = true;
-                            break;
+                        if (correctSet.has(ans)) {
+                            // Jawaban benar
+                            currentScore += pointsPerCorrect; // (misal: +1)
+                        } else {
+                            // Jawaban salah
+                            currentScore -= pointsPerIncorrect; // (misal: -1)
                         }
                     }
-
-                    // 2. Jika tidak ada jawaban salah, berikan poin parsial
-                    if (!hasWrongAnswer && userAnswer.length > 0) {
-                        const correctAnswersCount = userAnswer.length; // Jumlah yg dijawab benar (misal: 2)
-                        const totalCorrectAnswers = correctSet.size; // Total yg seharusnya (misal: 3)
-                        const fullPoints = getPointValueForType(question.type); // Bobot (misal: 3)
-                        
-                        // Perhitungan: (2 / 3) * 3 = 2 poin
-                        points = (correctAnswersCount / totalCorrectAnswers) * fullPoints;
+                    
+                    // Pastikan skor tidak negatif
+                    if (currentScore < 0) {
+                        currentScore = 0;
                     }
-                    // Jika 'hasWrongAnswer' true, 'points' tetap 0 (hukuman untuk menebak)
+                    points = currentScore;
                 }
                 break;
             // --- AKHIR PERBAIKAN ---
