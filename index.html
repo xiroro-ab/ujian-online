@@ -6,6 +6,7 @@
     <title>Ujian Online CBT</title>
 	<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/xiroro-ab/smp58dataguru/refs/heads/main/ico.png">
     <script src="tailwind.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2258,21 +2259,42 @@ async function handleSaveQuestion() {
         hideModal();
         showNotification('Sukses', 'Soal berhasil disimpan', 'success');
         
-        // 2. Kita TIDAK LAGI memanggil apiCall('getQuestions')
-        // Kita perbarui 'state' secara manual dengan data yang dikembalikan
-        const newQuestion = res.data; // Data dari code.gs
+// --- PERBAIKAN LOGIKA UPDATE MANUAL (ANTI-SKELETON & ANTI-TIMEOUT) ---
         
-        const index = state.questions.findIndex(q => q.id === newQuestion.id);
+        const serverData = res.data; 
+
+        // LOGIKA BARU: Jika ini soal Menjodohkan, PRIORITASKAN opsi lokal (payload) 
+        // untuk menghindari crash jika server belum selesai deploy fix-nya.
+        let finalOptions = serverData.options;
+        if (payload.type === 'Menjodohkan') {
+            finalOptions = payload.options; // Pakai opsi yang baru saja diketik user
+        }
+
+        const safeQuestionData = {
+            ...serverData,
+            options: finalOptions, // Paksa pakai opsi yang aman
+            createdAt: serverData.createdAt ? parseInt(serverData.createdAt) : Date.now()
+        };
+
+        // Langkah 2: Update State Lokal (Cepat, Tanpa Download Ulang)
+        const index = state.questions.findIndex(q => q.id === safeQuestionData.id);
+        
         if (index !== -1) {
-            // Ini adalah mode Edit, ganti data lama
-            state.questions[index] = newQuestion;
+            // MODE EDIT: Timpa data lama
+            // Kita pertahankan properti lokal yang mungkin penting
+            state.questions[index] = { ...state.questions[index], ...safeQuestionData };
         } else {
-            // Ini adalah mode Tambah, dorong data baru
-            state.questions.push(newQuestion);
+            // MODE TAMBAH: Masukkan ke array
+            state.questions.push(safeQuestionData);
         }
         
-        // 3. Render ulang UI. Ini INSTAN.
+        // Langkah 3: Urutkan ulang array secara manual agar posisi benar
+        state.questions.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+
+        // Langkah 4: Render ulang dari data lokal (Instan)
         renderQuestionsTab();
+        
+        // --- AKHIR PERBAIKAN ---
     }
     // Jika 'res.success' false, 'apiCall' akan otomatis menampilkan error.
 }
