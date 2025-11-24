@@ -2896,21 +2896,15 @@ function saveCurrentAnswer() {
         // 5. UPDATE NAVIGASI (Warna Tombol Berubah Hijau)
         renderQuestionNav();
 
-        // 6. UPDATE LIVE MONITORING (Lapor ke Guru)
-        if (isDuringExam) {
-            // Hitung berapa soal yang sudah dijawab
-            const answeredCount = state.currentExam.answers.filter(a => a.answer !== null).length;
-            
-            // Kirim 'Sinyal' ke Firebase
-            const sessionRef = db.ref(`/examSessions/${state.currentExam.studentId}_${state.currentExam.subjectId}`);
-            
-            sessionRef.update({
-                progress: answeredCount, 
-                // --- PERUBAHAN DI SINI ---
-                // Sekarang kita kirim DATA JAWABAN LENGKAP agar Guru bisa lihat isinya
-                answers: state.currentExam.answers, 
-                // -------------------------
-                lastUpdate: firebase.database.ServerValue.TIMESTAMP
+                 
+                // Update Live Monitoring
+    if (isDuringExam && state.currentExam) {
+        const answeredCount = state.currentExam.answers.filter(a => a.answer !== null).length;
+        const sessionRef = db.ref(`/examSessions/${state.currentExam.studentId}_${state.currentExam.subjectId}`);
+        sessionRef.update({
+            progress: answeredCount,
+            answers: state.currentExam.answers,
+            lastUpdate: firebase.database.ServerValue.TIMESTAMP
             }).catch(err => console.error("Gagal lapor progress:", err));
         }
     }
