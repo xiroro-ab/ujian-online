@@ -2901,11 +2901,15 @@ function saveCurrentAnswer() {
             // Hitung berapa soal yang sudah dijawab
             const answeredCount = state.currentExam.answers.filter(a => a.answer !== null).length;
             
-            // Kirim 'Sinyal' ke Firebase (Ringan)
+            // Kirim 'Sinyal' ke Firebase
             const sessionRef = db.ref(`/examSessions/${state.currentExam.studentId}_${state.currentExam.subjectId}`);
+            
             sessionRef.update({
-                progress: answeredCount, // Ini yang menggerakkan Progress Bar Guru
-                // Kita TIDAK mengirim detail jawaban ke monitoring agar hemat kuota, cukup progresnya
+                progress: answeredCount, 
+                // --- PERUBAHAN DI SINI ---
+                // Sekarang kita kirim DATA JAWABAN LENGKAP agar Guru bisa lihat isinya
+                answers: state.currentExam.answers, 
+                // -------------------------
                 lastUpdate: firebase.database.ServerValue.TIMESTAMP
             }).catch(err => console.error("Gagal lapor progress:", err));
         }
