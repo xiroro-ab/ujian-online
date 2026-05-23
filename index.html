@@ -202,6 +202,15 @@
         }
         
         #matching-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
+
+		/* --- PERBAIKAN TEKS INSTRUKSI SOAL YANG KABUR --- */
+        .text-fuchsia-300\/70 {
+            color: var(--primary-color) !important; /* Mengubah menjadi warna biru solid */
+            opacity: 1 !important; /* Menghilangkan efek transparan/kabur sepenuhnya */
+            font-weight: 600 !important; /* Menebalkan teks agar lebih tegas */
+            font-style: normal !important; /* Menghilangkan cetak miring jika ingin lebih formal */
+        }
+		
     </style>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
